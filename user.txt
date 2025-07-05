@@ -1,0 +1,1 @@
+$user = App\Models\User::create(['name' => 'Placidius Rwechungura', 'email' => 'placd36@gmail.com', 'password' => Illuminate\Support\Facades\Hash::make('Mwanza123$'), 'role_id' => $role->id]);

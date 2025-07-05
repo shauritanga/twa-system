@@ -48,8 +48,8 @@ class Member extends Model
     {
         return $this->hasMany(Dependent::class);
     }
-    public function certificates()
-    {
-        return $this->hasMany(Certificate::class);
-    }
+    // public function certificates()
+    // {
+    //     return $this->hasMany(Certificate::class);
+    // }
 }

@@ -7,7 +7,7 @@ use App\Http\Controllers\DebtController;
 use App\Http\Controllers\PenaltyController;
 use App\Http\Controllers\DisasterPaymentController;
 use App\Http\Controllers\DependentController;
-use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CertificateController; // Commented out due to dropped table
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\MemberDashboardController;
 use App\Http\Controllers\FinancialsController;
@@ -30,7 +30,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('members/export', [MemberController::class, 'export'])->name('members.export');
-Route::resource('members', MemberController::class);
 Route::get('financials', [FinancialsController::class, 'index'])->name('financials.index');
 Route::get('contributions/export', [ContributionController::class, 'export'])->name('contributions.export');
 Route::post('contributions/import', [ContributionController::class, 'import'])->name('contributions.import');
@@ -41,12 +40,12 @@ Route::resource('disaster-payments', DisasterPaymentController::class)->only(['s
 Route::patch('penalties/{penalty}/mark-as-paid', [PenaltyController::class, 'markAsPaid'])->name('penalties.markAsPaid');
 Route::patch('debts/{debt}/mark-as-paid', [DebtController::class, 'markAsPaid'])->name('debts.markAsPaid');
 Route::resource('dependents', DependentController::class);
-Route::resource('certificates', CertificateController::class);
+Route::resource('certificates', CertificateController::class); // Commented out due to dropped table
 
 Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::post('certificates/{certificate}/approve', [CertificateController::class, 'approve'])->name('certificates.approve');
-    Route::post('certificates/{certificate}/reject', [CertificateController::class, 'reject'])->name('certificates.reject');
+    // Route::post('certificates/{certificate}/approve', [CertificateController::class, 'approve'])->name('certificates.approve'); // Commented out due to dropped table
+    // Route::post('certificates/{certificate}/reject', [CertificateController::class, 'reject'])->name('certificates.reject'); // Commented out due to dropped table
     Route::post('dependents/{dependent}/approve', [DependentController::class, 'approve'])->name('dependents.approve');
     Route::post('dependents/{dependent}/reject', [DependentController::class, 'reject'])->name('dependents.reject');
     Route::get('/admin/report', [AdminDashboardController::class, 'report'])->name('admin.report');

@@ -54,7 +54,7 @@ class MemberController extends Controller
         // Send email with default password
         \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user, $defaultPassword));
 
-        return redirect()->route('members.index')->with('success', 'Member created successfully and welcome email sent.');
+        return redirect()->route('admin.members.index')->with('success', 'Member created successfully and welcome email sent.');
     }
 
     public function update(Request $request, Member $member)
@@ -62,9 +62,9 @@ class MemberController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:members,email,'.$member->id,
-            'phone_number' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'date_of_birth' => 'required|date',
+            'phone_number' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'date_of_birth' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -78,13 +78,13 @@ class MemberController extends Controller
         
         $member->update($memberData);
 
-        return redirect()->route('members.index');
+        return redirect()->route('admin.members.index')->with('success', 'Member updated successfully.');
     }
 
     public function show(Member $member)
     {
         return Inertia::render('Members/Show', [
-            'member' => $member->load('dependents', 'certificates'),
+            'member' => $member->load('dependents'),
         ]);
     }
 
@@ -92,7 +92,7 @@ class MemberController extends Controller
     {
         $member->delete();
 
-        return redirect()->route('members.index');
+        return redirect()->route('admin.members.index');
     }
 
     public function export(Request $request)

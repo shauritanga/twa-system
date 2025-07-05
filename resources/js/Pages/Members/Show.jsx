@@ -281,7 +281,7 @@ const MemberShow = ({ member, auth }) => {
     return (
         <SidebarLayout>
             <div className="mb-6 dark:text-white">
-                <a href={route('members.index')} className="text-blue-500 hover:text-blue-700 dark:text-blue-400">Members</a> / {member.name}
+                <a href={route('admin.members.index')} className="text-blue-500 hover:text-blue-700 dark:text-blue-400">Members</a> / {member.name}
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
                 <div className="flex justify-between items-center mb-4">

@@ -19,7 +19,7 @@ class MemberDashboardController extends Controller
         $debts = $member ? $member->debts : collect();
         $penalties = $member ? $member->penalties : collect();
         $dependents = $member ? $member->dependents : collect();
-        $certificates = $member ? $member->certificates : collect();
+        // $certificates = $member ? $member->certificates : collect(); // Commented out due to dropped table
 
         $totalContributions = Contribution::sum('amount');
         $memberContributions = $member ? $member->contributions->sum('amount') : 0;
@@ -42,7 +42,7 @@ class MemberDashboardController extends Controller
             'debts' => $debts,
             'penalties' => $penalties,
             'dependents' => $dependents,
-            'certificates' => $certificates,
+            // 'certificates' => $certificates, // Commented out due to dropped table
             'memberContributions' => $memberContributions,
             'otherContributions' => $otherContributions,
             'recentDisasterPayments' => $recentDisasterPayments,

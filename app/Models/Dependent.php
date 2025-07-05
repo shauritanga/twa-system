@@ -27,8 +27,8 @@ class Dependent extends Model
     {
         return $this->belongsTo(Member::class);
     }
-    public function certificates()
-    {
-        return $this->hasMany(Certificate::class);
-    }
+    // public function certificates()
+    // {
+    //     return $this->hasMany(Certificate::class);
+    // }
 }
