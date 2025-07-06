@@ -828,6 +828,87 @@ export default function MembersIndex({ members }) {
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
     const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
 
+    // Search and filtering states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'verified', 'pending'
+    const [sortBy, setSortBy] = useState('name'); // 'name', 'email', 'created_at'
+    const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(12);
+
+    // Filter and sort members
+    const filteredAndSortedMembers = React.useMemo(() => {
+        let filtered = members.filter(member => {
+            // Search filter
+            const matchesSearch = searchTerm === '' ||
+                member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (member.phone_number && member.phone_number.includes(searchTerm)) ||
+                (member.address && member.address.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (member.occupation && member.occupation.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (member.tribe && member.tribe.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            // Status filter
+            const matchesStatus = statusFilter === 'all' ||
+                (statusFilter === 'verified' && member.is_verified) ||
+                (statusFilter === 'pending' && !member.is_verified);
+
+            return matchesSearch && matchesStatus;
+        });
+
+        // Sort members
+        filtered.sort((a, b) => {
+            let aValue, bValue;
+
+            switch (sortBy) {
+                case 'name':
+                    aValue = a.name.toLowerCase();
+                    bValue = b.name.toLowerCase();
+                    break;
+                case 'email':
+                    aValue = a.email.toLowerCase();
+                    bValue = b.email.toLowerCase();
+                    break;
+                case 'created_at':
+                    aValue = new Date(a.created_at);
+                    bValue = new Date(b.created_at);
+                    break;
+                default:
+                    aValue = a.name.toLowerCase();
+                    bValue = b.name.toLowerCase();
+            }
+
+            if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [members, searchTerm, statusFilter, sortBy, sortOrder]);
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredAndSortedMembers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentMembers = filteredAndSortedMembers.slice(startIndex, endIndex);
+
+    // Reset to first page when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter, sortBy, sortOrder]);
+
+    // Handle sort change
+    const handleSort = (field) => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(field);
+            setSortOrder('asc');
+        }
+    };
+
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => {
         setIsModalOpen(false);
@@ -902,7 +983,7 @@ export default function MembersIndex({ members }) {
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            Total Members: {members.length}
+                            Total Members: {members.length} | Showing: {filteredAndSortedMembers.length} | Page: {currentPage} of {totalPages}
                         </div>
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -996,6 +1077,136 @@ export default function MembersIndex({ members }) {
                     </div>
                 </div>
             </div>
+
+            {/* Search and Filter Section */}
+            <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Search Bar */}
+                    <div className="flex-1">
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search members by name, email, phone, address, occupation, or tribe..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                            />
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                >
+                                    <svg className="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Filters Row */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        {/* Status Filter */}
+                        <div className="min-w-[140px]">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                            >
+                                <option value="all">All Status</option>
+                                <option value="verified">Verified</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+
+                        {/* Sort By */}
+                        <div className="min-w-[140px]">
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                            >
+                                <option value="name">Sort by Name</option>
+                                <option value="email">Sort by Email</option>
+                                <option value="created_at">Sort by Date</option>
+                            </select>
+                        </div>
+
+                        {/* Sort Order */}
+                        <button
+                            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                            className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                            title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                        >
+                            <svg className={`w-5 h-5 transform ${sortOrder === 'desc' ? 'rotate-180' : ''} transition-transform duration-200`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                            </svg>
+                        </button>
+
+                        {/* Items Per Page */}
+                        <div className="min-w-[100px]">
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                                className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                            >
+                                <option value={6}>6 per page</option>
+                                <option value={12}>12 per page</option>
+                                <option value={24}>24 per page</option>
+                                <option value={48}>48 per page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Active Filters Display */}
+                {(searchTerm || statusFilter !== 'all') && (
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
+                        {searchTerm && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                                Search: "{searchTerm}"
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-800"
+                                >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                        )}
+                        {statusFilter !== 'all' && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                Status: {statusFilter}
+                                <button
+                                    onClick={() => setStatusFilter('all')}
+                                    className="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-green-200 dark:hover:bg-green-800"
+                                >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                        )}
+                        <button
+                            onClick={() => {
+                                setSearchTerm('');
+                                setStatusFilter('all');
+                            }}
+                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"
+                        >
+                            Clear all
+                        </button>
+                    </div>
+                )}
+            </div>
+
             {/* Conditional Rendering: Table or Cards View */}
             {viewMode === 'table' ? (
                 <div className="flex flex-col">
@@ -1073,8 +1284,8 @@ export default function MembersIndex({ members }) {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                                        {members.length > 0 ? (
-                                            members.map(member => (
+                                        {currentMembers.length > 0 ? (
+                                            currentMembers.map(member => (
                                                 <MemberRow key={member.id} member={member} onEdit={handleEdit} onDelete={() => openDeleteModal(member)} auth={auth} />
                                             ))
                                         ) : (
@@ -1084,17 +1295,39 @@ export default function MembersIndex({ members }) {
                                                         <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                                         </svg>
-                                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No members found</h3>
-                                                        <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first member to the group.</p>
-                                                        <button
-                                                            onClick={openModal}
-                                                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                                        >
-                                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                            </svg>
-                                                            Add First Member
-                                                        </button>
+                                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                                            {members.length === 0 ? 'No members found' : 'No members match your filters'}
+                                                        </h3>
+                                                        <p className="text-gray-500 dark:text-gray-400 mb-4">
+                                                            {members.length === 0
+                                                                ? 'Get started by adding your first member to the group.'
+                                                                : 'Try adjusting your search terms or filters to find what you\'re looking for.'
+                                                            }
+                                                        </p>
+                                                        {members.length === 0 ? (
+                                                            <button
+                                                                onClick={openModal}
+                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                            >
+                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                                </svg>
+                                                                Add First Member
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSearchTerm('');
+                                                                    setStatusFilter('all');
+                                                                }}
+                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                            >
+                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                </svg>
+                                                                Clear Filters
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1108,9 +1341,9 @@ export default function MembersIndex({ members }) {
             ) : (
                 /* Cards View */
                 <div className="px-4 sm:px-6 lg:px-8">
-                    {members.length > 0 ? (
+                    {currentMembers.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {members.map(member => (
+                            {currentMembers.map(member => (
                                 <MemberCard key={member.id} member={member} onEdit={handleEdit} onDelete={() => openDeleteModal(member)} />
                             ))}
                         </div>
@@ -1120,20 +1353,150 @@ export default function MembersIndex({ members }) {
                                 <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
-                                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No members found</h3>
-                                <p className="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first member to the group.</p>
-                                <button
-                                    onClick={openModal}
-                                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200"
-                                >
-                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add First Member
-                                </button>
+                                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
+                                    {members.length === 0 ? 'No members found' : 'No members match your filters'}
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                                    {members.length === 0
+                                        ? 'Get started by adding your first member to the group.'
+                                        : 'Try adjusting your search terms or filters to find what you\'re looking for.'
+                                    }
+                                </p>
+                                {members.length === 0 ? (
+                                    <button
+                                        onClick={openModal}
+                                        className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add First Member
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                            setStatusFilter('all');
+                                        }}
+                                        className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Clear Filters
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {filteredAndSortedMembers.length > itemsPerPage && (
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-800 px-6 py-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center text-sm text-gray-700 dark:text-gray-300 mb-4 sm:mb-0">
+                        <span>
+                            Showing {startIndex + 1} to {Math.min(endIndex, filteredAndSortedMembers.length)} of {filteredAndSortedMembers.length} results
+                        </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        {/* Previous Button */}
+                        <button
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                                currentPage === 1
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="flex items-center space-x-1">
+                            {(() => {
+                                const pages = [];
+                                const maxVisiblePages = 5;
+                                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                                if (endPage - startPage + 1 < maxVisiblePages) {
+                                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                                }
+
+                                // First page
+                                if (startPage > 1) {
+                                    pages.push(
+                                        <button
+                                            key={1}
+                                            onClick={() => setCurrentPage(1)}
+                                            className="px-3 py-2 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors duration-200"
+                                        >
+                                            1
+                                        </button>
+                                    );
+                                    if (startPage > 2) {
+                                        pages.push(<span key="ellipsis1" className="px-2 text-gray-500">...</span>);
+                                    }
+                                }
+
+                                // Visible pages
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(
+                                        <button
+                                            key={i}
+                                            onClick={() => setCurrentPage(i)}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                                                i === currentPage
+                                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                                            }`}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+
+                                // Last page
+                                if (endPage < totalPages) {
+                                    if (endPage < totalPages - 1) {
+                                        pages.push(<span key="ellipsis2" className="px-2 text-gray-500">...</span>);
+                                    }
+                                    pages.push(
+                                        <button
+                                            key={totalPages}
+                                            onClick={() => setCurrentPage(totalPages)}
+                                            className="px-3 py-2 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors duration-200"
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    );
+                                }
+
+                                return pages;
+                            })()}
+                        </div>
+
+                        {/* Next Button */}
+                        <button
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                                currentPage === totalPages
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             )}
 
