@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
 import { useForm, usePage } from '@inertiajs/react';
+import Modal from '../../Components/Modal';
+import InputLabel from '../../Components/InputLabel';
+import TextInput from '../../Components/TextInput';
+import PrimaryButton from '../../Components/PrimaryButton';
+import SecondaryButton from '../../Components/SecondaryButton';
+import InputError from '../../Components/InputError';
 
 const ContributionRow = ({ contribution }) => (
     <tr key={contribution.id}>
@@ -26,42 +32,61 @@ const ContributionForm = ({ members, closeModel }) => {
     };
 
     return (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                    <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <Modal show={true} onClose={closeModel} title="Add Contribution" maxWidth="lg">
+            <form onSubmit={handleSubmit} className="p-6">
+                <div className="space-y-4">
+                    <div>
+                        <InputLabel htmlFor="member_id" value="Member" />
+                        <select
+                            id="member_id"
+                            value={data.member_id}
+                            onChange={e => setData('member_id', e.target.value)}
+                            className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                        >
+                            <option value="">Select Member</option>
+                            {members.map(member => (
+                                <option key={member.id} value={member.id}>{member.name}</option>
+                            ))}
+                        </select>
+                        <InputError message={errors.member_id} className="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="date" value="Date" />
+                        <TextInput
+                            id="date"
+                            type="date"
+                            value={data.date}
+                            onChange={e => setData('date', e.target.value)}
+                            className="mt-1 block w-full"
+                        />
+                        <InputError message={errors.date} className="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="purpose" value="Purpose" />
+                        <TextInput
+                            id="purpose"
+                            type="text"
+                            value={data.purpose}
+                            onChange={e => setData('purpose', e.target.value)}
+                            placeholder="Purpose"
+                            className="mt-1 block w-full"
+                        />
+                        <InputError message={errors.purpose} className="mt-2" />
+                    </div>
                 </div>
-                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <form onSubmit={handleSubmit}>
-                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Add Contribution</h3>
-                            <div className="mt-2">
-                                <select value={data.member_id} onChange={e => setData('member_id', e.target.value)} className="w-full">
-                                    <option value="">Select Member</option>
-                                    {members.map(member => (
-                                        <option key={member.id} value={member.id}>{member.name}</option>
-                                    ))}
-                                </select>
-                                {errors.member_id && <div className="text-red-500">{errors.member_id}</div>}
-                                <input type="date" value={data.date} onChange={e => setData('date', e.target.value)} className="w-full mt-2" />
-                                {errors.date && <div className="text-red-500">{errors.date}</div>}
-                                <input type="text" value={data.purpose} onChange={e => setData('purpose', e.target.value)} placeholder="Purpose" className="w-full mt-2" />
-                                {errors.purpose && <div className="text-red-500">{errors.purpose}</div>}
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" disabled={processing} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                Create
-                            </button>
-                            <button type="button" onClick={closeModel} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+
+                <div className="flex justify-end space-x-3 mt-6">
+                    <SecondaryButton onClick={closeModel}>
+                        Cancel
+                    </SecondaryButton>
+                    <PrimaryButton type="submit" disabled={processing}>
+                        {processing ? 'Creating...' : 'Create'}
+                    </PrimaryButton>
                 </div>
-            </div>
-        </div>
+            </form>
+        </Modal>
     );
 };
 
