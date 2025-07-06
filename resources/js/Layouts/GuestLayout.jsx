@@ -25,11 +25,11 @@ export default function GuestLayout({ children }) {
                     id="tsparticles"
                     particlesLoaded={particlesLoaded}
                     options={{
-                        background: {
-                            color: {
-                                value: '#111827',
-                            },
-                        },
+background: {
+    color: {
+        value: '#ffffff',
+    },
+},
                         fpsLimit: 60,
                         interactivity: {
                             events: {
@@ -46,17 +46,17 @@ export default function GuestLayout({ children }) {
                                 },
                             },
                         },
-                        particles: {
-                            color: {
-                                value: '#ffffff',
-                            },
-                            links: {
-                                color: '#ffffff',
-                                distance: 150,
-                                enable: true,
-                                opacity: 0.5,
-                                width: 1,
-                            },
+particles: {
+    color: {
+        value: '#666666',
+    },
+    links: {
+        color: '#666666',
+        distance: 150,
+        enable: true,
+        opacity: 0.5,
+        width: 1,
+    },
                             collisions: {
                                 enable: true,
                             },
@@ -91,10 +91,10 @@ export default function GuestLayout({ children }) {
                     }}
                 />}
                 <div className="relative z-10 flex min-h-screen items-center justify-center">
-                    <div className="w-full max-w-md rounded-lg bg-white/20 px-8 py-10 shadow-lg backdrop-blur-md">
+                    <div className="w-full max-w-md rounded-lg bg-white/80 px-8 py-10 shadow-lg backdrop-blur-md">
                         <div className="mb-8 text-center">
                             <Link href="/">
-                                <h1 className="text-4xl font-bold text-white">TWA</h1>
+                                <h1 className="text-4xl font-bold text-gray-800">TWA</h1>
                             </Link>
                         </div>
                         {children}
