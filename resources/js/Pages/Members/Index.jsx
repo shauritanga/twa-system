@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage, router } from '@inertiajs/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -261,11 +261,16 @@ const MemberRow = ({ member, onEdit, onDelete, auth }) => {
 };
 
 const MemberForm = ({ closeModal, member }) => {
-    const { data, setData, post, put, processing, errors } = useForm({
-        name: member ? member.name : '',
+    const { data, setData, processing, errors, setError, clearErrors } = useForm({
+        first_name: member ? member.first_name : '',
+        middle_name: member ? member.middle_name : '',
+        surname: member ? member.surname : '',
+        name: member ? member.name : '', // Keep for backward compatibility
         email: member ? member.email : '',
         phone_number: member ? member.phone_number : '',
         address: member ? member.address : '',
+        place_of_birth: member ? member.place_of_birth : '',
+        sex: member ? member.sex : '',
         date_of_birth: member ? member.date_of_birth : '',
         tribe: member ? member.tribe : '',
         occupation: member ? member.occupation : '',
@@ -275,25 +280,140 @@ const MemberForm = ({ closeModal, member }) => {
         witness_name: member ? member.witness_name : '',
         witness_date: member ? member.witness_date : '',
         image: null,
+        application_form: null,
     });
+
+    // State for image previews
+    const [imagePreview, setImagePreview] = useState(member?.image_path ? `/storage/${member.image_path}` : null);
+    const [applicationFormPreview, setApplicationFormPreview] = useState(null);
+
+    // Reset form data when member prop changes (switching between create/edit modes)
+    useEffect(() => {
+        // For backward compatibility, if new name fields don't exist, try to parse from full name
+        let firstName = '';
+        let middleName = '';
+        let surname = '';
+
+        if (member) {
+            if (member.first_name || member.middle_name || member.surname) {
+                // New fields exist
+                firstName = member.first_name || '';
+                middleName = member.middle_name || '';
+                surname = member.surname || '';
+            } else if (member.name) {
+                // Parse from full name for backward compatibility
+                const nameParts = member.name.trim().split(' ');
+                if (nameParts.length >= 2) {
+                    firstName = nameParts[0];
+                    surname = nameParts[nameParts.length - 1];
+                    if (nameParts.length > 2) {
+                        middleName = nameParts.slice(1, -1).join(' ');
+                    }
+                } else if (nameParts.length === 1) {
+                    firstName = nameParts[0];
+                }
+            }
+        }
+
+        setData({
+            first_name: firstName,
+            middle_name: middleName,
+            surname: surname,
+            name: member ? member.name || '' : '',
+            email: member ? member.email || '' : '',
+            phone_number: member ? member.phone_number || '' : '',
+            address: member ? member.address || '' : '',
+            place_of_birth: member ? member.place_of_birth || '' : '',
+            sex: member ? member.sex || '' : '',
+            date_of_birth: member ? member.date_of_birth || '' : '',
+            tribe: member ? member.tribe || '' : '',
+            occupation: member ? member.occupation || '' : '',
+            reason_for_membership: member ? member.reason_for_membership || '' : '',
+            applicant_date: member ? member.applicant_date || '' : '',
+            declaration_name: member ? member.declaration_name || '' : '',
+            witness_name: member ? member.witness_name || '' : '',
+            witness_date: member ? member.witness_date || '' : '',
+            image: null,
+            application_form: null,
+        });
+
+        // Reset image preview
+        if (member?.image_path) {
+            setImagePreview(`/storage/${member.image_path}`);
+        } else {
+            setImagePreview(null);
+        }
+
+        // Reset application form preview
+        setApplicationFormPreview(null);
+
+        // Clear any existing errors when switching between create/edit modes
+        clearErrors();
+    }, [member]);
+
+    // Handle image file selection with preview
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('image', file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Handle application form file selection with preview
+    const handleApplicationFormChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('application_form', file);
+            // For documents, just show file info instead of preview
+            setApplicationFormPreview({
+                name: file.name,
+                size: (file.size / 1024 / 1024).toFixed(2), // Size in MB
+                type: file.type
+            });
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData();
-        formData.append('name', data.name);
+
+        // New name fields
+        formData.append('first_name', data.first_name);
+        formData.append('middle_name', data.middle_name);
+        formData.append('surname', data.surname);
+
+        // Construct full name for backward compatibility
+        const fullName = [data.first_name, data.middle_name, data.surname].filter(Boolean).join(' ');
+        formData.append('name', fullName);
+
+        // Contact and personal info
         formData.append('email', data.email);
         formData.append('phone_number', data.phone_number);
         formData.append('address', data.address);
+        formData.append('place_of_birth', data.place_of_birth);
+        formData.append('sex', data.sex);
         formData.append('date_of_birth', data.date_of_birth);
         formData.append('tribe', data.tribe);
         formData.append('occupation', data.occupation);
+
+        // Membership info
         formData.append('reason_for_membership', data.reason_for_membership);
         formData.append('applicant_date', data.applicant_date);
         formData.append('declaration_name', data.declaration_name);
         formData.append('witness_name', data.witness_name);
         formData.append('witness_date', data.witness_date);
+
+        // File uploads
         if (data.image) {
             formData.append('image', data.image);
+        }
+        if (data.application_form) {
+            formData.append('application_form', data.application_form);
         }
         // Debug FormData contents
         console.log('FormData contents before submission:');
@@ -302,9 +422,11 @@ const MemberForm = ({ closeModal, member }) => {
         }
         
         if (member) {
-            put(route('members.update', member.id), {
-                data: formData,
+            // For updates with file uploads, we use router.post with _method override
+            formData.append('_method', 'PUT');
+            router.post(route('members.update', member.id), formData, {
                 onSuccess: () => {
+                    clearErrors(); // Clear any existing errors
                     toast.success('Member updated successfully.', {
                         position: "top-right",
                         autoClose: 3000,
@@ -317,28 +439,49 @@ const MemberForm = ({ closeModal, member }) => {
                     closeModal();
                 },
                 onError: (errors) => {
+                    console.log('Update errors:', errors);
+
+                    // Set form errors for field validation display
+                    Object.keys(errors).forEach(key => {
+                        setError(key, Array.isArray(errors[key]) ? errors[key][0] : errors[key]);
+                    });
+
                     let errorMessage = 'An error occurred while updating the member. Please try again.';
-                    if (errors.email && errors.email.includes('unique')) {
-                        errorMessage = 'A member with this email already exists. Please use a different email.';
+
+                    // Check for email validation errors
+                    if (errors.email) {
+                        const emailError = Array.isArray(errors.email) ? errors.email[0] : errors.email;
+                        if (emailError.toLowerCase().includes('already been taken') ||
+                            emailError.toLowerCase().includes('unique') ||
+                            emailError.toLowerCase().includes('duplicate')) {
+                            errorMessage = 'A member with this email already exists. Please use a different email.';
+                        } else {
+                            errorMessage = `Email error: ${emailError}`;
+                        }
                     }
+                    // Check for other specific validation errors
+                    else if (Object.keys(errors).length > 0) {
+                        const firstError = Object.values(errors)[0];
+                        const firstErrorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                        errorMessage = firstErrorMessage;
+                    }
+
                     toast.error(errorMessage, {
                         position: "top-right",
-                        autoClose: 3000,
+                        autoClose: 5000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
+                        style: { zIndex: 99999 },
                     });
                 }
             });
         } else {
-            post(route('members.store'), {
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            router.post(route('members.store'), formData, {
                 onSuccess: () => {
+                    clearErrors(); // Clear any existing errors
                     toast.success('Member created successfully.', {
                         position: "top-right",
                         autoClose: 3000,
@@ -351,18 +494,42 @@ const MemberForm = ({ closeModal, member }) => {
                     closeModal();
                 },
                 onError: (errors) => {
+                    console.log('Create errors:', errors);
+
+                    // Set form errors for field validation display
+                    Object.keys(errors).forEach(key => {
+                        setError(key, Array.isArray(errors[key]) ? errors[key][0] : errors[key]);
+                    });
+
                     let errorMessage = 'An error occurred while creating the member. Please try again.';
-                    if (errors.email && errors.email.includes('unique')) {
-                        errorMessage = 'A member with this email already exists. Please use a different email.';
+
+                    // Check for email validation errors
+                    if (errors.email) {
+                        const emailError = Array.isArray(errors.email) ? errors.email[0] : errors.email;
+                        if (emailError.toLowerCase().includes('already been taken') ||
+                            emailError.toLowerCase().includes('unique') ||
+                            emailError.toLowerCase().includes('duplicate')) {
+                            errorMessage = 'A member with this email already exists. Please use a different email.';
+                        } else {
+                            errorMessage = `Email error: ${emailError}`;
+                        }
                     }
+                    // Check for other specific validation errors
+                    else if (Object.keys(errors).length > 0) {
+                        const firstError = Object.values(errors)[0];
+                        const firstErrorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                        errorMessage = firstErrorMessage;
+                    }
+
                     toast.error(errorMessage, {
                         position: "top-right",
-                        autoClose: 3000,
+                        autoClose: 5000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
+                        style: { zIndex: 99999 },
                     });
                 }
             });
@@ -429,28 +596,81 @@ const MemberForm = ({ closeModal, member }) => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                        {/* First Name */}
                                         <div>
                                             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                 <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                 </svg>
-                                                Full Name *
+                                                First Name *
                                             </label>
                                             <input
                                                 type="text"
-                                                value={data.name}
-                                                onChange={e => setData('name', e.target.value)}
+                                                value={data.first_name}
+                                                onChange={e => setData('first_name', e.target.value)}
                                                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
-                                                placeholder="Enter full name"
+                                                placeholder="Enter first name"
+                                                required
                                             />
-                                            {errors.name && <div className="flex items-center text-red-500 text-sm mt-2">
+                                            {errors.first_name && <div className="flex items-center text-red-500 text-sm mt-2">
                                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                {errors.name}
+                                                {errors.first_name}
                                             </div>}
                                         </div>
+
+                                        {/* Middle Name */}
+                                        <div>
+                                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                Middle Name
+                                                <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.middle_name}
+                                                onChange={e => setData('middle_name', e.target.value)}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
+                                                placeholder="Enter middle name"
+                                            />
+                                            {errors.middle_name && <div className="flex items-center text-red-500 text-sm mt-2">
+                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {errors.middle_name}
+                                            </div>}
+                                        </div>
+
+                                        {/* Surname */}
+                                        <div>
+                                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                Surname *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.surname}
+                                                onChange={e => setData('surname', e.target.value)}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
+                                                placeholder="Enter surname"
+                                                required
+                                            />
+                                            {errors.surname && <div className="flex items-center text-red-500 text-sm mt-2">
+                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {errors.surname}
+                                            </div>}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-6">
 
                                         <div>
                                             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -462,8 +682,17 @@ const MemberForm = ({ closeModal, member }) => {
                                             <input
                                                 type="email"
                                                 value={data.email}
-                                                onChange={e => setData('email', e.target.value)}
-                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
+                                                onChange={e => {
+                                                    setData('email', e.target.value);
+                                                    if (errors.email) {
+                                                        clearErrors('email');
+                                                    }
+                                                }}
+                                                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white transition-colors duration-200 ${
+                                                    errors.email
+                                                        ? 'border-red-500 dark:border-red-500 focus:ring-red-500 focus:border-red-500'
+                                                        : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500'
+                                                }`}
                                                 placeholder="Enter email address"
                                             />
                                             {errors.email && <div className="flex items-center text-red-500 text-sm mt-2">
@@ -516,6 +745,57 @@ const MemberForm = ({ closeModal, member }) => {
                                                 {errors.date_of_birth}
                                             </div>}
                                         </div>
+
+                                        {/* Place of Birth */}
+                                        <div>
+                                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                Place of Birth *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.place_of_birth}
+                                                onChange={e => setData('place_of_birth', e.target.value)}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
+                                                placeholder="Enter place of birth"
+                                                required
+                                            />
+                                            {errors.place_of_birth && <div className="flex items-center text-red-500 text-sm mt-2">
+                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {errors.place_of_birth}
+                                            </div>}
+                                        </div>
+
+                                        {/* Sex */}
+                                        <div>
+                                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                Sex *
+                                            </label>
+                                            <select
+                                                value={data.sex}
+                                                onChange={e => setData('sex', e.target.value)}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-colors duration-200"
+                                                required
+                                            >
+                                                <option value="">Select sex</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                            {errors.sex && <div className="flex items-center text-red-500 text-sm mt-2">
+                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {errors.sex}
+                                            </div>}
+                                        </div>
                                     </div>
 
                                     <div className="mt-6">
@@ -548,33 +828,174 @@ const MemberForm = ({ closeModal, member }) => {
                                             </svg>
                                             Profile Image
                                         </label>
-                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors duration-200">
-                                            <div className="space-y-1 text-center">
-                                                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                                <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                                                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                                        <span>Upload a file</span>
-                                                        <input
-                                                            id="file-upload"
-                                                            name="file-upload"
-                                                            type="file"
-                                                            className="sr-only"
-                                                            accept="image/*"
-                                                            onChange={e => setData('image', e.target.files[0])}
+                                        <div className="mt-1">
+                                            {imagePreview ? (
+                                                <div className="relative">
+                                                    <div className="w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                                                        <img
+                                                            src={imagePreview}
+                                                            alt="Profile preview"
+                                                            className="w-full h-full object-cover"
                                                         />
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
+                                                    </div>
+                                                    <div className="absolute top-2 right-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setImagePreview(null);
+                                                                setData('image', null);
+                                                            }}
+                                                            className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors duration-200"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div className="mt-2 text-center">
+                                                        <label htmlFor="file-upload" className="cursor-pointer text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                                                            Change image
+                                                            <input
+                                                                id="file-upload"
+                                                                name="file-upload"
+                                                                type="file"
+                                                                className="sr-only"
+                                                                accept="image/*"
+                                                                onChange={handleImageChange}
+                                                            />
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
-                                            </div>
+                                            ) : (
+                                                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors duration-200">
+                                                    <div className="space-y-1 text-center">
+                                                        <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                        <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                                                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                                <span>Upload a file</span>
+                                                                <input
+                                                                    id="file-upload"
+                                                                    name="file-upload"
+                                                                    type="file"
+                                                                    className="sr-only"
+                                                                    accept="image/*"
+                                                                    onChange={handleImageChange}
+                                                                />
+                                                            </label>
+                                                            <p className="pl-1">or drag and drop</p>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                         {errors.image && <div className="flex items-center text-red-500 text-sm mt-2">
                                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             {errors.image}
+                                        </div>}
+                                    </div>
+
+                                    {/* Application Form Upload */}
+                                    <div className="mt-6">
+                                        <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Application Form
+                                            <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                        </label>
+                                        <div className="mt-1">
+                                            {applicationFormPreview ? (
+                                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className="flex-shrink-0">
+                                                                {applicationFormPreview.type?.includes('pdf') ? (
+                                                                    <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                ) : applicationFormPreview.type?.includes('doc') ? (
+                                                                    <svg className="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                ) : (
+                                                                    <svg className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                                    {applicationFormPreview.name}
+                                                                </p>
+                                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                    {applicationFormPreview.size} MB
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setApplicationFormPreview(null);
+                                                                setData('application_form', null);
+                                                            }}
+                                                            className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                                        >
+                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div className="mt-3 text-center">
+                                                        <label htmlFor="application-form-upload" className="cursor-pointer text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                                                            Change file
+                                                            <input
+                                                                id="application-form-upload"
+                                                                name="application-form-upload"
+                                                                type="file"
+                                                                className="sr-only"
+                                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                                                onChange={handleApplicationFormChange}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors duration-200">
+                                                    <div className="space-y-1 text-center">
+                                                        <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                        <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                                                            <label htmlFor="application-form-upload" className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                                <span>Upload application form</span>
+                                                                <input
+                                                                    id="application-form-upload"
+                                                                    name="application-form-upload"
+                                                                    type="file"
+                                                                    className="sr-only"
+                                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                                                    onChange={handleApplicationFormChange}
+                                                                />
+                                                            </label>
+                                                            <p className="pl-1">or drag and drop</p>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                            PDF, DOC, DOCX, JPG, PNG up to 10MB
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {errors.application_form && <div className="flex items-center text-red-500 text-sm mt-2">
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {errors.application_form}
                                         </div>}
                                     </div>
                                 </div>
@@ -899,16 +1320,6 @@ export default function MembersIndex({ members }) {
         setCurrentPage(1);
     }, [searchTerm, statusFilter, sortBy, sortOrder]);
 
-    // Handle sort change
-    const handleSort = (field) => {
-        if (sortBy === field) {
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortBy(field);
-            setSortOrder('asc');
-        }
-    };
-
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => {
         setIsModalOpen(false);
@@ -920,7 +1331,7 @@ export default function MembersIndex({ members }) {
         openModal();
     };
 
-    const { delete: destroy } = useForm();
+
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deletingMember, setDeletingMember] = useState(null);
@@ -940,7 +1351,7 @@ export default function MembersIndex({ members }) {
 
     const handleDelete = () => {
         if (deletingMember && deleteConfirmation === deletingMember.name) {
-            destroy(route('members.destroy', deletingMember.id), {
+            router.delete(route('members.destroy', deletingMember.id), {
                 onSuccess: () => {
                     toast.success('Member deleted successfully.', {
                         position: "top-right",
@@ -954,13 +1365,19 @@ export default function MembersIndex({ members }) {
                     closeDeleteModal();
                 },
                 onError: (errors) => {
-                    let errorMessage = 'An error occurred while updating the member. Please try again.';
-                    if (errors.email && errors.email.includes('unique')) {
-                        errorMessage = 'A member with this email already exists. Please use a different email.';
+                    console.error('Delete errors:', errors);
+                    let errorMessage = 'An error occurred while deleting the member. Please try again.';
+
+                    // Check for specific error messages
+                    if (errors.message) {
+                        errorMessage = errors.message;
+                    } else if (typeof errors === 'string') {
+                        errorMessage = errors;
                     }
+
                     toast.error(errorMessage, {
                         position: "top-right",
-                        autoClose: 3000,
+                        autoClose: 5000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
@@ -1511,6 +1928,7 @@ export default function MembersIndex({ members }) {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
+                style={{ zIndex: 99999 }}
             />
             {isModalOpen && <MemberForm model={isModalOpen} closeModal={closeModal} member={editingMember} />}
             {isDeleteModalOpen && (
@@ -1525,11 +1943,11 @@ export default function MembersIndex({ members }) {
                                 <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Delete Member</h3>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this member? This action will also delete all related data, including contributions, debts, penalties, dependents, and certificates. This action cannot be undone.</p>
-                                    <input type="text" value={deleteConfirmation} onChange={e => setDeleteConfirmation(e.target.value)} placeholder={`Type "${deletingMember.name}" to confirm`} className="w-full mt-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+                                    <input type="text" value={deleteConfirmation} onChange={e => setDeleteConfirmation(e.target.value)} placeholder={`Type "${deletingMember?.name || ''}" to confirm`} className="w-full mt-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" />
                                 </div>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button onClick={handleDelete} disabled={deleteConfirmation !== deletingMember.name} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+                                <button onClick={handleDelete} disabled={deleteConfirmation !== deletingMember?.name} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                                     Delete
                                 </button>
                                 <button onClick={closeDeleteModal} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">

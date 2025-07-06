@@ -8,9 +8,14 @@ class Member extends Model
 {
     protected $fillable = [
         'name',
+        'first_name',
+        'middle_name',
+        'surname',
         'email',
         'phone_number',
         'address',
+        'place_of_birth',
+        'sex',
         'date_of_birth',
         'tribe',
         'occupation',
@@ -22,6 +27,7 @@ class Member extends Model
         'user_id',
         'is_verified',
         'image_path',
+        'application_form_path',
     ];
 
     public function user()
