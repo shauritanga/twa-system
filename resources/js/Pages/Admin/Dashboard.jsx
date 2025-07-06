@@ -90,7 +90,7 @@ export default function AdminDashboard({ memberCount, contributionSum, debtSum, 
         { title: 'Total Penalties', value: penaltySum, icon: <ExclamationTriangleIcon className="w-8 h-8 text-yellow-500" />, isCurrency: true },
         { title: 'Disaster Payments', value: disasterPaymentSum, icon: <BanknotesIcon className="w-8 h-8 text-purple-500" />, isCurrency: true },
         { title: 'Total Beneficiaries', value: beneficiaryCount, icon: <UsersIcon className="w-8 h-8 text-indigo-500" />, isCurrency: false },
-        { title: 'Total Dependents', value: dependentCount, icon: <UsersIcon className="w-8 h-8 text-pink-500" />, isCurrency: false },
+        { title: 'Total Dependants', value: dependentCount, icon: <UsersIcon className="w-8 h-8 text-pink-500" />, isCurrency: false },
         { title: 'Available Amount', value: availableAmount, icon: <CurrencyDollarIcon className="w-8 h-8 text-emerald-500" />, isCurrency: true },
     ];
 
