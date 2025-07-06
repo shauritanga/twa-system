@@ -37,7 +37,7 @@ const MemberRow = ({ member, onEdit, onDelete, auth }) => {
     );
 };
 
-const MemberForm = ({ model, closeModel, member }) => {
+const MemberForm = ({ model, closeModal, member }) => {
     const { data, setData, post, put, processing, errors } = useForm({
         name: member ? member.name : '',
         email: member ? member.email : '',
@@ -72,13 +72,15 @@ const MemberForm = ({ model, closeModel, member }) => {
         if (data.image) {
             formData.append('image', data.image);
         }
+        // Debug FormData contents
+        console.log('FormData contents before submission:');
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
         
         if (member) {
             put(route('members.update', member.id), {
                 data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
                 onSuccess: () => {
                     toast.success('Member updated successfully.', {
                         position: "top-right",
@@ -89,10 +91,14 @@ const MemberForm = ({ model, closeModel, member }) => {
                         draggable: true,
                         progress: undefined,
                     });
-                    closeModel();
+                    closeModal();
                 },
-                onError: () => {
-                    toast.error('An error occurred while updating the member. Please try again.', {
+                onError: (errors) => {
+                    let errorMessage = 'An error occurred while updating the member. Please try again.';
+                    if (errors.email && errors.email.includes('unique')) {
+                        errorMessage = 'A member with this email already exists. Please use a different email.';
+                    }
+                    toast.error(errorMessage, {
                         position: "top-right",
                         autoClose: 3000,
                         hideProgressBar: false,
@@ -119,7 +125,7 @@ const MemberForm = ({ model, closeModel, member }) => {
                         draggable: true,
                         progress: undefined,
                     });
-                    closeModel();
+                    closeModal();
                 },
                 onError: (errors) => {
                     let errorMessage = 'An error occurred while creating the member. Please try again.';
@@ -253,9 +259,9 @@ const MemberForm = ({ model, closeModel, member }) => {
                                     <>{member ? 'Update' : 'Create'}</>
                                 )}
                             </button>
-                            <button type="button" onClick={closeModel} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
+            <button type="button" onClick={closeModal} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                Cancel
+            </button>
                         </div>
                     </form>
                 </div>
@@ -401,7 +407,7 @@ export default function MembersIndex({ members }) {
                 draggable
                 pauseOnHover
             />
-            {isModalOpen && <MemberForm model={isModalOpen} closeModel={closeModal} member={editingMember} />}
+            {isModalOpen && <MemberForm model={isModalOpen} closeModal={closeModal} member={editingMember} />}
             {isDeleteModalOpen && (
                 <div className="fixed z-10 inset-0 overflow-y-auto">
                     <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

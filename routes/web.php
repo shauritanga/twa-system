@@ -64,7 +64,10 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::put('/admin/permissions/{permission}', [AdminDashboardController::class, 'updatePermission'])->name('admin.permissions.update');
     Route::delete('/admin/permissions/{permission}', [AdminDashboardController::class, 'deletePermission'])->name('admin.permissions.delete');
     Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
-Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
+    Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
+    Route::post('/admin/members', [MemberController::class, 'store'])->name('members.store');
+    Route::put('/admin/members/{member}', [MemberController::class, 'update'])->name('members.update');
+    Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
     Route::get('/admin/financials', [FinancialsController::class, 'index'])->name('admin.financials.index');
 });
 

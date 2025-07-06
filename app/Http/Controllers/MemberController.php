@@ -49,36 +49,57 @@ class MemberController extends Controller
             $memberData['image_path'] = $imagePath;
         }
         
-        Member::create($memberData);
+        $member = Member::create($memberData);
 
         // Send email with default password
         \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user, $defaultPassword));
 
-        return redirect()->route('admin.members.index')->with('success', 'Member created successfully and welcome email sent.');
+        return redirect()->back()->with([
+            'message' => 'Member created successfully and welcome email sent.',
+            'member' => $member
+        ]);
     }
 
     public function update(Request $request, Member $member)
     {
-        $request->validate([
+        // Debug incoming request data including multipart form data, raw content, and headers
+        \Log::info('Update Member Request Input Data:', $request->input());
+        \Log::info('Update Member Request File Data:', $request->files->all());
+        \Log::info('Update Member Request Raw Content:', ['raw' => $request->getContent()]);
+        \Log::info('Update Member Request Headers:', $request->headers->all());
+        
+        // Use request input data directly since it's being parsed correctly
+        $memberData = $request->input();
+        
+        // Validate the data
+        $validator = \Validator::make($memberData, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:members,email,'.$member->id,
             'phone_number' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        $memberData = $request->all();
+        
+        if ($validator->fails()) {
+            \Log::error('Validation failed for member update', $validator->errors()->toArray());
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
         
         $imagePath = $member->image_path;
         if ($request->hasFile('image')) {
+            // Handle file upload if available
             $imagePath = $request->file('image')->store('members', 'public');
             $memberData['image_path'] = $imagePath;
         }
         
         $member->update($memberData);
 
-        return redirect()->route('admin.members.index')->with('success', 'Member updated successfully.');
+        return redirect()->back()->with([
+            'message' => 'Member updated successfully.',
+            'member' => $member
+        ]);
     }
 
     public function show(Member $member)
@@ -92,7 +113,9 @@ class MemberController extends Controller
     {
         $member->delete();
 
-        return redirect()->route('admin.members.index');
+        return response()->json([
+            'message' => 'Member deleted successfully.'
+        ], 200);
     }
 
     public function export(Request $request)
