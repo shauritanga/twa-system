@@ -52,7 +52,7 @@ export default function SidebarLayout({ children }) {
                         <Link
                             key={href}
                             href={href}
-                            className={`flex items-center py-2 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white transition-all duration-200 ${sidebarOpen ? '' : 'justify-center px-2'}`}
+                            className={`flex items-center py-2 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white transition-all duration-200 ${sidebarOpen ? '' : 'justify-center px-2'} ${usePage().url === href ? 'bg-blue-500 text-white' : ''}`}
                             title={!sidebarOpen ? label : undefined}
                             preserveScroll
                             onClick={e => {
