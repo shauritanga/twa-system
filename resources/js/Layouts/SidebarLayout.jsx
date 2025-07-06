@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import Header from '../Components/Header';
-import { HomeIcon, ChartBarIcon, UsersIcon, CurrencyDollarIcon, CogIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, UsersIcon, CurrencyDollarIcon, CogIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 
 export default function SidebarLayout({ children }) {
@@ -20,18 +20,18 @@ export default function SidebarLayout({ children }) {
             if (user.role.name === 'admin') {
                 return [
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
-                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
                     { href: '/admin/financials', icon: CurrencyDollarIcon, label: 'Financials' },
-                    { href: '/admin/roles', icon: UsersIcon, label: 'Roles' },
+                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
+                    { href: '/admin/roles', icon: ShieldCheckIcon, label: 'Roles' },
                     { href: '/admin/settings', icon: CogIcon, label: 'Settings' },
                 ];
             } else if (user.role.name === 'secretary') {
                 return [
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
-                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
                     { href: '/admin/financials', icon: CurrencyDollarIcon, label: 'Financials' },
+                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                 ];
             }
         }
