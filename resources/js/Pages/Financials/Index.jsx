@@ -191,11 +191,29 @@ import TextInput from '../../Components/TextInput';
 import InputError from '../../Components/InputError';
 
 const ContributionForm = ({ members, closeModel }) => {
+    const { props } = usePage();
+    const settings = props.settings || {};
+
+    // Get monthly contribution amount from settings
+    const monthlyContributionAmount = settings.monthly_contribution_amount
+        ? settings.monthly_contribution_amount.value
+        : '50000';
+
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const { data, setData, post, processing, errors } = useForm({
         member_id: '',
-        amount: '',
-        date: '',
-        purpose: '',
+        amount: monthlyContributionAmount,
+        date: new Date().toISOString().split('T')[0], // Today's date
+        purpose: 'Monthly Contribution', // Fixed purpose for monthly contributions
     });
 
     const handleSubmit = (e) => {
@@ -206,8 +224,23 @@ const ContributionForm = ({ members, closeModel }) => {
     };
 
     return (
-        <Modal show={true} onClose={closeModel} title="Add Contribution" maxWidth="lg">
+        <Modal show={true} onClose={closeModel} title="Add Monthly Contribution" maxWidth="lg">
             <form onSubmit={handleSubmit} className="p-6">
+                {/* Form Description */}
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                        <div>
+                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Contribution</h4>
+                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                                Record a member's monthly contribution payment. Amount is automatically set from system settings.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="space-y-6">
                     <div>
                         <InputLabel htmlFor="member_id" value="Member" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
@@ -226,16 +259,27 @@ const ContributionForm = ({ members, closeModel }) => {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="amount" value="Amount" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
-                        <TextInput
-                            id="amount"
-                            type="number"
-                            step="0.01"
-                            value={data.amount}
-                            onChange={e => setData('amount', e.target.value)}
-                            placeholder="Enter contribution amount"
-                            className="mt-1 block w-full px-4 py-3 rounded-xl shadow-sm transition-all duration-200"
-                        />
+                        <InputLabel htmlFor="amount" value="Amount (TZS)" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                        <div className="relative">
+                            <TextInput
+                                id="amount"
+                                type="number"
+                                step="0.01"
+                                value={data.amount}
+                                onChange={e => setData('amount', e.target.value)}
+                                placeholder="Enter contribution amount"
+                                className="mt-1 block w-full px-12 py-3 rounded-xl shadow-sm transition-all duration-200"
+                            />
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">TZS</span>
+                            </div>
+                        </div>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Pre-filled with monthly contribution amount from settings ({formatCurrency(monthlyContributionAmount)})
+                        </p>
                         <InputError message={errors.amount} className="mt-2" />
                     </div>
 
@@ -251,18 +295,7 @@ const ContributionForm = ({ members, closeModel }) => {
                         <InputError message={errors.date} className="mt-2" />
                     </div>
 
-                    <div>
-                        <InputLabel htmlFor="purpose" value="Purpose" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
-                        <TextInput
-                            id="purpose"
-                            type="text"
-                            value={data.purpose}
-                            onChange={e => setData('purpose', e.target.value)}
-                            placeholder="Purpose of contribution"
-                            className="mt-1 block w-full px-4 py-3 rounded-xl shadow-sm transition-all duration-200"
-                        />
-                        <InputError message={errors.purpose} className="mt-2" />
-                    </div>
+
                 </div>
 
                 <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -1100,7 +1133,12 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1; // 1-12
     const previousMonth = currentMonth > 1 ? currentMonth - 1 : 12;
-    const previousMonthYear = currentMonth > 1 ? currentYear : currentYear - 1;
+
+    // Get monthly contribution amount from settings
+    const settings = props.settings || {};
+    const monthlyContributionAmount = settings.monthly_contribution_amount
+        ? settings.monthly_contribution_amount.value
+        : '50000';
 
     // Currency formatting function
     const formatCurrency = (amount) => {
@@ -1111,6 +1149,7 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
             maximumFractionDigits: 0,
         }).format(amount);
     };
+    const previousMonthYear = currentMonth > 1 ? currentYear : currentYear - 1;
 
     // Calculate members who have not paid for previous months up to the end of last month
     const shameList = members.data.map(member => {
@@ -1166,7 +1205,7 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
                     <p className="text-sm text-amber-800 dark:text-amber-200">
                         <strong>Note:</strong> Members listed below have missed contributions for previous months up to the end of last month.
                         They are automatically removed once all outstanding amounts are paid. 'Total to Clear' includes penalties plus
-                        missed contributions (50,000/month) starting from each member's join date.
+                        missed contributions ({formatCurrency(monthlyContributionAmount)}/month) starting from each member's join date.
                     </p>
                 </div>
             </div>
