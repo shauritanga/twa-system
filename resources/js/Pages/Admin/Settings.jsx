@@ -29,6 +29,18 @@ const Settings = () => {
     const [message, setMessage] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
+    // Individual loading states for each section
+    const [isSecuritySaving, setIsSecuritySaving] = useState(false);
+    const [isSystemSaving, setIsSystemSaving] = useState(false);
+    const [isBackupSaving, setIsBackupSaving] = useState(false);
+    const [isMaintenanceSaving, setIsMaintenanceSaving] = useState(false);
+
+    // Individual messages for each section
+    const [securityMessage, setSecurityMessage] = useState('');
+    const [systemMessage, setSystemMessage] = useState('');
+    const [backupMessage, setBackupMessage] = useState('');
+    const [maintenanceMessage, setMaintenanceMessage] = useState('');
+
     // Email Settings
     const [emailNewMember, setEmailNewMember] = useState(settings.email_new_member ? settings.email_new_member.value === '1' : true);
     const [emailContributionReminder, setEmailContributionReminder] = useState(settings.email_contribution_reminder ? settings.email_contribution_reminder.value === '1' : true);
@@ -68,28 +80,100 @@ const Settings = () => {
             email_penalty_notice: emailPenaltyNotice ? 1 : 0,
             email_system_alerts: emailSystemAlerts ? 1 : 0,
             email_backup_reports: emailBackupReports ? 1 : 0,
-            auto_backup: autoBackup ? 1 : 0,
-            backup_frequency: backupFrequency,
-            backup_retention_days: backupRetentionDays,
-            maintenance_mode: maintenanceMode ? 1 : 0,
+        }, {
+            onSuccess: () => {
+                setMessage('Financial settings updated successfully.');
+                setIsSaving(false);
+                setTimeout(() => setMessage(''), 3000);
+            },
+            onError: () => {
+                setMessage('Failed to update financial settings. Please check the values.');
+                setIsSaving(false);
+                setTimeout(() => setMessage(''), 3000);
+            }
+        });
+    };
+
+    const handleSecuritySubmit = (e) => {
+        e.preventDefault();
+        setIsSecuritySaving(true);
+        router.post(route('admin.settings.update'), {
             session_timeout_minutes: sessionTimeout,
             max_login_attempts: maxLoginAttempts,
             require_email_verification: requireEmailVerification ? 1 : 0,
             enable_two_factor_auth: enableTwoFactorAuth ? 1 : 0,
             allow_admin_assignment: allowAdminAssignment ? 1 : 0,
+        }, {
+            onSuccess: () => {
+                setSecurityMessage('Security settings updated successfully.');
+                setIsSecuritySaving(false);
+                setTimeout(() => setSecurityMessage(''), 3000);
+            },
+            onError: () => {
+                setSecurityMessage('Failed to update security settings. Please check the values.');
+                setIsSecuritySaving(false);
+                setTimeout(() => setSecurityMessage(''), 3000);
+            }
+        });
+    };
+
+    const handleSystemSubmit = (e) => {
+        e.preventDefault();
+        setIsSystemSaving(true);
+        router.post(route('admin.settings.update'), {
             system_timezone: systemTimezone,
             date_format: dateFormat,
             currency_symbol: currencySymbol,
         }, {
             onSuccess: () => {
-                setMessage('Settings updated successfully.');
-                setIsSaving(false);
-                setTimeout(() => setMessage(''), 3000);
+                setSystemMessage('System configuration updated successfully.');
+                setIsSystemSaving(false);
+                setTimeout(() => setSystemMessage(''), 3000);
             },
             onError: () => {
-                setMessage('Failed to update settings. Please check the values.');
-                setIsSaving(false);
-                setTimeout(() => setMessage(''), 3000);
+                setSystemMessage('Failed to update system configuration. Please check the values.');
+                setIsSystemSaving(false);
+                setTimeout(() => setSystemMessage(''), 3000);
+            }
+        });
+    };
+
+    const handleBackupSubmit = (e) => {
+        e.preventDefault();
+        setIsBackupSaving(true);
+        router.post(route('admin.settings.update'), {
+            auto_backup: autoBackup ? 1 : 0,
+            backup_frequency: backupFrequency,
+            backup_retention_days: backupRetentionDays,
+        }, {
+            onSuccess: () => {
+                setBackupMessage('Backup settings updated successfully.');
+                setIsBackupSaving(false);
+                setTimeout(() => setBackupMessage(''), 3000);
+            },
+            onError: () => {
+                setBackupMessage('Failed to update backup settings. Please check the values.');
+                setIsBackupSaving(false);
+                setTimeout(() => setBackupMessage(''), 3000);
+            }
+        });
+    };
+
+    const handleMaintenanceSubmit = (e) => {
+        e.preventDefault();
+        setIsMaintenanceSaving(true);
+        router.post(route('admin.settings.update'), {
+            maintenance_mode: maintenanceMode ? 1 : 0,
+        }, {
+            onSuccess: () => {
+                setMaintenanceMessage('Maintenance settings updated successfully.');
+                setIsMaintenanceSaving(false);
+                setTimeout(() => setMaintenanceMessage(''), 3000);
+            },
+            onError: () => {
+                setMaintenanceMessage('Failed to update maintenance settings. Please check the values.');
+                setIsMaintenanceSaving(false);
+                setTimeout(() => setMaintenanceMessage(''), 3000);
             }
         });
     };
@@ -540,8 +624,9 @@ const Settings = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-8">
+                        <form onSubmit={handleSecuritySubmit} className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -626,6 +711,56 @@ const Settings = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Security Settings Action Buttons */}
+                        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                Security changes will take effect immediately after saving
+                            </div>
+                            <div className="flex space-x-4">
+                                <button
+                                    type="button"
+                                    className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                                    onClick={() => {
+                                        setSessionTimeout(settings.session_timeout_minutes ? settings.session_timeout_minutes.value : 120);
+                                        setMaxLoginAttempts(settings.max_login_attempts ? settings.max_login_attempts.value : 5);
+                                        setRequireEmailVerification(settings.require_email_verification ? settings.require_email_verification.value === '1' : true);
+                                        setEnableTwoFactorAuth(settings.enable_two_factor_auth ? settings.enable_two_factor_auth.value === '1' : false);
+                                        setAllowAdminAssignment(settings.allow_admin_assignment ? settings.allow_admin_assignment.value === '1' : false);
+                                    }}
+                                >
+                                    Reset to Default
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSecuritySaving}
+                                    className="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                >
+                                    {isSecuritySaving ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                            Saving Changes...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShieldCheckIcon className="w-5 h-5 mr-2" />
+                                            Save Security Settings
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Security Settings Message */}
+                        {securityMessage && (
+                            <div className={`mt-4 p-4 rounded-lg ${securityMessage.includes('successfully')
+                                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                                : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                            }`}>
+                                {securityMessage}
+                            </div>
+                        )}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -643,7 +778,8 @@ const Settings = () => {
                         </div>
                     </div>
                 </div>
-                <div className="p-6 space-y-8">
+                <div className="p-8">
+                    <form onSubmit={handleSystemSubmit} className="space-y-8">
                     {/* Regional Settings */}
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -731,6 +867,54 @@ const Settings = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* System Configuration Action Buttons */}
+                    <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            System changes will take effect immediately after saving
+                        </div>
+                        <div className="flex space-x-4">
+                            <button
+                                type="button"
+                                className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                                onClick={() => {
+                                    setSystemTimezone(settings.system_timezone ? settings.system_timezone.value : 'Africa/Dar_es_Salaam');
+                                    setDateFormat(settings.date_format ? settings.date_format.value : 'Y-m-d');
+                                    setCurrencySymbol(settings.currency_symbol ? settings.currency_symbol.value : 'TZS');
+                                }}
+                            >
+                                Reset to Default
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSystemSaving}
+                                className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                            >
+                                {isSystemSaving ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                        Saving Changes...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Cog6ToothIcon className="w-5 h-5 mr-2" />
+                                        Save System Settings
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* System Configuration Message */}
+                    {systemMessage && (
+                        <div className={`mt-4 p-4 rounded-lg ${systemMessage.includes('successfully')
+                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                            : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                        }`}>
+                            {systemMessage}
+                        </div>
+                    )}
+                    </form>
                 </div>
             </div>
 
@@ -749,8 +933,8 @@ const Settings = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="p-6">
-                            <div className="space-y-6">
+                        <div className="p-8">
+                            <form onSubmit={handleBackupSubmit} className="space-y-8">
                                 {/* Auto Backup Toggle */}
                                 <div className="flex items-start justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
                                     <div className="flex-1">
@@ -831,53 +1015,147 @@ const Settings = () => {
                                         </button>
                                     </div>
                                 </div>
+
+                            {/* Data Backup Action Buttons */}
+                            <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    Backup settings will be applied immediately after saving
+                                </div>
+                                <div className="flex space-x-4">
+                                    <button
+                                        type="button"
+                                        className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                                        onClick={() => {
+                                            setAutoBackup(settings.auto_backup ? settings.auto_backup.value === '1' : false);
+                                            setBackupFrequency(settings.backup_frequency ? settings.backup_frequency.value : 'daily');
+                                            setBackupRetentionDays(settings.backup_retention_days ? settings.backup_retention_days.value : 30);
+                                        }}
+                                    >
+                                        Reset to Default
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isBackupSaving}
+                                        className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                    >
+                                        {isBackupSaving ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                                Saving Changes...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CloudArrowUpIcon className="w-5 h-5 mr-2" />
+                                                Save Backup Settings
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
+
+                            {/* Data Backup Message */}
+                            {backupMessage && (
+                                <div className={`mt-4 p-4 rounded-lg ${backupMessage.includes('successfully')
+                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                                    : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                                }`}>
+                                    {backupMessage}
+                                </div>
+                            )}
+                            </form>
                         </div>
                     </div>
 
-                {/* System Maintenance */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center">
-                            <div className="p-2 bg-orange-500 rounded-lg mr-3">
-                                <WrenchScrewdriverIcon className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">System Maintenance</h2>
-                                <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">Control system access during maintenance</p>
+                    {/* System Maintenance */}
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                            <div className="flex items-center">
+                                <div className="p-2 bg-orange-500 rounded-lg mr-3">
+                                    <WrenchScrewdriverIcon className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">System Maintenance</h2>
+                                    <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">Control system access during maintenance</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="p-6">
-                        <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-6">
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                    <div className="flex items-center mb-3">
-                                        <ExclamationTriangleIcon className="w-6 h-6 text-red-500 mr-3" />
-                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Maintenance Mode</h4>
-                                    </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        Enable maintenance mode to restrict system access for regular users during updates or fixes.
-                                    </p>
-                                    <div className="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3">
-                                        <p className="text-xs text-red-700 dark:text-red-300 font-medium">
-                                            ⚠️ Warning: Enabling maintenance mode will prevent all non-admin users from accessing the system.
-                                        </p>
+                        <div className="p-8">
+                            <form onSubmit={handleMaintenanceSubmit} className="space-y-8">
+                                <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-6">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center mb-3">
+                                                <ExclamationTriangleIcon className="w-6 h-6 text-red-500 mr-3" />
+                                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Maintenance Mode</h4>
+                                            </div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                Enable maintenance mode to restrict system access for regular users during updates or fixes.
+                                            </p>
+                                            <div className="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3">
+                                                <p className="text-xs text-red-700 dark:text-red-300 font-medium">
+                                                    ⚠️ Warning: Enabling maintenance mode will prevent all non-admin users from accessing the system.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer ml-6">
+                                            <input
+                                                type="checkbox"
+                                                checked={maintenanceMode}
+                                                onChange={(e) => setMaintenanceMode(e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
+                                        </label>
                                     </div>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer ml-6">
-                                    <input
-                                        type="checkbox"
-                                        checked={maintenanceMode}
-                                        onChange={(e) => setMaintenanceMode(e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
-                                </label>
-                            </div>
+
+                                {/* System Maintenance Action Buttons */}
+                                <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        Maintenance mode changes will take effect immediately after saving
+                                    </div>
+                                    <div className="flex space-x-4">
+                                        <button
+                                            type="button"
+                                            className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                                            onClick={() => {
+                                                setMaintenanceMode(settings.maintenance_mode ? settings.maintenance_mode.value === '1' : false);
+                                            }}
+                                        >
+                                            Reset to Default
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={isMaintenanceSaving}
+                                            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                        >
+                                            {isMaintenanceSaving ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                                    Saving Changes...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <WrenchScrewdriverIcon className="w-5 h-5 mr-2" />
+                                                    Save Maintenance Settings
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* System Maintenance Message */}
+                                {maintenanceMessage && (
+                                    <div className={`mt-4 p-4 rounded-lg ${maintenanceMessage.includes('successfully')
+                                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                                        : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                                    }`}>
+                                        {maintenanceMessage}
+                                    </div>
+                                )}
+                            </form>
                         </div>
                     </div>
-                </div>
             </div>
         </SidebarLayout>
     );
