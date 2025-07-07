@@ -303,6 +303,16 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
     const user = auth?.user;
     const isAdmin = user?.role?.name === 'admin';
 
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const [search, setSearch] = useState(filters.search || '');
     const [year, setYear] = useState(filters.year || new Date().getFullYear());
     const [month, setMonth] = useState(filters.month || '');
@@ -739,6 +749,16 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
 const DebtsTable = ({ debts, members }) => {
     const [showDebtForm, setShowDebtForm] = useState(false);
 
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const handleMarkAsPaid = (id) => {
         router.patch(route('debts.markAsPaid', id));
     };
@@ -911,6 +931,16 @@ const DebtsTable = ({ debts, members }) => {
 };
 
 const PenaltiesTable = ({ penalties }) => {
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const handleMarkAsPaid = (id) => {
         router.patch(route('penalties.markAsPaid', id));
     };
@@ -1071,6 +1101,16 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
     const currentMonth = currentDate.getMonth() + 1; // 1-12
     const previousMonth = currentMonth > 1 ? currentMonth - 1 : 12;
     const previousMonthYear = currentMonth > 1 ? currentYear : currentYear - 1;
+
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
 
     // Calculate members who have not paid for previous months up to the end of last month
     const shameList = members.data.map(member => {
@@ -1263,6 +1303,16 @@ const DisasterPaymentsTable = ({ disasterPayments, members }) => {
     const { auth } = usePage().props;
     const user = auth?.user;
     const isAdmin = user?.role?.name === 'admin';
+
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);

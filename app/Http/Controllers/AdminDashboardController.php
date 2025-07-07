@@ -18,6 +18,7 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
+        // Basic statistics
         $memberCount = Member::count();
         $contributionSum = Contribution::sum('amount');
         $debtSum = Debt::sum('amount');
@@ -28,6 +29,19 @@ class AdminDashboardController extends Controller
         $paidPenalties = Penalty::where('status', 'paid')->sum('amount');
         $availableAmount = $contributionSum + $paidPenalties - $debtSum - $disasterPaymentSum;
 
+        // Additional statistics for enhanced dashboard
+        $activeMembers = Member::where('is_verified', true)->count();
+        $pendingMembers = Member::where('is_verified', false)->count();
+        $unpaidDebts = Debt::where('status', 'unpaid')->sum('amount');
+        $unpaidPenalties = Penalty::where('status', 'unpaid')->sum('amount');
+        $thisMonthContributions = Contribution::whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+        $thisMonthDisasterPayments = DisasterPayment::whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+
+        // Monthly data for charts
         $monthlyContributions = Contribution::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
             ->orderBy('month')
@@ -48,7 +62,49 @@ class AdminDashboardController extends Controller
             ->orderBy('month')
             ->get();
 
+        // Recent activities
         $recentDisasterPayments = DisasterPayment::with('member')->latest()->take(5)->get();
+        $recentContributions = Contribution::with('member')->latest()->take(5)->get();
+        $recentDebts = Debt::with('member')->latest()->take(5)->get();
+
+        // Top performers and defaulters
+        $topContributors = Member::withSum('contributions', 'amount')
+            ->orderBy('contributions_sum_amount', 'desc')
+            ->take(5)
+            ->get();
+
+        $defaulters = Member::whereHas('debts', function($query) {
+            $query->where('status', 'unpaid');
+        })->withSum(['debts' => function($query) {
+            $query->where('status', 'unpaid');
+        }], 'amount')->take(5)->get();
+
+        // Growth trends (comparing with previous month)
+        $lastMonthContributions = Contribution::whereMonth('date', now()->subMonth()->month)
+            ->whereYear('date', now()->subMonth()->year)
+            ->sum('amount');
+        $contributionGrowth = $lastMonthContributions > 0
+            ? (($thisMonthContributions - $lastMonthContributions) / $lastMonthContributions) * 100
+            : 0;
+
+        $lastMonthMembers = Member::whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->count();
+        $thisMonthMembers = Member::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+        $memberGrowth = $lastMonthMembers > 0
+            ? (($thisMonthMembers - $lastMonthMembers) / $lastMonthMembers) * 100
+            : 0;
+
+        // Gender distribution
+        $genderDistribution = Member::selectRaw('sex, COUNT(*) as count')
+            ->whereNotNull('sex')
+            ->groupBy('sex')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [ucfirst(strtolower($item->sex)) => $item->count];
+            });
 
         return Inertia::render('Admin/Dashboard', [
             'memberCount' => $memberCount,
@@ -59,11 +115,24 @@ class AdminDashboardController extends Controller
             'beneficiaryCount' => $beneficiaryCount,
             'dependentCount' => $dependentCount,
             'availableAmount' => $availableAmount,
+            'activeMembers' => $activeMembers,
+            'pendingMembers' => $pendingMembers,
+            'unpaidDebts' => $unpaidDebts,
+            'unpaidPenalties' => $unpaidPenalties,
+            'thisMonthContributions' => $thisMonthContributions,
+            'thisMonthDisasterPayments' => $thisMonthDisasterPayments,
+            'contributionGrowth' => round($contributionGrowth, 1),
+            'memberGrowth' => round($memberGrowth, 1),
             'monthlyContributions' => $monthlyContributions,
             'monthlyDisasterPayments' => $monthlyDisasterPayments,
             'monthlyDebts' => $monthlyDebts,
             'monthlyPenalties' => $monthlyPenalties,
             'recentDisasterPayments' => $recentDisasterPayments,
+            'recentContributions' => $recentContributions,
+            'recentDebts' => $recentDebts,
+            'topContributors' => $topContributors,
+            'defaulters' => $defaulters,
+            'genderDistribution' => $genderDistribution,
         ]);
     }
 

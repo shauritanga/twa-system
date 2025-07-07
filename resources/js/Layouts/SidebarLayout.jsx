@@ -108,14 +108,14 @@ export default function SidebarLayout({ children }) {
                 `}>
                     {sidebarOpen ? (
                         <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">GS</span>
+                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">TWA</span>
                             </div>
                             <span>Group System</span>
                         </div>
                     ) : (
                         <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold">GS</span>
+                            <span className="text-white font-bold">TWA</span>
                         </div>
                     )}
                 </div>
