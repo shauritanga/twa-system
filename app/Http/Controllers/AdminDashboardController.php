@@ -299,14 +299,74 @@ class AdminDashboardController extends Controller
     public function settings()
     {
         $settings = \App\Models\Setting::all()->keyBy('key');
-        $recentLogins = \App\Models\User::orderBy('last_login', 'desc')->take(5)->get();
-        $users = \App\Models\User::all();
+
+        // Get recent logins with online status logic
+        $recentLogins = \App\Models\User::with('role')
+            ->whereNotNull('last_login')
+            ->orderBy('last_login', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($user) {
+                // Check if user has active session (online in last 15 minutes)
+                $isOnline = \DB::table('sessions')
+                    ->where('user_id', $user->id)
+                    ->where('last_activity', '>', now()->subMinutes(15)->timestamp)
+                    ->exists();
+
+                $user->is_online = $isOnline;
+                $user->formatted_last_login = $user->last_login ? \Carbon\Carbon::parse($user->last_login)->diffForHumans() : 'Never';
+                return $user;
+            });
+
+        // System statistics for dashboard
+        $systemStats = [
+            'total_users' => \App\Models\User::count(),
+            'online_users' => \DB::table('sessions')
+                ->where('last_activity', '>', now()->subMinutes(15)->timestamp)
+                ->whereNotNull('user_id')
+                ->distinct('user_id')
+                ->count(),
+            'total_members' => \App\Models\Member::count(),
+            'verified_members' => \App\Models\Member::where('is_verified', true)->count(),
+            'database_size' => $this->getDatabaseSize(),
+            'storage_used' => $this->getStorageUsed(),
+        ];
 
         return inertia('Admin/Settings', [
             'settings' => $settings,
             'recentLogins' => $recentLogins,
-            'users' => $users,
+            'systemStats' => $systemStats,
         ]);
+    }
+
+    private function getDatabaseSize()
+    {
+        try {
+            $result = \DB::select("SELECT
+                ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'size_mb'
+                FROM information_schema.tables
+                WHERE table_schema = DATABASE()");
+            return $result[0]->size_mb ?? 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    private function getStorageUsed()
+    {
+        try {
+            $storagePath = storage_path('app');
+            $bytes = 0;
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($storagePath, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                $bytes += $file->getSize();
+            }
+            return round($bytes / 1024 / 1024, 2); // Convert to MB
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     // Removed old method to avoid duplication
@@ -320,10 +380,20 @@ class AdminDashboardController extends Controller
             'email_new_member' => 'sometimes|boolean',
             'email_contribution_reminder' => 'sometimes|boolean',
             'email_penalty_notice' => 'sometimes|boolean',
+            'email_system_alerts' => 'sometimes|boolean',
+            'email_backup_reports' => 'sometimes|boolean',
             'allow_admin_assignment' => 'sometimes|boolean',
             'auto_backup' => 'sometimes|boolean',
             'backup_frequency' => 'sometimes|in:daily,weekly,monthly',
+            'backup_retention_days' => 'sometimes|integer|min:1|max:365',
             'maintenance_mode' => 'sometimes|boolean',
+            'session_timeout_minutes' => 'sometimes|integer|min:15|max:1440',
+            'max_login_attempts' => 'sometimes|integer|min:3|max:10',
+            'require_email_verification' => 'sometimes|boolean',
+            'enable_two_factor_auth' => 'sometimes|boolean',
+            'system_timezone' => 'sometimes|string|max:50',
+            'date_format' => 'sometimes|in:Y-m-d,d/m/Y,m/d/Y,d-m-Y',
+            'currency_symbol' => 'sometimes|string|max:10',
         ]);
 
         foreach ($validated as $key => $value) {
