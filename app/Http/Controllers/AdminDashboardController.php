@@ -430,24 +430,51 @@ class AdminDashboardController extends Controller
 
     public function roles(Request $request)
     {
-        $perPage = 10;
+        $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $search = $request->input('search', '');
-        
+        $roleFilter = $request->input('role_filter', '');
+        $sortBy = $request->input('sort_by', 'name');
+        $sortOrder = $request->input('sort_order', 'asc');
+
         $query = \App\Models\User::query();
-        
+
+        // Apply search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
-        
+
+        // Apply role filter
+        if ($roleFilter) {
+            if ($roleFilter === 'no_role') {
+                $query->whereNull('role_id');
+            } else {
+                $query->where('role_id', $roleFilter);
+            }
+        }
+
         $total = $query->count();
-        $users = $query->with('role')->skip(($page - 1) * $perPage)
-                       ->take($perPage)
-                       ->get();
-                       
+
+        // Apply sorting
+        if ($sortBy === 'role') {
+            $users = $query->with('role')
+                           ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+                           ->orderBy('roles.name', $sortOrder)
+                           ->select('users.*')
+                           ->skip(($page - 1) * $perPage)
+                           ->take($perPage)
+                           ->get();
+        } else {
+            $users = $query->with('role')
+                           ->orderBy($sortBy, $sortOrder)
+                           ->skip(($page - 1) * $perPage)
+                           ->take($perPage)
+                           ->get();
+        }
+
         $totalPages = ceil($total / $perPage);
         $roles = \App\Models\Role::all();
         $permissions = \App\Models\Permission::all();
@@ -455,6 +482,13 @@ class AdminDashboardController extends Controller
         return inertia('Admin/RolesManagement', [
             'users' => $users,
             'totalPages' => $totalPages,
+            'currentPage' => (int) $page,
+            'total' => $total,
+            'perPage' => $perPage,
+            'search' => $search,
+            'roleFilter' => $roleFilter,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
             'roles' => $roles,
             'permissions' => $permissions,
         ]);
@@ -547,7 +581,7 @@ class AdminDashboardController extends Controller
         }
 
         $validated = $request->validate([
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         $user = \App\Models\User::findOrFail($userId);

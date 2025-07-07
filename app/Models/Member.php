@@ -6,6 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Member extends Model
 {
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        // When a member is deleted, also delete the associated user
+        static::deleted(function (Member $member) {
+            if ($member->user_id) {
+                $user = User::find($member->user_id);
+                if ($user) {
+                    // Only delete the user if it's a member role or has no role
+                    if (!$user->role || $user->role->name === 'member') {
+                        $user->delete();
+                    }
+                }
+            }
+        });
+    }
     protected $fillable = [
         'name',
         'first_name',

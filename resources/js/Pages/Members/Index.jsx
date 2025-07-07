@@ -1250,6 +1250,7 @@ export default function MembersIndex({ members }) {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+
     const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
 
     // Search and filtering states
@@ -1445,6 +1446,8 @@ export default function MembersIndex({ members }) {
         }
     };
 
+
+
     return (
         <SidebarLayout>
             <div className="mb-8">
@@ -1518,6 +1521,8 @@ export default function MembersIndex({ members }) {
                             </svg>
                             Import Members
                         </button>
+
+
 
                         {/* View Toggle Buttons */}
                         <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">

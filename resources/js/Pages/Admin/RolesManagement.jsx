@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { usePage, useForm } from '@inertiajs/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { usePage, useForm, router } from '@inertiajs/react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
 import TextInput from '../../Components/TextInput';
 import InputLabel from '../../Components/InputLabel';
@@ -16,15 +16,64 @@ import {
     CogIcon,
     CheckCircleIcon,
     ChevronLeftIcon,
-    ChevronRightIcon
+    ChevronRightIcon,
+    ExclamationTriangleIcon,
+    ArrowPathIcon,
+    ChevronUpIcon,
+    ChevronDownIcon,
+    Bars3BottomLeftIcon
 } from '@heroicons/react/24/outline';
+
+// Debounce utility function
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
 
 export default function RolesManagement() {
     const { props } = usePage();
-    const { users, totalPages, roles, permissions } = props;
+    const { users, totalPages, currentPage: initialPage, total, perPage, search: initialSearch, roleFilter: initialRoleFilter, sortBy: initialSortBy, sortOrder: initialSortOrder, roles, permissions } = props;
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(initialPage || 1);
+    const [searchQuery, setSearchQuery] = useState(initialSearch || '');
+    const [roleFilter, setRoleFilter] = useState(initialRoleFilter || '');
+    const [sortBy, setSortBy] = useState(initialSortBy || 'name');
+    const [sortOrder, setSortOrder] = useState(initialSortOrder || 'asc');
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Bulk operations state
+    const [selectedUsers, setSelectedUsers] = useState(new Set());
+    const [bulkRoleId, setBulkRoleId] = useState('');
+    const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+
+    // Individual user role states for better state management
+    const [userRoleStates, setUserRoleStates] = useState({});
+    const [updatingUsers, setUpdatingUsers] = useState(new Set());
+    const [recentlyUpdated, setRecentlyUpdated] = useState(new Set());
+
+    // Initialize user role states when users data changes
+    useEffect(() => {
+        if (users) {
+            const initialStates = {};
+            users.forEach(user => {
+                initialStates[user.id] = {
+                    selectedRoleId: user.role_id || '',
+                    originalRoleId: user.role_id || '',
+                    hasChanges: false
+                };
+            });
+            setUserRoleStates(initialStates);
+        }
+    }, [users]);
 
     // Form for creating/updating roles
     const { data: roleData, setData: setRoleData, post: createRole, put: updateRole, errors: roleErrors, reset: resetRole } = useForm({
@@ -44,28 +93,153 @@ export default function RolesManagement() {
         permission_ids: [],
     });
 
-    // Form for assigning roles to users
-    const { data: userRoleData, setData: setUserRoleData, post: updateUserRole, errors: userRoleErrors } = useForm({
-        user_id: '',
-        role_id: '',
-    });
+    // Individual user role update - we'll use router.post directly for better control
 
-    useEffect(() => {
-        // Fetch users based on page and search query
-        // This would be handled by a backend route with pagination and search
-        // For now, it's handled by the props passed from the controller
-    }, [currentPage, searchQuery]);
+    // Debounced search function
+    const debouncedSearch = useCallback(
+        debounce((query, filter, sort, order) => {
+            setIsSearching(true);
+            router.get('/admin/roles',
+                {
+                    search: query,
+                    role_filter: filter,
+                    sort_by: sort,
+                    sort_order: order,
+                    page: 1
+                },
+                {
+                    preserveState: true,
+                    onFinish: () => setIsSearching(false)
+                }
+            );
+        }, 300),
+        []
+    );
 
     const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on new search
+        const value = e.target.value;
+        setSearchQuery(value);
+        setCurrentPage(1);
+        debouncedSearch(value, roleFilter, sortBy, sortOrder);
+    };
+
+    const handleRoleFilterChange = (e) => {
+        const value = e.target.value;
+        setRoleFilter(value);
+        setCurrentPage(1);
+        setIsSearching(true);
+        router.get('/admin/roles',
+            {
+                search: searchQuery,
+                role_filter: value,
+                sort_by: sortBy,
+                sort_order: sortOrder,
+                page: 1
+            },
+            {
+                preserveState: true,
+                onFinish: () => setIsSearching(false)
+            }
+        );
+    };
+
+    const handleSortChange = (field) => {
+        const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortOrder(newOrder);
+        setCurrentPage(1);
+        setIsSearching(true);
+        router.get('/admin/roles',
+            {
+                search: searchQuery,
+                role_filter: roleFilter,
+                sort_by: field,
+                sort_order: newOrder,
+                page: 1
+            },
+            {
+                preserveState: true,
+                onFinish: () => setIsSearching(false)
+            }
+        );
     };
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        // Fetch users for the new page
-        window.location.href = `/admin/roles?page=${page}&search=${searchQuery}`;
+        router.get('/admin/roles',
+            {
+                search: searchQuery,
+                role_filter: roleFilter,
+                page
+            },
+            { preserveState: true }
+        );
     };
+
+    // Handle individual user role selection change
+    const handleUserRoleChange = (userId, roleId) => {
+        setUserRoleStates(prev => ({
+            ...prev,
+            [userId]: {
+                ...prev[userId],
+                selectedRoleId: roleId,
+                hasChanges: roleId !== prev[userId]?.originalRoleId
+            }
+        }));
+    };
+
+    // Sortable header component
+    const SortableHeader = ({ field, children, className = "" }) => (
+        <th
+            className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 ${className}`}
+            onClick={() => handleSortChange(field)}
+        >
+            <div className="flex items-center space-x-1">
+                <span>{children}</span>
+                {sortBy === field ? (
+                    sortOrder === 'asc' ? (
+                        <ChevronUpIcon className="w-4 h-4" />
+                    ) : (
+                        <ChevronDownIcon className="w-4 h-4" />
+                    )
+                ) : (
+                    <Bars3BottomLeftIcon className="w-4 h-4 opacity-50" />
+                )}
+            </div>
+        </th>
+    );
+
+    // Skeleton loading component for table rows
+    const SkeletonRow = () => (
+        <tr className="animate-pulse">
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+                    <div className="ml-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            </td>
+        </tr>
+    );
 
     const handleCreateRole = (e) => {
         e.preventDefault();
@@ -77,6 +251,84 @@ export default function RolesManagement() {
     const handleUpdateRole = (roleId) => {
         updateRole(`/admin/roles/${roleId}`, {
             onSuccess: () => resetRole(),
+        });
+    };
+
+    // Bulk operations functions
+    const handleSelectUser = (userId) => {
+        setSelectedUsers(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(userId)) {
+                newSet.delete(userId);
+            } else {
+                newSet.add(userId);
+            }
+            return newSet;
+        });
+    };
+
+    const handleSelectAll = () => {
+        if (selectedUsers.size === users?.length) {
+            setSelectedUsers(new Set());
+        } else {
+            setSelectedUsers(new Set(users?.map(user => user.id) || []));
+        }
+    };
+
+    const handleBulkRoleUpdate = () => {
+        if (!bulkRoleId || selectedUsers.size === 0) return;
+
+        setIsBulkUpdating(true);
+        const selectedUserIds = Array.from(selectedUsers);
+        let completedUpdates = 0;
+        let successfulUpdates = 0;
+
+        selectedUserIds.forEach(userId => {
+            router.post(`/admin/users/${userId}/update-role`, {
+                role_id: bulkRoleId
+            }, {
+                onSuccess: () => {
+                    completedUpdates++;
+                    successfulUpdates++;
+
+                    // Update individual user state
+                    setUserRoleStates(prev => ({
+                        ...prev,
+                        [userId]: {
+                            ...prev[userId],
+                            selectedRoleId: bulkRoleId,
+                            originalRoleId: bulkRoleId,
+                            hasChanges: false
+                        }
+                    }));
+
+                    // Check if all updates are complete
+                    if (completedUpdates === selectedUserIds.length) {
+                        setIsBulkUpdating(false);
+                        setSelectedUsers(new Set());
+                        setBulkRoleId('');
+                        setSuccessMessage(`Bulk role update completed for ${successfulUpdates} users!`);
+                        setShowSuccessToast(true);
+                        setTimeout(() => setShowSuccessToast(false), 3000);
+                    }
+                },
+                onError: () => {
+                    completedUpdates++;
+
+                    // Check if all updates are complete
+                    if (completedUpdates === selectedUserIds.length) {
+                        setIsBulkUpdating(false);
+                        if (successfulUpdates > 0) {
+                            setSuccessMessage(`Bulk role update completed for ${successfulUpdates} out of ${selectedUserIds.length} users!`);
+                            setShowSuccessToast(true);
+                            setTimeout(() => setShowSuccessToast(false), 3000);
+                        }
+                        setSelectedUsers(new Set());
+                        setBulkRoleId('');
+                    }
+                },
+                preserveState: true
+            });
         });
     };
 
@@ -114,10 +366,69 @@ export default function RolesManagement() {
         });
     };
 
-    const handleUpdateUserRole = (userId, roleId) => {
-        setUserRoleData({ user_id: userId, role_id: roleId });
-        updateUserRole(`/admin/users/${userId}/update-role`, {
-            onSuccess: () => setUserRoleData({ user_id: '', role_id: '' }),
+    const handleUpdateUserRole = (userId) => {
+        const userState = userRoleStates[userId];
+        if (!userState || !userState.hasChanges) return;
+
+        // Add user to updating set
+        setUpdatingUsers(prev => new Set(prev).add(userId));
+
+        // Perform the update
+        router.post(`/admin/users/${userId}/update-role`, {
+            role_id: userState.selectedRoleId
+        }, {
+            onSuccess: () => {
+                // Update the original role ID to match selected
+                setUserRoleStates(prev => ({
+                    ...prev,
+                    [userId]: {
+                        ...prev[userId],
+                        originalRoleId: prev[userId].selectedRoleId,
+                        hasChanges: false
+                    }
+                }));
+
+                // Add to recently updated and remove from updating
+                setRecentlyUpdated(prev => new Set(prev).add(userId));
+                setUpdatingUsers(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(userId);
+                    return newSet;
+                });
+
+                // Show success toast
+                setSuccessMessage(`User role updated successfully!`);
+                setShowSuccessToast(true);
+
+                // Remove from recently updated after 3 seconds
+                setTimeout(() => {
+                    setRecentlyUpdated(prev => {
+                        const newSet = new Set(prev);
+                        newSet.delete(userId);
+                        return newSet;
+                    });
+                    setShowSuccessToast(false);
+                }, 3000);
+            },
+            onError: (errors) => {
+                // Remove from updating set on error
+                setUpdatingUsers(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(userId);
+                    return newSet;
+                });
+
+                // Show error message
+                const errorMessage = errors?.message || 'Failed to update user role. Please try again.';
+                setSuccessMessage(errorMessage);
+                setShowSuccessToast(true);
+
+                // Hide error message after 5 seconds
+                setTimeout(() => {
+                    setShowSuccessToast(false);
+                }, 5000);
+            },
+            preserveState: true
         });
     };
 
@@ -172,11 +483,16 @@ export default function RolesManagement() {
                     </div>
 
                     <div className="p-6">
-                        {/* Search Bar */}
-                        <div className="mb-6">
-                            <div className="relative max-w-md">
+                        {/* Search and Filter Bar */}
+                        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+                            {/* Search Input */}
+                            <div className="relative flex-1 max-w-md">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                                    {isSearching ? (
+                                        <ArrowPathIcon className="h-5 w-5 text-blue-500 animate-spin" />
+                                    ) : (
+                                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                                    )}
                                 </div>
                                 <TextInput
                                     id="search"
@@ -184,35 +500,171 @@ export default function RolesManagement() {
                                     value={searchQuery}
                                     onChange={handleSearchChange}
                                     placeholder="Search users by name or email..."
-                                    className="pl-10 w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className={`pl-10 w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ${
+                                        isSearching ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                                    }`}
                                 />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => {
+                                            setSearchQuery('');
+                                            router.get('/admin/roles', { role_filter: roleFilter }, { preserveState: true });
+                                        }}
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    >
+                                        <span className="text-gray-400 hover:text-gray-600 text-sm">✕</span>
+                                    </button>
+                                )}
                             </div>
+
+                            {/* Role Filter */}
+                            <div className="relative min-w-48">
+                                <select
+                                    value={roleFilter}
+                                    onChange={handleRoleFilterChange}
+                                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                                >
+                                    <option value="">All Roles</option>
+                                    <option value="no_role">No Role Assigned</option>
+                                    {roles?.map(role => (
+                                        <option key={role.id} value={role.id}>{role.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Per Page Selector */}
+                            <div className="relative min-w-32">
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => {
+                                        const newPerPage = e.target.value;
+                                        router.get('/admin/roles',
+                                            {
+                                                search: searchQuery,
+                                                role_filter: roleFilter,
+                                                per_page: newPerPage,
+                                                page: 1
+                                            },
+                                            { preserveState: true }
+                                        );
+                                    }}
+                                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                                >
+                                    <option value="10">10 per page</option>
+                                    <option value="25">25 per page</option>
+                                    <option value="50">50 per page</option>
+                                    <option value="100">100 per page</option>
+                                </select>
+                            </div>
+
+                            {/* Clear Filters */}
+                            {(searchQuery || roleFilter) && (
+                                <button
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setRoleFilter('');
+                                        router.get('/admin/roles', { per_page: perPage }, { preserveState: true });
+                                    }}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                                >
+                                    Clear Filters
+                                </button>
+                            )}
                         </div>
+
+                        {/* Bulk Operations Bar */}
+                        {selectedUsers.size > 0 && (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                                    <div className="flex items-center space-x-3">
+                                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                            {selectedUsers.size} user{selectedUsers.size !== 1 ? 's' : ''} selected
+                                        </span>
+                                        <button
+                                            onClick={() => setSelectedUsers(new Set())}
+                                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                                        >
+                                            Clear selection
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center space-x-3">
+                                        <select
+                                            value={bulkRoleId}
+                                            onChange={(e) => setBulkRoleId(e.target.value)}
+                                            className="block px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-blue-800 dark:text-white text-sm"
+                                        >
+                                            <option value="">Select role to assign</option>
+                                            {roles?.map(role => (
+                                                <option key={role.id} value={role.id}>{role.name}</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={handleBulkRoleUpdate}
+                                            disabled={!bulkRoleId || isBulkUpdating}
+                                            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed transition-all duration-200"
+                                        >
+                                            {isBulkUpdating ? (
+                                                <>
+                                                    <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+                                                    Updating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <UserGroupIcon className="w-4 h-4 mr-2" />
+                                                    Update Roles
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Users Table */}
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600">
                                     <tr>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                            <input
+                                                type="checkbox"
+                                                checked={users?.length > 0 && selectedUsers.size === users.length}
+                                                onChange={handleSelectAll}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                        </th>
+                                        <SortableHeader field="name">
                                             <div className="flex items-center">
                                                 <UserGroupIcon className="w-4 h-4 mr-2" />
                                                 User
                                             </div>
-                                        </th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                        </SortableHeader>
+                                        <SortableHeader field="email">Email</SortableHeader>
+                                        <SortableHeader field="role">
                                             <div className="flex items-center">
                                                 <ShieldCheckIcon className="w-4 h-4 mr-2" />
                                                 Current Role
                                             </div>
-                                        </th>
+                                        </SortableHeader>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">New Role</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    {users?.map(user => (
+                                    {isSearching && !users?.length ? (
+                                        // Show skeleton loading when searching
+                                        Array.from({ length: 5 }, (_, i) => <SkeletonRow key={`skeleton-${i}`} />)
+                                    ) : users?.length > 0 ? (
+                                        users.map(user => (
                                         <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedUsers.has(user.id)}
+                                                    onChange={() => handleSelectUser(user.id)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10">
@@ -237,9 +689,16 @@ export default function RolesManagement() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <select
-                                                    value={userRoleData.user_id === user.id ? userRoleData.role_id : user.role_id || ''}
-                                                    onChange={(e) => setUserRoleData({ user_id: user.id, role_id: e.target.value })}
-                                                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                                                    value={userRoleStates[user.id]?.selectedRoleId || ''}
+                                                    onChange={(e) => handleUserRoleChange(user.id, e.target.value)}
+                                                    disabled={updatingUsers.has(user.id)}
+                                                    className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors duration-200 ${
+                                                        updatingUsers.has(user.id)
+                                                            ? 'bg-gray-100 border-gray-200 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500'
+                                                            : userRoleStates[user.id]?.hasChanges
+                                                                ? 'border-yellow-300 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-900/20'
+                                                                : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                                                    }`}
                                                 >
                                                     <option value="">Select Role</option>
                                                     {roles?.map(role => (
@@ -249,18 +708,41 @@ export default function RolesManagement() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button
-                                                    onClick={() => handleUpdateUserRole(user.id, userRoleData.role_id)}
-                                                    disabled={userRoleData.user_id !== user.id || !userRoleData.role_id}
-                                                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                                    onClick={() => handleUpdateUserRole(user.id)}
+                                                    disabled={!userRoleStates[user.id]?.hasChanges || updatingUsers.has(user.id)}
+                                                    className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg transition-all duration-200 ${
+                                                        updatingUsers.has(user.id)
+                                                            ? 'bg-gray-400 cursor-not-allowed text-white'
+                                                            : recentlyUpdated.has(user.id)
+                                                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                                                : userRoleStates[user.id]?.hasChanges
+                                                                    ? 'text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                                                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
+                                                    }`}
                                                 >
-                                                    <CheckCircleIcon className="w-4 h-4 mr-1" />
-                                                    Update
+                                                    {updatingUsers.has(user.id) ? (
+                                                        <>
+                                                            <ArrowPathIcon className="w-4 h-4 mr-1 animate-spin" />
+                                                            Updating...
+                                                        </>
+                                                    ) : recentlyUpdated.has(user.id) ? (
+                                                        <>
+                                                            <CheckCircleIcon className="w-4 h-4 mr-1" />
+                                                            Updated!
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <CheckCircleIcon className="w-4 h-4 mr-1" />
+                                                            Update
+                                                        </>
+                                                    )}
                                                 </button>
                                             </td>
                                         </tr>
-                                    )) || (
+                                        ))
+                                    ) : (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                            <td colSpan="6" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                                 <UsersIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                                                 <p>No users found</p>
                                             </td>
@@ -269,14 +751,31 @@ export default function RolesManagement() {
                                 </tbody>
                             </table>
                         </div>
-                        {/* Pagination */}
+                        {/* Enhanced Pagination */}
                         {totalPages > 1 && (
                             <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
                                     <div className="text-sm text-gray-700 dark:text-gray-300">
                                         Showing page {currentPage} of {totalPages}
+                                        {total && ` (${total} total users)`}
+                                        {users && ` - ${users.length} on this page`}
                                     </div>
+
                                     <div className="flex items-center space-x-2">
+                                        {/* First page button */}
+                                        {currentPage > 3 && (
+                                            <>
+                                                <button
+                                                    onClick={() => handlePageChange(1)}
+                                                    className="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                                >
+                                                    1
+                                                </button>
+                                                {currentPage > 4 && <span className="text-gray-400">...</span>}
+                                            </>
+                                        )}
+
+                                        {/* Previous button */}
                                         <button
                                             onClick={() => handlePageChange(currentPage - 1)}
                                             disabled={currentPage === 1}
@@ -286,25 +785,33 @@ export default function RolesManagement() {
                                             Previous
                                         </button>
 
+                                        {/* Page numbers */}
                                         <div className="flex space-x-1">
-                                            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                                                const page = i + 1;
-                                                return (
-                                                    <button
-                                                        key={page}
-                                                        onClick={() => handlePageChange(page)}
-                                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
-                                                            currentPage === page
-                                                                ? 'bg-blue-600 text-white shadow-sm'
-                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                                        }`}
-                                                    >
-                                                        {page}
-                                                    </button>
-                                                );
-                                            })}
+                                            {(() => {
+                                                const startPage = Math.max(1, currentPage - 2);
+                                                const endPage = Math.min(totalPages, currentPage + 2);
+                                                const pages = [];
+
+                                                for (let i = startPage; i <= endPage; i++) {
+                                                    pages.push(
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => handlePageChange(i)}
+                                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                                                                currentPage === i
+                                                                    ? 'bg-blue-600 text-white shadow-sm'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                            }`}
+                                                        >
+                                                            {i}
+                                                        </button>
+                                                    );
+                                                }
+                                                return pages;
+                                            })()}
                                         </div>
 
+                                        {/* Next button */}
                                         <button
                                             onClick={() => handlePageChange(currentPage + 1)}
                                             disabled={currentPage === totalPages}
@@ -313,7 +820,43 @@ export default function RolesManagement() {
                                             Next
                                             <ChevronRightIcon className="w-4 h-4 ml-1" />
                                         </button>
+
+                                        {/* Last page button */}
+                                        {currentPage < totalPages - 2 && (
+                                            <>
+                                                {currentPage < totalPages - 3 && <span className="text-gray-400">...</span>}
+                                                <button
+                                                    onClick={() => handlePageChange(totalPages)}
+                                                    className="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                                >
+                                                    {totalPages}
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
+
+                                    {/* Go to page input for large datasets */}
+                                    {totalPages > 10 && (
+                                        <div className="flex items-center space-x-2 ml-4">
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">Go to:</span>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max={totalPages}
+                                                placeholder="Page"
+                                                className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const page = parseInt(e.target.value);
+                                                        if (page >= 1 && page <= totalPages) {
+                                                            handlePageChange(page);
+                                                            e.target.value = '';
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -671,6 +1214,22 @@ export default function RolesManagement() {
                     </div>
                 </div>
             </div>
+
+            {/* Success Toast */}
+            {showSuccessToast && (
+                <div className="fixed top-4 right-4 z-50 animate-fade-in">
+                    <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3">
+                        <CheckCircleIcon className="w-5 h-5" />
+                        <span className="font-medium">{successMessage}</span>
+                        <button
+                            onClick={() => setShowSuccessToast(false)}
+                            className="ml-2 text-green-200 hover:text-white"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            )}
         </SidebarLayout>
     );
 }

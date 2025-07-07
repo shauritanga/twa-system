@@ -36,6 +36,9 @@ const Settings = () => {
     const [emailSystemAlerts, setEmailSystemAlerts] = useState(settings.email_system_alerts ? settings.email_system_alerts.value === '1' : true);
     const [emailBackupReports, setEmailBackupReports] = useState(settings.email_backup_reports ? settings.email_backup_reports.value === '1' : false);
 
+    // Admin Settings
+    const [allowAdminAssignment, setAllowAdminAssignment] = useState(settings.allow_admin_assignment ? settings.allow_admin_assignment.value === '1' : true);
+
     // Backup Settings
     const [autoBackup, setAutoBackup] = useState(settings.auto_backup ? settings.auto_backup.value === '1' : false);
     const [backupFrequency, setBackupFrequency] = useState(settings.backup_frequency ? settings.backup_frequency.value : 'weekly');
@@ -73,6 +76,7 @@ const Settings = () => {
             max_login_attempts: maxLoginAttempts,
             require_email_verification: requireEmailVerification ? 1 : 0,
             enable_two_factor_auth: enableTwoFactorAuth ? 1 : 0,
+            allow_admin_assignment: allowAdminAssignment ? 1 : 0,
             system_timezone: systemTimezone,
             date_format: dateFormat,
             currency_symbol: currencySymbol,
@@ -602,6 +606,22 @@ const Settings = () => {
                                             onChange={(e) => setEnableTwoFactorAuth(e.target.checked)}
                                         />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900 dark:text-white">Admin Role Assignment</h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Allow administrators to assign roles to users</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={allowAdminAssignment}
+                                            onChange={(e) => setAllowAdminAssignment(e.target.checked)}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
                                     </label>
                                 </div>
                             </div>

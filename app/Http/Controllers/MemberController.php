@@ -189,9 +189,16 @@ class MemberController extends Controller
 
     public function destroy(Member $member)
     {
-        $member->delete();
+        try {
+            // Delete the member record (the model's booted method will handle user deletion automatically)
+            $member->delete();
 
-        return redirect()->route('admin.members.index');
+            return redirect()->route('admin.members.index')->with('message', 'Member and associated user account deleted successfully.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error deleting member: ' . $e->getMessage());
+            return redirect()->route('admin.members.index')->with('error', 'An error occurred while deleting the member. Please try again.');
+        }
     }
 
     public function export(Request $request)
@@ -397,5 +404,33 @@ class MemberController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Clean up orphaned user records that don't have corresponding member records
+     * This method can be called to fix existing data inconsistencies
+     */
+    public function cleanupOrphanedUsers()
+    {
+        try {
+            // Find users that don't have corresponding member records
+            $orphanedUsers = \App\Models\User::whereDoesntHave('member')->get();
+
+            $deletedCount = 0;
+            foreach ($orphanedUsers as $user) {
+                // Additional safety check: only delete users with 'member' role or no role
+                // Don't delete admin users or users with other important roles
+                if (!$user->role || $user->role->name === 'member') {
+                    $user->delete();
+                    $deletedCount++;
+                }
+            }
+
+            return redirect()->back()->with('message', "Cleanup completed: {$deletedCount} orphaned user records deleted.");
+
+        } catch (\Exception $e) {
+            \Log::error('Error cleaning up orphaned users: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred during cleanup. Please check the logs.');
+        }
     }
 }

@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::post('/admin/members', [MemberController::class, 'store'])->name('members.store');
     Route::match(['PUT', 'POST'], '/admin/members/{member}', [MemberController::class, 'update'])->name('members.update');
     Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
+    Route::post('/admin/members/cleanup-orphaned-users', [MemberController::class, 'cleanupOrphanedUsers'])->name('admin.members.cleanup');
     Route::get('/admin/financials', [FinancialsController::class, 'index'])->name('admin.financials.index');
 });
 

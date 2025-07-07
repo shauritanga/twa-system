@@ -24,6 +24,7 @@ return new class extends Migration
             ['key' => 'monthly_contribution_amount', 'value' => '50000', 'description' => 'Default monthly contribution amount for members', 'created_at' => now(), 'updated_at' => now()],
             ['key' => 'penalty_percentage_rate', 'value' => '10', 'description' => 'Percentage rate applied to missed contributions for penalties', 'created_at' => now(), 'updated_at' => now()],
             ['key' => 'apply_penalty_to_existing', 'value' => '0', 'description' => 'Flag to apply penalty rate changes to existing unpaid penalties (1 for yes, 0 for no)', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'allow_admin_assignment', 'value' => '1', 'description' => 'Allow administrators to assign roles to users', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
