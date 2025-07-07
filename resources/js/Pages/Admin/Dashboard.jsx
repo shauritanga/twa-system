@@ -183,6 +183,7 @@ export default function AdminDashboard({
     penaltySum,
     disasterPaymentSum,
     availableAmount,
+    beneficiaryCount,
     activeMembers,
     pendingMembers,
     unpaidDebts,
@@ -257,11 +258,12 @@ export default function AdminDashboard({
             onClick: () => router.get('/admin/financials', { tab: 'disaster_payments' })
         },
         {
-            title: 'Active Members',
-            value: activeMembers,
+            title: 'Total Beneficiaries',
+            value: beneficiaryCount,
             icon: <CheckCircleIcon className="w-8 h-8 text-white" />,
             isCurrency: false,
-            gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600'
+            gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+            onClick: () => router.get('/admin/financials', { tab: 'disaster_payments' })
         },
         {
             title: 'Pending Members',
