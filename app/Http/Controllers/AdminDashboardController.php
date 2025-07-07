@@ -403,6 +403,15 @@ class AdminDashboardController extends Controller
             );
         }
 
+        // Clear all settings caches to ensure immediate effect
+        $this->clearSettingsCache($validated);
+
+        // Handle special maintenance mode setting
+        if (isset($validated['maintenance_mode'])) {
+            $maintenanceService = app(\App\Services\MaintenanceConfigService::class);
+            $maintenanceService->setMaintenanceMode((bool) $validated['maintenance_mode']);
+        }
+
         // If apply_penalty_to_existing is true, recalculate existing unpaid penalties
         if ($request->input('apply_penalty_to_existing')) {
             $penaltyRate = $request->input('penalty_percentage_rate');
@@ -418,6 +427,41 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->back()->with('message', 'Settings updated successfully.');
+    }
+
+    /**
+     * Clear settings cache based on updated settings
+     *
+     * @param array $updatedSettings
+     * @return void
+     */
+    private function clearSettingsCache(array $updatedSettings): void
+    {
+        // Clear session settings cache if session-related settings were updated
+        if (array_intersect_key($updatedSettings, array_flip([
+            'session_timeout_minutes', 'require_email_verification', 'enable_two_factor_auth'
+        ]))) {
+            app(\App\Services\SessionConfigService::class)->clearAllCache();
+        }
+
+        // Clear auth settings cache if auth-related settings were updated
+        if (array_intersect_key($updatedSettings, array_flip([
+            'max_login_attempts', 'require_email_verification', 'enable_two_factor_auth', 'allow_admin_assignment'
+        ]))) {
+            app(\App\Services\AuthConfigService::class)->clearCache();
+        }
+
+        // Clear system settings cache if system-related settings were updated
+        if (array_intersect_key($updatedSettings, array_flip([
+            'system_timezone', 'date_format', 'currency_symbol'
+        ]))) {
+            app(\App\Services\SystemConfigService::class)->clearCache();
+        }
+
+        // Clear maintenance settings cache if maintenance mode was updated
+        if (isset($updatedSettings['maintenance_mode'])) {
+            app(\App\Services\MaintenanceConfigService::class)->clearCache();
+        }
     }
 
     public function backup(Request $request)

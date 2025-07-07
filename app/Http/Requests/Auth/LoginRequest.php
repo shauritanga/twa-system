@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Services\AuthConfigService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,20 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    /**
+     * The auth config service instance.
+     */
+    protected AuthConfigService $authConfigService;
+
+    /**
+     * Create a new form request instance.
+     */
+    public function __construct(AuthConfigService $authConfigService)
+    {
+        parent::__construct();
+        $this->authConfigService = $authConfigService;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -59,7 +74,9 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        $maxAttempts = $this->authConfigService->getMaxLoginAttempts();
+
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $maxAttempts)) {
             return;
         }
 

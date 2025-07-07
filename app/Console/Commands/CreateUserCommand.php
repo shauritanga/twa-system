@@ -33,28 +33,41 @@ class CreateUserCommand extends Command
         $name = $this->argument('name');
         $email = $this->argument('email');
         $password = $this->argument('password');
-        $role = $this->argument('role') ?? 'member';
+        $roleName = $this->argument('role') ?? 'member';
+
+        // Check if user already exists
+        if (User::where('email', $email)->exists()) {
+            $this->error("User with email '{$email}' already exists!");
+            return 1;
+        }
+
+        // Find the role
+        $role = \App\Models\Role::where('name', $roleName)->first();
+        if (!$role) {
+            $this->error("Role '{$roleName}' not found! Available roles: " . \App\Models\Role::pluck('name')->implode(', '));
+            return 1;
+        }
 
         // Create the user
         $user = User::create([
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($password),
-            'role' => $role,
+            'role_id' => $role->id,
         ]);
 
         // If the role is not admin, create a linked Member record
-        if ($role !== 'admin') {
+        if ($roleName !== 'admin') {
             Member::create([
                 'user_id' => $user->id,
                 'name' => $user->name,
             ]);
         }
 
-        $this->info("User created successfully!");
+        $this->info("✅ User created successfully!");
         $this->info("Name: {$user->name}");
         $this->info("Email: {$user->email}");
-        $this->info("Role: {$user->role}");
+        $this->info("Role: {$user->role->name}");
 
         return 0;
     }
