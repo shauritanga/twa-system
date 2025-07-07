@@ -22,17 +22,27 @@ ChartJS.register(
     Legend
 );
 
-const StatCard = ({ title, value, icon, isCurrency, trend, trendValue }) => (
-    <div className="card hover:shadow-lg transition-all duration-300 group">
-        <div className="card-body">
-            <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate mb-1">
-                        {title}
-                    </dt>
-                    <dd className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        {isCurrency ? `TZS ${value}` : value}
-                    </dd>
+const StatCard = ({ title, value, icon, isCurrency, trend, trendValue }) => {
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    return (
+        <div className="card hover:shadow-lg transition-all duration-300 group">
+            <div className="card-body">
+                <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate mb-1">
+                            {title}
+                        </dt>
+                        <dd className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                            {isCurrency ? formatCurrency(value) : value}
+                        </dd>
                     {trend && (
                         <div className={`flex items-center text-xs font-medium ${
                             trend === 'up' ? 'text-green-600 dark:text-green-400' :
@@ -52,23 +62,24 @@ const StatCard = ({ title, value, icon, isCurrency, trend, trendValue }) => (
                             {trendValue}
                         </div>
                     )}
-                </div>
-                <div className="flex-shrink-0 ml-4">
-                    <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg group-hover:scale-110 transition-transform duration-300">
-                        {icon}
+                    </div>
+                    <div className="flex-shrink-0 ml-4">
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                            {icon}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default function AdminDashboard({ memberCount, contributionSum, debtSum, penaltySum, disasterPaymentSum, beneficiaryCount, dependentCount, availableAmount, monthlyContributions = [], monthlyDisasterPayments = [], monthlyDebts = [], monthlyPenalties = [], recentDisasterPayments = [] }) {
     const data = {
         labels: ['Contributions', 'Debts', 'Penalties', 'Disaster Payments'],
         datasets: [
             {
-                label: 'Amount in USD',
+                label: 'Amount in TZS',
                 data: [contributionSum, debtSum, penaltySum, disasterPaymentSum],
                 backgroundColor: [
                     'rgba(59, 130, 246, 0.7)',

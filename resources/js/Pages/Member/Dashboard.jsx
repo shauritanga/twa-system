@@ -31,7 +31,12 @@ const StatCard = ({ title, value, icon }) => (
 );
 
 const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('sw-TZ', { style: 'currency', currency: 'TZS' }).format(amount);
+    return new Intl.NumberFormat('en-TZ', {
+        style: 'currency',
+        currency: 'TZS',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(amount);
 };
 
 export default function MemberDashboard({ contributions, debts, penalties, dependents, certificates, memberContributions, otherContributions, recentDisasterPayments, monthlyContributions, monthlyDisasterPayments }) {

@@ -112,7 +112,78 @@ class AdminDashboardController extends Controller
 
     public function reportsPage()
     {
-        return inertia('Admin/Reports');
+        $memberCount = Member::count();
+        $contributionSum = Contribution::sum('amount');
+        $debtSum = Debt::sum('amount');
+        $penaltySum = Penalty::sum('amount');
+        $disasterPaymentSum = DisasterPayment::sum('amount');
+        $beneficiaryCount = DisasterPayment::distinct('member_id')->count('member_id');
+        $dependentCount = Dependent::count();
+        $paidPenalties = Penalty::where('status', 'paid')->sum('amount');
+        $availableAmount = $contributionSum + $paidPenalties - $debtSum - $disasterPaymentSum;
+
+        $monthlyContributions = Contribution::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $monthlyDisasterPayments = DisasterPayment::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $monthlyDebts = Debt::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $monthlyPenalties = Penalty::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        // Recent data for detailed views
+        $recentContributions = Contribution::with('member')->latest()->take(10)->get();
+        $recentDebts = Debt::with('member')->latest()->take(10)->get();
+        $recentPenalties = Penalty::with('member')->latest()->take(10)->get();
+        $recentDisasterPayments = DisasterPayment::with('member')->latest()->take(10)->get();
+
+        // Top contributors
+        $topContributors = Member::withSum('contributions', 'amount')
+            ->orderBy('contributions_sum_amount', 'desc')
+            ->take(10)
+            ->get();
+
+        // Members with outstanding debts (defaulters)
+        $defaulters = Member::whereHas('debts', function($query) {
+            $query->where('status', 'unpaid');
+        })->withSum(['debts' => function($query) {
+            $query->where('status', 'unpaid');
+        }], 'amount')->take(10)->get();
+
+        $members = Member::all();
+
+        return inertia('Admin/Reports', [
+            'memberCount' => $memberCount,
+            'contributionSum' => $contributionSum,
+            'debtSum' => $debtSum,
+            'penaltySum' => $penaltySum,
+            'disasterPaymentSum' => $disasterPaymentSum,
+            'beneficiaryCount' => $beneficiaryCount,
+            'dependentCount' => $dependentCount,
+            'availableAmount' => $availableAmount,
+            'monthlyContributions' => $monthlyContributions,
+            'monthlyDisasterPayments' => $monthlyDisasterPayments,
+            'monthlyDebts' => $monthlyDebts,
+            'monthlyPenalties' => $monthlyPenalties,
+            'recentContributions' => $recentContributions,
+            'recentDebts' => $recentDebts,
+            'recentPenalties' => $recentPenalties,
+            'recentDisasterPayments' => $recentDisasterPayments,
+            'topContributors' => $topContributors,
+            'defaulters' => $defaulters,
+            'members' => $members,
+        ]);
     }
 
     public function chartsPage(Request $request)

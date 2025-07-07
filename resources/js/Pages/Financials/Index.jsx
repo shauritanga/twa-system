@@ -16,6 +16,16 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
     const initialTab = props.tab || 'contributions';
     const [activeTab, setActiveTab] = useState(initialTab);
 
+    // Currency formatting function
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const tabs = [
         {
             id: 'contributions',
@@ -619,7 +629,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                                                                     </svg>
                                                                 </div>
                                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 dark:from-green-900/20 dark:to-emerald-900/20 dark:text-green-400 border border-green-200 dark:border-green-800">
-                                                                    {amount.toLocaleString()}
+                                                                    {formatCurrency(amount)}
                                                                 </span>
                                                             </div>
                                                         </>
@@ -783,7 +793,7 @@ const DebtsTable = ({ debts, members }) => {
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
                                 <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                    {parseFloat(debt.amount).toLocaleString()}
+                                    {formatCurrency(parseFloat(debt.amount))}
                                 </span>
                             </div>
                             <div className="flex justify-between">
@@ -843,7 +853,7 @@ const DebtsTable = ({ debts, members }) => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                        {parseFloat(debt.amount).toLocaleString()}
+                                        {formatCurrency(parseFloat(debt.amount))}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         {debt.reason}
@@ -944,7 +954,7 @@ const PenaltiesTable = ({ penalties }) => {
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
                                 <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                    {parseFloat(penalty.amount).toLocaleString()}
+                                    {formatCurrency(parseFloat(penalty.amount))}
                                 </span>
                             </div>
                             <div className="flex justify-between">
@@ -1004,7 +1014,7 @@ const PenaltiesTable = ({ penalties }) => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                        {parseFloat(penalty.amount).toLocaleString()}
+                                        {formatCurrency(parseFloat(penalty.amount))}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         {penalty.reason}
@@ -1148,13 +1158,13 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
                                 <div>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">Penalties:</span>
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {member.totalPenalties.toLocaleString()}
+                                        {formatCurrency(member.totalPenalties)}
                                     </p>
                                 </div>
                                 <div>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">Total to Clear:</span>
                                     <p className="text-sm font-bold text-red-600 dark:text-red-400">
-                                        {member.totalToClear.toLocaleString()}
+                                        {formatCurrency(member.totalToClear)}
                                     </p>
                                 </div>
                             </div>
@@ -1215,13 +1225,13 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900 dark:text-white">
-                                            {member.totalPenalties.toLocaleString()}
+                                            {formatCurrency(member.totalPenalties)}
                                             {member.totalPenalties === 0 && (
                                                 <span className="block text-xs text-gray-400">No penalties</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-red-600 dark:text-red-400">
-                                            {member.totalToClear.toLocaleString()}
+                                            {formatCurrency(member.totalToClear)}
                                         </td>
                                     </tr>
                                 ))
@@ -1301,7 +1311,7 @@ const DisasterPaymentsTable = ({ disasterPayments, members }) => {
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
                                 <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                                    +{parseFloat(payment.amount).toLocaleString()}
+                                    +{formatCurrency(parseFloat(payment.amount))}
                                 </span>
                             </div>
                             <div className="flex justify-between">
@@ -1346,7 +1356,7 @@ const DisasterPaymentsTable = ({ disasterPayments, members }) => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                                            +{parseFloat(payment.amount).toLocaleString()}
+                                            +{formatCurrency(parseFloat(payment.amount))}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
