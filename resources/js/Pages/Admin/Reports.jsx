@@ -31,6 +31,7 @@ import {
     UsersIcon,
     ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+import { LiaCoinsSolid } from "react-icons/lia";
 
 ChartJS.register(
     CategoryScale,
@@ -116,7 +117,7 @@ export default function Reports({
             {
                 title: 'Total Contributions',
                 value: contributionSum,
-                icon: <CurrencyDollarIcon className="w-8 h-8" />,
+                icon: <LiaCoinsSolid className="w-8 h-8" />,
                 color: 'green',
                 isCurrency: true,
                 trend: contributionTrend.trend,
@@ -173,7 +174,7 @@ export default function Reports({
         {
             id: 'contributions',
             name: 'Contributions',
-            icon: CurrencyDollarIcon,
+            icon: LiaCoinsSolid,
             color: 'text-green-600 dark:text-green-400',
             bgColor: 'bg-green-50 dark:bg-green-900/20'
         },
@@ -476,7 +477,7 @@ export default function Reports({
                                             <p className="text-purple-100 text-sm">Avg. Contribution</p>
                                             <p className="text-2xl font-bold">{formatCurrency(contributionSum / Math.max(memberCount, 1))}</p>
                                         </div>
-                                        <CurrencyDollarIcon className="w-8 h-8 text-purple-200" />
+                                        <LiaCoinsSolid className="w-8 h-8 text-purple-200" />
                                     </div>
                                 </div>
                                 <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
@@ -503,7 +504,7 @@ export default function Reports({
                                             <p className="text-green-100 text-sm">Total Contributions</p>
                                             <p className="text-2xl font-bold">{formatCurrency(contributionSum)}</p>
                                         </div>
-                                        <CurrencyDollarIcon className="w-8 h-8 text-green-200" />
+                                        <LiaCoinsSolid className="w-8 h-8 text-green-200" />
                                     </div>
                                 </div>
                                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">

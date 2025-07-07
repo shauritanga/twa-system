@@ -10,6 +10,7 @@ import {
     HeartIcon,
     FaceSmileIcon
 } from '@heroicons/react/24/outline';
+import { LiaCoinsSolid } from "react-icons/lia";
 
 const Financials = ({ members, contributionsByMonth, filters, debts, penalties, disasterPayments }) => {
     const { props } = usePage();
@@ -30,7 +31,7 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
         {
             id: 'contributions',
             name: 'Contributions',
-            icon: CurrencyDollarIcon,
+            icon: LiaCoinsSolid,
             color: 'text-green-600 dark:text-green-400',
             bgColor: 'bg-green-50 dark:bg-green-900/20',
             borderColor: 'border-green-500'
@@ -96,7 +97,7 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
                         <div>
                             <div className="flex items-center mb-3">
                                 <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg mr-4">
-                                    <CurrencyDollarIcon className="h-8 w-8 text-white" />
+                                    <LiaCoinsSolid className="h-8 w-8 text-white" />
                                 </div>
                                 <div>
                                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
@@ -398,7 +399,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg mr-4">
-                            <CurrencyDollarIcon className="h-8 w-8 text-white" />
+                            <LiaCoinsSolid className="h-8 w-8 text-white" />
                         </div>
                         <div>
                             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">

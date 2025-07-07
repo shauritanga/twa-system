@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import Header from '../Components/Header';
-import { ChartBarIcon, UsersIcon, CurrencyDollarIcon, CogIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, UsersIcon, CogIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import { LiaCoinsSolid } from "react-icons/lia";
 
 export default function SidebarLayout({ children }) {
     const { auth } = usePage().props;
@@ -55,7 +56,7 @@ export default function SidebarLayout({ children }) {
                 return [
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
-                    { href: '/admin/financials', icon: CurrencyDollarIcon, label: 'Financials' },
+                    { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
                     { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                     { href: '/admin/roles', icon: ShieldCheckIcon, label: 'Roles' },
                     { href: '/admin/settings', icon: CogIcon, label: 'Settings' },
@@ -64,14 +65,14 @@ export default function SidebarLayout({ children }) {
                 return [
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
-                    { href: '/admin/financials', icon: CurrencyDollarIcon, label: 'Financials' },
+                    { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
                     { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                 ];
             }
         }
         return [
             { href: '/member/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
-            { href: '/financials', icon: CurrencyDollarIcon, label: 'Financials' },
+            { href: '/financials', icon: LiaCoinsSolid, label: 'Financials' },
             { href: '/member/dependents', icon: UsersIcon, label: 'Dependents' },
         ];
     };

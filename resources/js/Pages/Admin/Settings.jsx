@@ -7,7 +7,6 @@ import {
     ArchiveBoxIcon,
     Cog6ToothIcon,
     UserCircleIcon,
-    CurrencyDollarIcon,
     ExclamationTriangleIcon,
     BellIcon,
     ShieldCheckIcon,
@@ -17,9 +16,9 @@ import {
     XCircleIcon,
     ClockIcon,
     DocumentDuplicateIcon,
-    CpuChipIcon,
-    ChartBarIcon
+    CpuChipIcon
 } from '@heroicons/react/24/outline';
+import { LiaCoinsSolid } from "react-icons/lia";
 
 const Settings = () => {
     const { settings, recentLogins, systemStats } = usePage().props;
@@ -392,7 +391,7 @@ const Settings = () => {
                 <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                     <div className="flex items-center">
                         <div className="p-2 bg-green-500 rounded-lg mr-3">
-                            <CurrencyDollarIcon className="w-6 h-6 text-white" />
+                            <LiaCoinsSolid className="w-6 h-6 text-white" />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Financial Configuration</h2>
@@ -407,7 +406,7 @@ const Settings = () => {
                             <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6">
                                 <div className="flex items-center mb-4">
                                     <div className="p-2 bg-blue-500 rounded-lg mr-3">
-                                        <CurrencyDollarIcon className="w-5 h-5 text-white" />
+                                        <LiaCoinsSolid className="w-5 h-5 text-white" />
                                     </div>
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Monthly Contribution</h3>
                                 </div>
@@ -566,7 +565,7 @@ const Settings = () => {
                             <div className="flex items-start justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
                                 <div className="flex-1">
                                     <div className="flex items-center mb-2">
-                                        <CurrencyDollarIcon className="w-5 h-5 text-blue-500 mr-2" />
+                                        <LiaCoinsSolid className="w-5 h-5 text-blue-500 mr-2" />
                                         <h4 className="font-semibold text-gray-900 dark:text-white">Contribution Reminders</h4>
                                     </div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">Send automatic reminders for monthly contributions</p>
@@ -844,7 +843,7 @@ const Settings = () => {
                                         maxLength="10"
                                     />
                                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <CurrencyDollarIcon className="h-5 w-5 text-gray-400" />
+                                        <LiaCoinsSolid className="h-5 w-5 text-gray-400" />
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">Currency symbol used in financial displays and reports</p>

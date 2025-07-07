@@ -31,6 +31,7 @@ import {
     PresentationChartLineIcon,
     ChartPieIcon
 } from '@heroicons/react/24/outline';
+import { LiaCoinsSolid } from "react-icons/lia";
 
 ChartJS.register(
     CategoryScale,
@@ -51,27 +52,26 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
-const StatCard = ({ title, value, icon, isCurrency, trend, trendValue, gradient, onClick }) => {
+const StatCard = ({ title, value, icon, iconBg, isCurrency, trend, trendValue, onClick }) => {
     return (
         <div
-            className={`relative overflow-hidden rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group cursor-pointer ${gradient} ${onClick ? 'hover:scale-105' : ''}`}
+            className={`relative overflow-hidden rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300 group cursor-pointer ${onClick ? 'hover:scale-105' : ''}`}
             onClick={onClick}
         >
-            <div className="absolute inset-0 bg-gradient-to-br opacity-10"></div>
             <div className="relative p-6">
                 <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                        <dt className="text-sm font-medium text-white/80 truncate mb-2">
+                        <dt className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate mb-2">
                             {title}
                         </dt>
-                        <dd className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                        <dd className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
                             {isCurrency ? formatCurrency(value) : typeof value === 'number' ? value.toLocaleString() : value}
                         </dd>
                         {trend && (
                             <div className={`flex items-center text-sm font-medium ${
-                                trend === 'up' ? 'text-green-200' :
-                                trend === 'down' ? 'text-red-200' :
-                                'text-white/70'
+                                trend === 'up' ? 'text-green-600 dark:text-green-400' :
+                                trend === 'down' ? 'text-red-600 dark:text-red-400' :
+                                'text-gray-500 dark:text-gray-400'
                             }`}>
                                 {trend === 'up' && <ArrowUpIcon className="w-4 h-4 mr-1" />}
                                 {trend === 'down' && <ArrowDownIcon className="w-4 h-4 mr-1" />}
@@ -80,7 +80,7 @@ const StatCard = ({ title, value, icon, isCurrency, trend, trendValue, gradient,
                         )}
                     </div>
                     <div className="flex-shrink-0 ml-4">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg group-hover:scale-110 transition-transform duration-300">
+                        <div className={`p-3 ${iconBg} rounded-lg group-hover:scale-110 transition-transform duration-300`}>
                             {icon}
                         </div>
                     </div>
@@ -90,31 +90,7 @@ const StatCard = ({ title, value, icon, isCurrency, trend, trendValue, gradient,
     );
 };
 
-const QuickActionCard = ({ title, description, icon, onClick, color = "blue" }) => {
-    const colorClasses = {
-        blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
-        green: "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700",
-        purple: "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700",
-        orange: "from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700",
-    };
 
-    return (
-        <div
-            className={`bg-gradient-to-r ${colorClasses[color]} rounded-xl p-6 text-white cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105`}
-            onClick={onClick}
-        >
-            <div className="flex items-center">
-                <div className="p-3 bg-white/20 rounded-lg mr-4">
-                    {icon}
-                </div>
-                <div>
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                    <p className="text-white/80 text-sm">{description}</p>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const ActivityCard = ({ title, items, icon, emptyMessage, type }) => {
     return (
@@ -217,8 +193,8 @@ export default function AdminDashboard({
             title: 'Total Members',
             value: memberCount,
             icon: <UserGroupIcon className="w-8 h-8 text-white" />,
+            iconBg: 'bg-blue-500',
             isCurrency: false,
-            gradient: 'bg-gradient-to-br from-blue-500 to-blue-600',
             trend: memberGrowth > 0 ? 'up' : memberGrowth < 0 ? 'down' : null,
             trendValue: Math.abs(memberGrowth),
             onClick: () => router.get('/admin/members')
@@ -226,9 +202,9 @@ export default function AdminDashboard({
         {
             title: 'Total Contributions',
             value: contributionSum,
-            icon: <CurrencyDollarIcon className="w-8 h-8 text-white" />,
+            icon: <LiaCoinsSolid  className="w-8 h-8 text-white" />,
+            iconBg: 'bg-green-500',
             isCurrency: true,
-            gradient: 'bg-gradient-to-br from-green-500 to-green-600',
             trend: contributionGrowth > 0 ? 'up' : contributionGrowth < 0 ? 'down' : null,
             trendValue: Math.abs(contributionGrowth),
             onClick: () => router.get('/admin/financials', { tab: 'contributions' })
@@ -237,47 +213,47 @@ export default function AdminDashboard({
             title: 'Outstanding Debts',
             value: unpaidDebts,
             icon: <ExclamationCircleIcon className="w-8 h-8 text-white" />,
+            iconBg: 'bg-red-500',
             isCurrency: true,
-            gradient: 'bg-gradient-to-br from-red-500 to-red-600',
             onClick: () => router.get('/admin/financials', { tab: 'debts' })
         },
         {
             title: 'Unpaid Penalties',
             value: unpaidPenalties,
             icon: <ExclamationTriangleIcon className="w-8 h-8 text-white" />,
+            iconBg: 'bg-yellow-500',
             isCurrency: true,
-            gradient: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
             onClick: () => router.get('/admin/financials', { tab: 'penalties' })
         },
         {
             title: 'Disaster Payments',
             value: disasterPaymentSum,
             icon: <BanknotesIcon className="w-8 h-8 text-white" />,
+            iconBg: 'bg-purple-500',
             isCurrency: true,
-            gradient: 'bg-gradient-to-br from-purple-500 to-purple-600',
             onClick: () => router.get('/admin/financials', { tab: 'disaster_payments' })
         },
         {
             title: 'Total Beneficiaries',
             value: beneficiaryCount,
             icon: <CheckCircleIcon className="w-8 h-8 text-white" />,
+            iconBg: 'bg-emerald-500',
             isCurrency: false,
-            gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
             onClick: () => router.get('/admin/financials', { tab: 'disaster_payments' })
         },
         {
             title: 'Pending Members',
             value: pendingMembers,
             icon: <ClockIcon className="w-8 h-8 text-white" />,
-            isCurrency: false,
-            gradient: 'bg-gradient-to-br from-orange-500 to-orange-600'
+            iconBg: 'bg-orange-500',
+            isCurrency: false
         },
         {
             title: 'Available Amount',
             value: availableAmount,
-            icon: <CurrencyDollarIcon className="w-8 h-8 text-white" />,
-            isCurrency: true,
-            gradient: 'bg-gradient-to-br from-teal-500 to-teal-600'
+            icon: <LiaCoinsSolid className="w-8 h-8 text-white" />,
+            iconBg: 'bg-teal-500',
+            isCurrency: true
         },
     ];
 
@@ -392,8 +368,8 @@ export default function AdminDashboard({
                         title={card.title}
                         value={card.value}
                         icon={card.icon}
+                        iconBg={card.iconBg}
                         isCurrency={card.isCurrency}
-                        gradient={card.gradient}
                         trend={card.trend}
                         trendValue={card.trendValue}
                         onClick={card.onClick}
@@ -401,37 +377,7 @@ export default function AdminDashboard({
                 ))}
             </div>
 
-            {/* Quick Actions Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <QuickActionCard
-                    title="Add Member"
-                    description="Register new member"
-                    icon={<UserGroupIcon className="w-6 h-6" />}
-                    onClick={() => router.get('/admin/members')}
-                    color="blue"
-                />
-                <QuickActionCard
-                    title="Record Contribution"
-                    description="Add new contribution"
-                    icon={<CurrencyDollarIcon className="w-6 h-6" />}
-                    onClick={() => router.get('/admin/financials')}
-                    color="green"
-                />
-                <QuickActionCard
-                    title="View Reports"
-                    description="Generate reports"
-                    icon={<ChartBarIcon className="w-6 h-6" />}
-                    onClick={() => router.get('/admin/reports')}
-                    color="purple"
-                />
-                <QuickActionCard
-                    title="Manage Roles"
-                    description="User permissions"
-                    icon={<UsersIcon className="w-6 h-6" />}
-                    onClick={() => router.get('/admin/roles')}
-                    color="orange"
-                />
-            </div>
+
 
             {/* Recent Activities Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
