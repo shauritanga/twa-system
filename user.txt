@@ -1,1 +1,27 @@
-$user = App\Models\User::create(['name' => 'Placidius Rwechungura', 'email' => 'placd36@gmail.com', 'password' => Illuminate\Support\Facades\Hash::make('Mwanza123$'), 'role_id' => $role->id]);
+# Run all seeders
+php artisan db:seed
+
+# Run specific seeders
+php artisan db:seed --class=RoleSeeder
+php artisan db:seed --class=PermissionSeeder
+php artisan db:seed --class=AdditionalPermissionsSeeder
+
+php artisan tinker
+
+// Create a role
+$role = App\Models\Role::create(['name' => 'manager', 'description' => 'Department Manager']);
+
+// Create a permission
+$permission = App\Models\Permission::create(['name' => 'manage_staff', 'description' => 'Manage staff members']);
+
+// Create admin user
+$adminRole = App\Models\Role::where('name', 'admin')->first();
+$user = App\Models\User::create([
+    'name' => 'Athanas Shauritanga',
+    'email' => 'shauritangaathanas@gmail.com', 
+    'password' => Hash::make('Athanas@2015'),
+    'role_id' => $adminRole->id
+]);
+
+// Assign permission to role
+$role->permissions()->attach($permission->id);

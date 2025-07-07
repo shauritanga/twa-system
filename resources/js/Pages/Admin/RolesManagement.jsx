@@ -4,6 +4,7 @@ import SidebarLayout from '../../Layouts/SidebarLayout';
 import TextInput from '../../Components/TextInput';
 import InputLabel from '../../Components/InputLabel';
 import InputError from '../../Components/InputError';
+import Modal from '../../Components/Modal';
 import {
     UserGroupIcon,
     ShieldCheckIcon,
@@ -86,6 +87,14 @@ export default function RolesManagement() {
         name: '',
         description: '',
     });
+
+    // State for editing modes
+    const [editingRole, setEditingRole] = useState(null);
+    const [editingPermission, setEditingPermission] = useState(null);
+
+    // State for confirmation modals
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'role'|'permission', id: number, name: string }
 
     // Form for assigning permissions to roles
     const { data: assignData, setData: setAssignData, post: assignPermissions, errors: assignErrors } = useForm({
@@ -243,15 +252,44 @@ export default function RolesManagement() {
 
     const handleCreateRole = (e) => {
         e.preventDefault();
-        createRole('/admin/roles', {
-            onSuccess: () => resetRole(),
-        });
+        if (editingRole) {
+            // Update existing role
+            updateRole(`/admin/roles/${editingRole.id}`, {
+                onSuccess: () => {
+                    resetRole();
+                    setEditingRole(null);
+                    setSuccessMessage('Role updated successfully');
+                    setShowSuccessToast(true);
+                    setTimeout(() => setShowSuccessToast(false), 3000);
+                },
+            });
+        } else {
+            // Create new role
+            createRole('/admin/roles', {
+                onSuccess: () => {
+                    resetRole();
+                    setSuccessMessage('Role created successfully');
+                    setShowSuccessToast(true);
+                    setTimeout(() => setShowSuccessToast(false), 3000);
+                },
+            });
+        }
     };
 
     const handleUpdateRole = (roleId) => {
-        updateRole(`/admin/roles/${roleId}`, {
-            onSuccess: () => resetRole(),
-        });
+        const role = roles.find(r => r.id === roleId);
+        if (role) {
+            setEditingRole(role);
+            setRoleData({
+                name: role.name,
+                description: role.description || '',
+            });
+        }
+    };
+
+    const handleCancelRoleEdit = () => {
+        setEditingRole(null);
+        resetRole();
     };
 
     // Bulk operations functions
@@ -333,31 +371,96 @@ export default function RolesManagement() {
     };
 
     const handleDeleteRole = (roleId) => {
-        if (confirm('Are you sure you want to delete this role?')) {
-            // Assuming a delete method is available
-            // deleteRole(`/admin/roles/${roleId}`);
+        const role = roles.find(r => r.id === roleId);
+        if (role) {
+            setDeleteTarget({ type: 'role', id: roleId, name: role.name });
+            setShowDeleteModal(true);
         }
+    };
+
+    const handleDeletePermission = (permissionId) => {
+        const permission = permissions.find(p => p.id === permissionId);
+        if (permission) {
+            setDeleteTarget({ type: 'permission', id: permissionId, name: permission.name });
+            setShowDeleteModal(true);
+        }
+    };
+
+    const confirmDelete = () => {
+        if (!deleteTarget) return;
+
+        const endpoint = deleteTarget.type === 'role'
+            ? `/admin/roles/${deleteTarget.id}`
+            : `/admin/permissions/${deleteTarget.id}`;
+
+        const successMessage = deleteTarget.type === 'role'
+            ? 'Role deleted successfully'
+            : 'Permission deleted successfully';
+
+        router.delete(endpoint, {
+            onSuccess: () => {
+                setSuccessMessage(successMessage);
+                setShowSuccessToast(true);
+                setTimeout(() => setShowSuccessToast(false), 3000);
+                setShowDeleteModal(false);
+                setDeleteTarget(null);
+            },
+            onError: (errors) => {
+                console.error(`Error deleting ${deleteTarget.type}:`, errors);
+                setShowDeleteModal(false);
+                setDeleteTarget(null);
+            }
+        });
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false);
+        setDeleteTarget(null);
     };
 
     const handleCreatePermission = (e) => {
         e.preventDefault();
-        createPermission('/admin/permissions', {
-            onSuccess: () => resetPermission(),
-        });
+        if (editingPermission) {
+            // Update existing permission
+            updatePermission(`/admin/permissions/${editingPermission.id}`, {
+                onSuccess: () => {
+                    resetPermission();
+                    setEditingPermission(null);
+                    setSuccessMessage('Permission updated successfully');
+                    setShowSuccessToast(true);
+                    setTimeout(() => setShowSuccessToast(false), 3000);
+                },
+            });
+        } else {
+            // Create new permission
+            createPermission('/admin/permissions', {
+                onSuccess: () => {
+                    resetPermission();
+                    setSuccessMessage('Permission created successfully');
+                    setShowSuccessToast(true);
+                    setTimeout(() => setShowSuccessToast(false), 3000);
+                },
+            });
+        }
     };
 
     const handleUpdatePermission = (permissionId) => {
-        updatePermission(`/admin/permissions/${permissionId}`, {
-            onSuccess: () => resetPermission(),
-        });
-    };
-
-    const handleDeletePermission = (permissionId) => {
-        if (confirm('Are you sure you want to delete this permission?')) {
-            // Assuming a delete method is available
-            // deletePermission(`/admin/permissions/${permissionId}`);
+        const permission = permissions.find(p => p.id === permissionId);
+        if (permission) {
+            setEditingPermission(permission);
+            setPermissionData({
+                name: permission.name,
+                description: permission.description || '',
+            });
         }
     };
+
+    const handleCancelPermissionEdit = () => {
+        setEditingPermission(null);
+        resetPermission();
+    };
+
+
 
     const handleAssignPermissions = (e) => {
         e.preventDefault();
@@ -882,7 +985,7 @@ export default function RolesManagement() {
                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700/50 dark:to-gray-600/50 rounded-lg p-6 mb-6 border border-green-200 dark:border-gray-600">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                                 <PlusIcon className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-                                Create New Role
+                                {editingRole ? 'Edit Role' : 'Create New Role'}
                             </h3>
                             <form onSubmit={handleCreateRole}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -911,14 +1014,23 @@ export default function RolesManagement() {
                                         />
                                     </div>
                                 </div>
-                                <div className="mt-6">
+                                <div className="mt-6 flex items-center space-x-3">
                                     <button
                                         type="submit"
                                         className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
                                     >
                                         <PlusIcon className="w-4 h-4 mr-2" />
-                                        Create Role
+                                        {editingRole ? 'Update Role' : 'Create Role'}
                                     </button>
+                                    {editingRole && (
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelRoleEdit}
+                                            className="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
                                 </div>
                             </form>
                         </div>
@@ -1009,7 +1121,7 @@ export default function RolesManagement() {
                         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-700/50 dark:to-gray-600/50 rounded-lg p-6 mb-6 border border-purple-200 dark:border-gray-600">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                                 <PlusIcon className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
-                                Create New Permission
+                                {editingPermission ? 'Edit Permission' : 'Create New Permission'}
                             </h3>
                             <form onSubmit={handleCreatePermission}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1038,14 +1150,23 @@ export default function RolesManagement() {
                                         />
                                     </div>
                                 </div>
-                                <div className="mt-6">
+                                <div className="mt-6 flex items-center space-x-3">
                                     <button
                                         type="submit"
                                         className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
                                     >
                                         <PlusIcon className="w-4 h-4 mr-2" />
-                                        Create Permission
+                                        {editingPermission ? 'Update Permission' : 'Create Permission'}
                                     </button>
+                                    {editingPermission && (
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelPermissionEdit}
+                                            className="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
                                 </div>
                             </form>
                         </div>
@@ -1214,6 +1335,39 @@ export default function RolesManagement() {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                show={showDeleteModal}
+                onClose={cancelDelete}
+                title={`Delete ${deleteTarget?.type === 'role' ? 'Role' : 'Permission'}`}
+                maxWidth="lg"
+                icon={<ExclamationTriangleIcon className="w-6 h-6" />}
+                iconColor="red"
+            >
+                <div className="p-6">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        Are you sure you want to delete the {deleteTarget?.type} "<span className="font-semibold text-gray-700 dark:text-gray-300">{deleteTarget?.name}</span>"?
+                        This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            onClick={cancelDelete}
+                            className="inline-flex justify-center rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={confirmDelete}
+                            className="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Success Toast */}
             {showSuccessToast && (
