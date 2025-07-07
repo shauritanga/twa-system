@@ -1247,6 +1247,9 @@ export default function MembersIndex({ members }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMember, setEditingMember] = useState(null);
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
 
     // Search and filtering states
@@ -1389,6 +1392,59 @@ export default function MembersIndex({ members }) {
         }
     };
 
+    const handleImportFile = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
+    const handleImportSubmit = () => {
+        if (selectedFile) {
+            setIsImporting(true);
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            router.post(route('members.import'), formData, {
+                onSuccess: () => {
+                    setIsImportModalOpen(false);
+                    setSelectedFile(null);
+                    setIsImporting(false);
+                    toast.success('Members imported successfully!', {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                },
+                onError: (errors) => {
+                    setIsImporting(false);
+                    console.error('Import errors:', errors);
+                    let errorMessage = 'An error occurred while importing members. Please check your file format and try again.';
+
+                    if (errors.message) {
+                        errorMessage = errors.message;
+                    } else if (errors.file) {
+                        errorMessage = errors.file[0];
+                    }
+
+                    toast.error(errorMessage, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                }
+            });
+        }
+    };
+
     return (
         <SidebarLayout>
             <div className="mb-8">
@@ -1451,6 +1507,17 @@ export default function MembersIndex({ members }) {
                                 </div>
                             )}
                         </div>
+
+                        {/* Import Button */}
+                        <button
+                            onClick={() => setIsImportModalOpen(true)}
+                            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                            </svg>
+                            Import Members
+                        </button>
 
                         {/* View Toggle Buttons */}
                         <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
@@ -1952,6 +2019,212 @@ export default function MembersIndex({ members }) {
                                 </button>
                                 <button onClick={closeDeleteModal} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                                     Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Import Modal */}
+            {isImportModalOpen && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+                    <div className="relative p-6 border max-w-2xl w-full shadow-lg rounded-lg bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
+                        <div className="mt-3">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Import Members</h3>
+                                <button
+                                    onClick={() => {
+                                        setIsImportModalOpen(false);
+                                        setSelectedFile(null);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    disabled={isImporting}
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Import Instructions */}
+                                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <div className="flex items-start">
+                                        <svg className="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div>
+                                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">📋 Import Instructions</h4>
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <h5 className="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-2">📝 Required Fields</h5>
+                                                    <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                                                        <li>• <strong>first_name</strong> - Member's first name</li>
+                                                        <li>• <strong>surname</strong> - Member's last name</li>
+                                                        <li>• <strong>email</strong> - Unique email address</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <h5 className="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-2">📋 Optional Fields</h5>
+                                                    <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                                                        <li>• <strong>middle_name</strong> - Middle name</li>
+                                                        <li>• <strong>phone_number</strong> - Contact number</li>
+                                                        <li>• <strong>address</strong> - Physical address</li>
+                                                        <li>• <strong>place_of_birth</strong> - Birth location</li>
+                                                        <li>• <strong>sex</strong> - Male/Female</li>
+                                                        <li>• <strong>date_of_birth</strong> - YYYY-MM-DD format</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-700">
+                                                <h5 className="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-2">⚠️ Important Notes</h5>
+                                                <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                                                    <li>• Download the template file first to see the exact format</li>
+                                                    <li>• Email addresses must be unique (no duplicates allowed)</li>
+                                                    <li>• Date format: YYYY-MM-DD (example: 1990-01-15)</li>
+                                                    <li>• Default passwords will be auto-generated and emailed to members</li>
+                                                    <li>• Supported file formats: CSV, XLSX, XLS</li>
+                                                    <li>• Empty rows will be automatically skipped</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        Upload a CSV or Excel file to import multiple members at once.
+                                    </p>
+
+                                    <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                                        selectedFile
+                                            ? 'border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20'
+                                            : 'border-gray-300 dark:border-gray-600'
+                                    }`}>
+                                        {selectedFile ? (
+                                            <div>
+                                                <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div className="mt-4">
+                                                    <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                                                        {selectedFile.name}
+                                                    </p>
+                                                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                                        File selected successfully
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                                <div className="mt-4">
+                                                    <label htmlFor="import-file" className="cursor-pointer">
+                                                        <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
+                                                            Choose file to upload
+                                                        </span>
+                                                        <input
+                                                            id="import-file"
+                                                            name="import-file"
+                                                            type="file"
+                                                            className="sr-only"
+                                                            accept=".csv,.xlsx,.xls"
+                                                            onChange={handleImportFile}
+                                                            disabled={isImporting}
+                                                        />
+                                                    </label>
+                                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                        CSV, XLSX, or XLS files only
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                    <div className="flex items-center space-x-3">
+                                        <a
+                                            href={route('members.template')}
+                                            className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors duration-200"
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download Template
+                                        </a>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            Start with our template for best results
+                                        </span>
+                                    </div>
+                                    {selectedFile && (
+                                        <button
+                                            onClick={() => setSelectedFile(null)}
+                                            className="inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                                            disabled={isImporting}
+                                        >
+                                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Clear File
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Quick Tips */}
+                            <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                <div className="flex items-start">
+                                    <svg className="w-4 h-4 text-yellow-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                    <div>
+                                        <h5 className="text-xs font-semibold text-yellow-800 dark:text-yellow-200 mb-1">💡 Pro Tips</h5>
+                                        <ul className="text-xs text-yellow-700 dark:text-yellow-300 space-y-0.5">
+                                            <li>• Test with a small batch first (2-3 members) to verify format</li>
+                                            <li>• Keep a backup of your original data before importing</li>
+                                            <li>• Check for duplicate emails before uploading</li>
+                                            <li>• Members will receive welcome emails with login credentials</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    onClick={() => {
+                                        setIsImportModalOpen(false);
+                                        setSelectedFile(null);
+                                    }}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    disabled={isImporting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleImportSubmit}
+                                    disabled={!selectedFile || isImporting}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                >
+                                    {isImporting ? (
+                                        <>
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Importing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                            </svg>
+                                            Import Members
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>

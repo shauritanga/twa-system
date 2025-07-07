@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('members/export', [MemberController::class, 'export'])->name('members.export');
+Route::post('members/import', [MemberController::class, 'import'])->name('members.import');
+Route::get('members/template', [MemberController::class, 'downloadTemplate'])->name('members.template');
 Route::get('financials', [FinancialsController::class, 'index'])->name('financials.index');
 Route::get('contributions/export', [ContributionController::class, 'export'])->name('contributions.export');
 Route::post('contributions/import', [ContributionController::class, 'import'])->name('contributions.import');
