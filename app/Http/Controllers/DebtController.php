@@ -33,7 +33,22 @@ class DebtController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'member_id' => 'required|exists:members,id',
+            'amount' => 'required|numeric|min:0',
+            'reason' => 'required|string|max:255',
+            'due_date' => 'required|date|after_or_equal:today',
+        ]);
+
+        Debt::create([
+            'member_id' => $request->member_id,
+            'amount' => $request->amount,
+            'reason' => $request->reason,
+            'due_date' => $request->due_date,
+            'status' => 'unpaid',
+        ]);
+
+        return redirect()->back()->with('success', 'Debt added successfully.');
     }
 
     /**

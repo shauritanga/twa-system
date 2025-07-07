@@ -38,6 +38,7 @@ Route::get('contributions/template', [ContributionController::class, 'downloadTe
 Route::resource('contributions', ContributionController::class)->only(['index', 'store']);
 Route::resource('disaster-payments', DisasterPaymentController::class)->only(['store']);
 Route::patch('penalties/{penalty}/mark-as-paid', [PenaltyController::class, 'markAsPaid'])->name('penalties.markAsPaid');
+Route::resource('debts', DebtController::class)->only(['store']);
 Route::patch('debts/{debt}/mark-as-paid', [DebtController::class, 'markAsPaid'])->name('debts.markAsPaid');
 Route::resource('dependents', DependentController::class);
 Route::resource('certificates', CertificateController::class); // Commented out due to dropped table
