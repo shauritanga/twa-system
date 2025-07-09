@@ -35,6 +35,9 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
         // Update last login timestamp
         $user->update(['last_login' => now()]);
+
+        // Log login activity
+        $user->logActivity('login', 'User logged in successfully');
         
         if ($user->role && $user->role->name === 'admin') {
             return redirect()->intended(route('admin.dashboard', absolute: false));
@@ -48,6 +51,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Log logout activity before logging out
+        if (Auth::check()) {
+            Auth::user()->logActivity('logout', 'User logged out');
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

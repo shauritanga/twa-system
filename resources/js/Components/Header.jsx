@@ -101,6 +101,15 @@ export default function Header({ sidebarOpen, setSidebarOpen, isMobile = false }
                             {/* Menu Items */}
                             <div className="py-1">
                                 <Link
+                                    href={auth?.user?.role?.name === 'admin' || auth?.user?.role?.name === 'secretary' ? '/admin/profile' : '/member/profile'}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
+                                >
+                                    <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    My Profile
+                                </Link>
+                                <Link
                                     href={route('logout')}
                                     method="post"
                                     as="button"

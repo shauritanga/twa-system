@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import Header from '../Components/Header';
-import { ChartBarIcon, UsersIcon, CogIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, UsersIcon, CogIcon, ShieldCheckIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { LiaCoinsSolid } from "react-icons/lia";
 
@@ -59,6 +59,7 @@ export default function SidebarLayout({ children }) {
                     { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
                     { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                     { href: '/admin/roles', icon: ShieldCheckIcon, label: 'Roles' },
+                    { href: '/admin/backups', icon: CloudArrowUpIcon, label: 'Backups' },
                     { href: '/admin/settings', icon: CogIcon, label: 'Settings' },
                 ];
             } else if (user.role.name === 'secretary') {

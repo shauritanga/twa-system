@@ -23,10 +23,47 @@ Route::get('/', function () {
     ]);
 });
 
+// Legacy profile routes - redirect to role-specific routes
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.show');
+        }
+        return redirect()->route('member.profile.show');
+    })->name('profile.show');
+
+    Route::get('/profile/edit', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.edit');
+        }
+        return redirect()->route('member.profile.edit');
+    });
+
+    Route::get('/profile/security', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.security');
+        }
+        return redirect()->route('member.profile.security');
+    });
+
+    Route::get('/profile/settings', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.settings');
+        }
+        return redirect()->route('member.profile.settings');
+    });
+
+    Route::get('/profile/activities', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.activities');
+        }
+        return redirect()->route('member.profile.activities');
+    });
 });
 
 Route::get('members/export', [MemberController::class, 'export'])->name('members.export');
@@ -57,6 +94,16 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::get('/admin/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
     Route::post('/admin/settings', [AdminDashboardController::class, 'updateSettings'])->name('admin.settings.update');
     Route::post('/admin/settings/backup', [AdminDashboardController::class, 'backup'])->name('admin.settings.backup');
+
+    // Backup Management Routes
+    Route::get('/admin/backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('/admin/backups/create', [\App\Http\Controllers\BackupController::class, 'create'])->name('admin.backups.create');
+    Route::post('/admin/backups/create-database', [\App\Http\Controllers\BackupController::class, 'createDatabase'])->name('admin.backups.create-database');
+    Route::get('/admin/backups/download/{filename}', [\App\Http\Controllers\BackupController::class, 'download'])->name('admin.backups.download');
+    Route::delete('/admin/backups/{filename}', [\App\Http\Controllers\BackupController::class, 'delete'])->name('admin.backups.delete');
+    Route::post('/admin/backups/clean', [\App\Http\Controllers\BackupController::class, 'clean'])->name('admin.backups.clean');
+    Route::get('/admin/backups/list', [\App\Http\Controllers\BackupController::class, 'list'])->name('admin.backups.list');
+
     Route::post('/admin/users/{user}/update-role', [AdminDashboardController::class, 'updateUserRole'])->name('admin.users.updateRole');
     Route::get('/admin/roles', [AdminDashboardController::class, 'roles'])->name('admin.roles');
     Route::post('/admin/roles', [AdminDashboardController::class, 'createRole'])->name('admin.roles.create');
@@ -73,11 +120,35 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
     Route::post('/admin/members/cleanup-orphaned-users', [MemberController::class, 'cleanupOrphanedUsers'])->name('admin.members.cleanup');
     Route::get('/admin/financials', [FinancialsController::class, 'index'])->name('admin.financials.index');
+
+    // Admin Profile Routes
+    Route::get('/admin/profile', [ProfileController::class, 'show'])->name('admin.profile.show');
+    Route::get('/admin/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::patch('/admin/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+    Route::post('/admin/profile/password', [ProfileController::class, 'updatePassword'])->name('admin.profile.password.update');
+    Route::post('/admin/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar.upload');
+    Route::delete('/admin/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('admin.profile.avatar.remove');
+    Route::post('/admin/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('admin.profile.preferences.update');
+    Route::get('/admin/profile/activities', [ProfileController::class, 'activities'])->name('admin.profile.activities');
+    Route::get('/admin/profile/security', [ProfileController::class, 'security'])->name('admin.profile.security');
+    Route::get('/admin/profile/settings', [ProfileController::class, 'settings'])->name('admin.profile.settings');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
     Route::get('/member/dependents', [DependentController::class, 'memberIndex'])->name('member.dependents');
+
+    // Member Profile Routes
+    Route::get('/member/profile', [ProfileController::class, 'show'])->name('member.profile.show');
+    Route::get('/member/profile/edit', [ProfileController::class, 'edit'])->name('member.profile.edit');
+    Route::patch('/member/profile', [ProfileController::class, 'update'])->name('member.profile.update');
+    Route::post('/member/profile/password', [ProfileController::class, 'updatePassword'])->name('member.profile.password.update');
+    Route::post('/member/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('member.profile.avatar.upload');
+    Route::delete('/member/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('member.profile.avatar.remove');
+    Route::post('/member/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('member.profile.preferences.update');
+    Route::get('/member/profile/activities', [ProfileController::class, 'activities'])->name('member.profile.activities');
+    Route::get('/member/profile/security', [ProfileController::class, 'security'])->name('member.profile.security');
+    Route::get('/member/profile/settings', [ProfileController::class, 'settings'])->name('member.profile.settings');
 });
 
 require __DIR__.'/auth.php';

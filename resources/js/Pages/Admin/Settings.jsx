@@ -33,6 +33,7 @@ const Settings = () => {
     const [isSystemSaving, setIsSystemSaving] = useState(false);
     const [isBackupSaving, setIsBackupSaving] = useState(false);
     const [isMaintenanceSaving, setIsMaintenanceSaving] = useState(false);
+    const [isManualBackupRunning, setIsManualBackupRunning] = useState(false);
 
     // Individual messages for each section
     const [securityMessage, setSecurityMessage] = useState('');
@@ -173,6 +174,23 @@ const Settings = () => {
                 setMaintenanceMessage('Failed to update maintenance settings. Please check the values.');
                 setIsMaintenanceSaving(false);
                 setTimeout(() => setMaintenanceMessage(''), 3000);
+            }
+        });
+    };
+
+    const handleManualBackup = () => {
+        setIsManualBackupRunning(true);
+        router.post(route('admin.settings.backup'), {}, {
+            onSuccess: () => {
+                setBackupMessage('Manual backup completed successfully.');
+                setIsManualBackupRunning(false);
+                setTimeout(() => setBackupMessage(''), 5000);
+            },
+            onError: (errors) => {
+                setBackupMessage('Manual backup failed. Please try again.');
+                setIsManualBackupRunning(false);
+                setTimeout(() => setBackupMessage(''), 5000);
+                console.error('Backup error:', errors);
             }
         });
     };
@@ -993,27 +1011,7 @@ const Settings = () => {
                                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">How long to keep backup files before deletion</p>
                                 </div>
 
-                                {/* Manual Backup */}
-                                <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="flex items-center mb-2">
-                                                <DocumentDuplicateIcon className="w-5 h-5 text-purple-500 mr-2" />
-                                                <h4 className="font-semibold text-gray-900 dark:text-white">Manual Backup</h4>
-                                            </div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">Create an immediate backup of all system data</p>
-                                        </div>
-                                        <button
-                                            onClick={() => router.post(route('admin.settings.backup'), {}, {
-                                                onSuccess: () => alert('Manual backup triggered successfully.')
-                                            })}
-                                            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center"
-                                        >
-                                            <CloudArrowUpIcon className="w-5 h-5 mr-2" />
-                                            Backup Now
-                                        </button>
-                                    </div>
-                                </div>
+
 
                             {/* Data Backup Action Buttons */}
                             <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
@@ -1062,6 +1060,49 @@ const Settings = () => {
                                 </div>
                             )}
                             </form>
+
+                            {/* Manual Backup Section - Outside Form */}
+                            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+                                <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center mb-2">
+                                                <DocumentDuplicateIcon className="w-5 h-5 text-purple-500 mr-2" />
+                                                <h4 className="font-semibold text-gray-900 dark:text-white">Manual Backup</h4>
+                                            </div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">Create an immediate backup of all system data</p>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => router.get('/admin/backups')}
+                                                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center"
+                                            >
+                                                <DocumentDuplicateIcon className="w-4 h-4 mr-2" />
+                                                Manage Backups
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleManualBackup}
+                                                disabled={isManualBackupRunning}
+                                                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center disabled:cursor-not-allowed"
+                                            >
+                                                {isManualBackupRunning ? (
+                                                    <>
+                                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                                        Creating Backup...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <CloudArrowUpIcon className="w-5 h-5 mr-2" />
+                                                        Backup Now
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

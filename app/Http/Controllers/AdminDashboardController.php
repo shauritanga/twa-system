@@ -466,10 +466,19 @@ class AdminDashboardController extends Controller
 
     public function backup(Request $request)
     {
-        // Placeholder for backup logic
-        // This could involve triggering a backup job or command
-        // For now, we'll just return a success message
-        return redirect()->back()->with('message', 'Manual backup triggered successfully.');
+        $backupService = app(\App\Services\BackupService::class);
+        $result = $backupService->createManualBackup();
+
+        if ($result['success']) {
+            $message = $result['message'];
+            if ($result['backup_info']) {
+                $backup = $result['backup_info'];
+                $message .= ' Backup saved as: ' . $backup['filename'] . ' (' . $backup['size'] . ')';
+            }
+            return redirect()->back()->with('success', $message);
+        } else {
+            return redirect()->back()->withErrors(['backup' => $result['message']]);
+        }
     }
 
     public function roles(Request $request)
