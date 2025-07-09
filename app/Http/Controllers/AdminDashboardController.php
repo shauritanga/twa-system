@@ -414,15 +414,22 @@ class AdminDashboardController extends Controller
 
         // If apply_penalty_to_existing is true, recalculate existing unpaid penalties
         if ($request->input('apply_penalty_to_existing')) {
-            $penaltyRate = $request->input('penalty_percentage_rate');
-            $monthlyContribution = $request->input('monthly_contribution_amount');
-            $unpaidPenalties = Penalty::where('status', 'unpaid')->get();
-            foreach ($unpaidPenalties as $penalty) {
-                // Assuming penalty amount is based on missed contributions
-                // This is a placeholder logic; adjust based on actual penalty calculation rules
-                $missedMonths = 1; // This should be calculated based on actual missed contributions
-                $newPenaltyAmount = ($monthlyContribution * $missedMonths) * ($penaltyRate / 100);
-                $penalty->update(['amount' => $newPenaltyAmount]);
+            $penaltyRate = (float) $request->input('penalty_percentage_rate');
+            $monthlyContribution = (float) $request->input('monthly_contribution_amount');
+
+            // Use the PenaltyService for proper recalculation
+            $penaltyService = app(\App\Services\PenaltyService::class);
+            $recalculationResults = $penaltyService->recalculateExistingPenalties($monthlyContribution, $penaltyRate);
+
+            // Log the recalculation results
+            \Log::info('Penalty recalculation completed', $recalculationResults);
+
+            // Add success message with details
+            if ($recalculationResults['updated'] > 0) {
+                session()->flash('penalty_recalculation', [
+                    'updated' => $recalculationResults['updated'],
+                    'errors' => count($recalculationResults['errors'])
+                ]);
             }
         }
 

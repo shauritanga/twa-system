@@ -7,15 +7,23 @@ use App\Models\Debt;
 use App\Models\DisasterPayment;
 use App\Models\Member;
 use App\Models\Penalty;
+use App\Models\Setting;
+use App\Services\PenaltyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class FinancialsController extends Controller
 {
+    protected PenaltyService $penaltyService;
+
+    public function __construct(PenaltyService $penaltyService)
+    {
+        $this->penaltyService = $penaltyService;
+    }
+
     public function index(Request $request)
     {
-        $members = Member::query()->paginate(10);
-
+        // Get members with search functionality
         $membersQuery = Member::query();
 
         if ($request->has('search')) {
@@ -24,6 +32,7 @@ class FinancialsController extends Controller
 
         $members = $membersQuery->paginate(10);
 
+        // Build contributions by month for display
         $contributionsByMonth = [];
         foreach ($members as $member) {
             $contributionsByMonth[$member->id] = [];
@@ -43,16 +52,30 @@ class FinancialsController extends Controller
             }
         }
 
-        $settings = \App\Models\Setting::all()->keyBy('key');
+        // Get financial data
+        $debts = Debt::with('member')->paginate(10);
+        $penalties = Penalty::with('member')->paginate(10);
+        $disasterPayments = DisasterPayment::with('member')->paginate(10);
+
+        // Get settings
+        $settings = Setting::all()->keyBy('key');
+
+        // Get penalty statistics
+        $penaltyStatistics = $this->penaltyService->getPenaltyStatistics();
+
+        // Get optimized list of shame data
+        $listOfShameData = $this->penaltyService->getListOfShameData();
 
         return Inertia::render('Financials/Index', [
             'members' => $members,
             'contributionsByMonth' => $contributionsByMonth,
             'filters' => $request->only(['search', 'year', 'month']),
-            'debts' => Debt::with('member')->paginate(10),
-            'penalties' => Penalty::with('member')->paginate(10),
-            'disasterPayments' => DisasterPayment::with('member')->paginate(10),
+            'debts' => $debts,
+            'penalties' => $penalties,
+            'disasterPayments' => $disasterPayments,
             'settings' => $settings,
+            'penaltyStatistics' => $penaltyStatistics,
+            'listOfShameData' => $listOfShameData,
         ]);
     }
 }

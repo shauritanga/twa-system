@@ -45,40 +45,9 @@ class ContributionController extends Controller
             }
         }
 
-        // Check for missed contributions and apply penalties
-        $today = now();
-        foreach ($members as $member) {
-            $registrationMonth = date('Y-m', strtotime($member->created_at));
-            $start = new \DateTime($registrationMonth);
-            $end = new \DateTime($today->format('Y-m'));
-            $interval = new \DateInterval('P1M');
-            $period = new \DatePeriod($start, $interval, $end);
-
-            foreach ($period as $dt) {
-                $month = $dt->format('Y-m');
-                if (!isset($contributionsByMonth[$member->id][$month])) {
-                    // Check if a penalty for this month has already been applied
-                    $existingPenalty = Penalty::where('member_id', $member->id)
-                        ->where('reason', 'Missed contribution for ' . $month)
-                        ->exists();
-
-                    if (!$existingPenalty) {
-                        $monthlyContributionSetting = \App\Models\Setting::where('key', 'monthly_contribution_amount')->first();
-                        $penaltyRateSetting = \App\Models\Setting::where('key', 'penalty_percentage_rate')->first();
-                        $contributionAmount = $monthlyContributionSetting ? $monthlyContributionSetting->value : 50000;
-                        $penaltyRate = $penaltyRateSetting ? $penaltyRateSetting->value : 10;
-                        $penaltyAmount = ($contributionAmount * $penaltyRate) / 100;
-
-                        Penalty::create([
-                            'member_id' => $member->id,
-                            'amount' => $penaltyAmount,
-                            'reason' => 'Missed contribution for ' . $month,
-                            'due_date' => $today->format('Y-m-d'),
-                        ]);
-                    }
-                }
-            }
-        }
+        // Note: Penalty calculation is now handled by scheduled job
+        // See CalculatePenaltiesJob which runs monthly
+        // Manual calculation can be triggered via: php artisan penalties:calculate
 
         return Inertia::render('Contributions/Index', [
             'members' => $members,

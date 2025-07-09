@@ -77,6 +77,8 @@ Route::get('contributions/template', [ContributionController::class, 'downloadTe
 Route::resource('contributions', ContributionController::class)->only(['index', 'store']);
 Route::resource('disaster-payments', DisasterPaymentController::class)->only(['store']);
 Route::patch('penalties/{penalty}/mark-as-paid', [PenaltyController::class, 'markAsPaid'])->name('penalties.markAsPaid');
+Route::post('penalties/mark-multiple-as-paid', [PenaltyController::class, 'markMultipleAsPaid'])->name('penalties.markMultipleAsPaid');
+Route::post('penalties/recalculate-member', [PenaltyController::class, 'recalculateForMember'])->name('penalties.recalculateForMember');
 Route::resource('debts', DebtController::class)->only(['store']);
 Route::patch('debts/{debt}/mark-as-paid', [DebtController::class, 'markAsPaid'])->name('debts.markAsPaid');
 Route::resource('dependents', DependentController::class);
@@ -132,6 +134,10 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::get('/admin/profile/activities', [ProfileController::class, 'activities'])->name('admin.profile.activities');
     Route::get('/admin/profile/security', [ProfileController::class, 'security'])->name('admin.profile.security');
     Route::get('/admin/profile/settings', [ProfileController::class, 'settings'])->name('admin.profile.settings');
+
+    // Admin Penalty Management Routes
+    Route::get('/admin/penalties', [PenaltyController::class, 'index'])->name('admin.penalties.index');
+    Route::delete('/admin/penalties/{penalty}', [PenaltyController::class, 'destroy'])->name('admin.penalties.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

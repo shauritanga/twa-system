@@ -32,3 +32,18 @@ Schedule::call(function () {
     $backupService = app(BackupService::class);
     $backupService->cleanOldBackups();
 })->dailyAt('03:00')->name('cleanup-old-backups');
+
+// Calculate penalties monthly on the 1st day at 01:00
+Schedule::job(new \App\Jobs\CalculatePenaltiesJob)
+    ->monthlyOn(1, '01:00')
+    ->name('monthly-penalty-calculation')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        \Log::error('Monthly penalty calculation job failed');
+    });
+
+// Alternative: Calculate penalties using artisan command
+// Schedule::command('penalties:calculate --queue')
+//     ->monthlyOn(1, '01:00')
+//     ->name('monthly-penalty-calculation-command')
+//     ->withoutOverlapping();

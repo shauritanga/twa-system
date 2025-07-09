@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { LiaCoinsSolid } from "react-icons/lia";
 
-const Financials = ({ members, contributionsByMonth, filters, debts, penalties, disasterPayments }) => {
+const Financials = ({ members, contributionsByMonth, filters, debts, penalties, disasterPayments, penaltyStatistics, listOfShameData }) => {
     const { props } = usePage();
     const initialTab = props.tab || 'contributions';
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -81,7 +81,7 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
             case 'disaster-payments':
                 return <DisasterPaymentsTable disasterPayments={disasterPayments} members={members} />;
             case 'list-of-shame':
-                return <ListOfShame members={members} contributionsByMonth={contributionsByMonth} debts={debts} penalties={penalties} />;
+                return <ListOfShame listOfShameData={listOfShameData} />;
             default:
                 return null;
         }
@@ -1128,18 +1128,8 @@ const PenaltiesTable = ({ penalties }) => {
     );
 };
 
-const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
+const ListOfShame = ({ listOfShameData }) => {
     const { props } = usePage();
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // 1-12
-    const previousMonth = currentMonth > 1 ? currentMonth - 1 : 12;
-
-    // Get monthly contribution amount from settings
-    const settings = props.settings || {};
-    const monthlyContributionAmount = settings.monthly_contribution_amount
-        ? settings.monthly_contribution_amount.value
-        : '50000';
 
     // Currency formatting function
     const formatCurrency = (amount) => {
@@ -1150,49 +1140,9 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
             maximumFractionDigits: 0,
         }).format(amount);
     };
-    const previousMonthYear = currentMonth > 1 ? currentYear : currentYear - 1;
 
-    // Calculate members who have not paid for previous months up to the end of last month
-    const shameList = members.data.map(member => {
-        const memberContributions = contributionsByMonth[member.id] || {};
-        let monthsNotPaid = 0;
-
-        // Determine the start date from member's join date (created_at)
-        const joinDate = new Date(member.created_at);
-        const startYear = joinDate.getFullYear();
-        const startMonth = joinDate.getMonth() + 1; // 1-12
-
-        // Count missed months from join date to the previous month
-        for (let year = startYear; year <= previousMonthYear; year++) {
-            const monthStart = year === startYear ? startMonth : 1;
-            const monthEnd = year === previousMonthYear ? previousMonth : 12;
-
-            for (let month = monthStart; month <= monthEnd; month++) {
-                const monthString = `${year}-${String(month).padStart(2, '0')}`;
-                if (!memberContributions[monthString]) {
-                    monthsNotPaid++;
-                }
-            }
-        }
-
-        // Calculate total penalties for this member
-        const memberPenalties = penalties.data.filter(p => p.member_id === member.id && p.status === 'unpaid');
-        const totalPenalties = memberPenalties.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-
-        // Calculate total owed from missed contributions (using dynamic monthly contribution amount from settings)
-        const monthlyContributionAmount = props.settings && props.settings.monthly_contribution_amount ? parseFloat(props.settings.monthly_contribution_amount.value) : 50000;
-        const missedContributionsTotal = monthsNotPaid * monthlyContributionAmount;
-
-        // Total amount to clear (penalties + missed contributions)
-        const totalToClear = totalPenalties + missedContributionsTotal;
-
-        return {
-            ...member,
-            monthsNotPaid,
-            totalPenalties,
-            totalToClear
-        };
-    }).filter(member => member.monthsNotPaid > 0); // Only show members with missed payments
+    // Use optimized data from backend
+    const shameList = listOfShameData || [];
 
     return (
         <div className="p-6">
@@ -1206,7 +1156,7 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
                     <p className="text-sm text-amber-800 dark:text-amber-200">
                         <strong>Note:</strong> Members listed below have missed contributions for previous months up to the end of last month.
                         They are automatically removed once all outstanding amounts are paid. 'Total to Clear' includes penalties plus
-                        missed contributions ({formatCurrency(monthlyContributionAmount)}/month) starting from each member's join date.
+                        missed contributions starting from each member's join date.
                     </p>
                 </div>
             </div>
@@ -1214,37 +1164,37 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
             {/* Mobile Cards View */}
             <div className="block lg:hidden space-y-4">
                 {shameList.length > 0 ? (
-                    shameList.map(member => (
-                        <div key={member.id} className="bg-white dark:bg-gray-800 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                    shameList.map(item => (
+                        <div key={item.member.id} className="bg-white dark:bg-gray-800 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0 h-10 w-10">
                                         <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                                             <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                                                {member.name.charAt(0).toUpperCase()}
+                                                {item.member.name.charAt(0).toUpperCase()}
                                             </span>
                                         </div>
                                     </div>
                                     <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">{member.name}</h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">{member.phone_number || 'No phone'}</p>
+                                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">{item.member.name}</h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.member.phone_number || 'No phone'}</p>
                                     </div>
                                 </div>
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                                    {member.monthsNotPaid} months
+                                    {item.missed_months_count} months
                                 </span>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">Penalties:</span>
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {formatCurrency(member.totalPenalties)}
+                                        {formatCurrency(item.total_penalties)}
                                     </p>
                                 </div>
                                 <div>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">Total to Clear:</span>
                                     <p className="text-sm font-bold text-red-600 dark:text-red-400">
-                                        {formatCurrency(member.totalToClear)}
+                                        {formatCurrency(item.total_owed)}
                                     </p>
                                 </div>
                             </div>
@@ -1278,40 +1228,40 @@ const ListOfShame = ({ members, contributionsByMonth, debts, penalties }) => {
                         </thead>
                         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             {shameList.length > 0 ? (
-                                shameList.map((member, index) => (
-                                    <tr key={member.id} className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800/50'} border-l-4 border-red-500`}>
+                                shameList.map((item, index) => (
+                                    <tr key={item.member.id} className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800/50'} border-l-4 border-red-500`}>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 <div className="flex-shrink-0 h-8 w-8">
                                                     <div className="h-8 w-8 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                                                         <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                                                            {member.name.charAt(0).toUpperCase()}
+                                                            {item.member.name.charAt(0).toUpperCase()}
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="ml-3">
                                                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {member.name}
+                                                        {item.member.name}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {member.phone_number || 'N/A'}
+                                            {item.member.phone_number || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                                                {member.monthsNotPaid} months
+                                                {item.missed_months_count} months
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900 dark:text-white">
-                                            {formatCurrency(member.totalPenalties)}
-                                            {member.totalPenalties === 0 && (
+                                            {formatCurrency(item.total_penalties)}
+                                            {item.total_penalties === 0 && (
                                                 <span className="block text-xs text-gray-400">No penalties</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-red-600 dark:text-red-400">
-                                            {formatCurrency(member.totalToClear)}
+                                            {formatCurrency(item.total_owed)}
                                         </td>
                                     </tr>
                                 ))
