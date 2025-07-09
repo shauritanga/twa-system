@@ -22,7 +22,7 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title="Create Account" subtitle="Join our community today">
             <Head title="Register" />
 
             <form onSubmit={submit}>

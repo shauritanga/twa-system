@@ -26,7 +26,7 @@ export default function Login({ status, canResetPassword }) {
             <Head title="Log in" />
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-sm font-medium text-green-700">
                     {status}
                 </div>
             )}
@@ -65,7 +65,7 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
+                <div className="mt-6 block">
                     <label className="flex items-center">
                         <Checkbox
                             name="remember"
@@ -74,25 +74,30 @@ export default function Login({ status, canResetPassword }) {
                                 setData('remember', e.target.checked)
                             }
                         />
-<span className="ms-2 text-sm text-gray-800">
-    Remember me
-</span>
+                        <span className="ms-2 text-sm text-gray-700">
+                            Remember me
+                        </span>
                     </label>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-<Link
-    href={route('password.request')}
-    className="rounded-md text-sm text-gray-800 underline hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
->
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                <div className="mt-8 space-y-4">
+                    <PrimaryButton
+                        className="w-full justify-center py-3 text-base font-medium"
+                        disabled={processing}
+                    >
+                        {processing ? 'Signing in...' : 'Sign in'}
                     </PrimaryButton>
+
+                    {canResetPassword && (
+                        <div className="text-center">
+                            <Link
+                                href={route('password.request')}
+                                className="text-sm text-blue-600 hover:text-blue-500 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+                            >
+                                Forgot your password?
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </form>
         </GuestLayout>

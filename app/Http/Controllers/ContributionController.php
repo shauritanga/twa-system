@@ -170,7 +170,7 @@ class ContributionController extends Controller
 
         Excel::import(new ContributionsImport, $file);
 
-        return redirect()->route('contributions.index')->with('success', 'Contributions imported successfully.');
+        return redirect()->route('admin.financials.index')->with('success', 'Contributions imported successfully.');
     }
 
     public function downloadTemplate()
