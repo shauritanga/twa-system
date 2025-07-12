@@ -17,9 +17,9 @@ $permission = App\Models\Permission::create(['name' => 'manage_staff', 'descript
 // Create admin user
 $adminRole = App\Models\Role::where('name', 'admin')->first();
 $user = App\Models\User::create([
-    'name' => 'Athanas Shauritanga',
-    'email' => 'shauritangaathanas@gmail.com', 
-    'password' => Hash::make('Athanas@2015'),
+    'name' => 'Placidus Rwechungura',
+    'email' => 'placd36@gmail.com', 
+    'password' => Hash::make('Mwanza123$'),
     'role_id' => $adminRole->id
 ]);
 

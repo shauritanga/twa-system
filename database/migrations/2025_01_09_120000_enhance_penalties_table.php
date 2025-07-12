@@ -30,7 +30,7 @@ return new class extends Migration
             }
 
             // Add indexes for better performance
-            $table->index(['member_id', 'status'], 'idx_member_status');
+            //$table->index(['member_id', 'status'], 'idx_member_status');
             $table->index(['penalty_month'], 'idx_penalty_month');
             $table->index(['status', 'due_date'], 'idx_status_due_date');
             $table->index(['calculated_at'], 'idx_calculated_at');

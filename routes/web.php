@@ -15,10 +15,21 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Marketing website route
 Route::get('/', function () {
+    return response()->file(public_path('marketing/index.html'));
+});
+
+// Serve marketing website assets
+Route::get('/marketing', function () {
+    return response()->file(public_path('marketing/index.html'));
+});
+
+// Original welcome route (for development/testing)
+Route::get('/welcome', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-                'laravelVersion' => Application::VERSION,
+        'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
 });

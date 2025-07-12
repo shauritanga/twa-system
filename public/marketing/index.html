@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabata Welfare Association - Building Community, Securing Futures</title>
+    <meta name="description" content="Join Tabata Welfare Association - Tanzania's premier community welfare organization. Monthly contributions, disaster support, and financial security for members and families.">
+    <meta name="keywords" content="Tabata Welfare Association, Tanzania welfare, community support, financial security, disaster assistance, monthly contributions">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Tabata Welfare Association - Building Community, Securing Futures">
+    <meta property="og:description" content="Join Tanzania's premier community welfare organization. Monthly contributions, disaster support, and financial security for members and families.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tabatawelfare.org">
+    <meta property="og:image" content="/marketing/logo.jpeg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/marketing/logo.jpeg">
+    <link rel="apple-touch-icon" href="/marketing/logo.jpeg">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- EmailJS Library -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Enhanced member login button */
+        .btn-member-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-member-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-member-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-member-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .stats-counter {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e40af;
+        }
+
+        /* Leadership section styles */
+        .leadership-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .leadership-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Leadership card gradient animations */
+        .leadership-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            pointer-events: none;
+            border-radius: 1rem;
+        }
+
+        .leadership-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        /* Scroll button animations */
+        #scroll-left, #scroll-right {
+            transition: all 0.3s ease;
+        }
+
+        #scroll-left:hover, #scroll-right:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Improved readability and accessibility */
+        .text-readable {
+            color: #1f2937 !important; /* Darker gray for better contrast */
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .text-readable-light {
+            color: #374151 !important; /* Medium gray for secondary text */
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .text-readable-white {
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            line-height: 1.6;
+        }
+
+        .bg-readable-overlay {
+            background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%);
+        }
+
+        /* Enhanced button contrast */
+        .btn-primary-readable {
+            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-readable:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(30, 64, 175, 0.4);
+        }
+
+        .btn-secondary-readable {
+            background: white;
+            color: #1e40af;
+            font-weight: 600;
+            border: 2px solid #1e40af;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-readable:hover {
+            background: #1e40af;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
+        }
+
+        /* Improved card readability */
+        .card-readable {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-readable:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Enhanced navigation readability */
+        .nav-readable {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link-readable {
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link-readable:hover {
+            color: #1e40af;
+        }
+
+        /* Improved section spacing */
+        .section-padding {
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+        }
+
+        @media (max-width: 768px) {
+            .section-padding {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+        }
+
+        /* Enhanced typography hierarchy */
+        .heading-primary {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: #111827;
+        }
+
+        .heading-secondary {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #111827;
+        }
+
+        .heading-tertiary {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: #111827;
+        }
+
+        .text-large {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: #374151;
+        }
+
+        .text-body {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: #4b5563;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .stats-counter {
+                font-size: 2rem;
+            }
+
+            .leadership-card {
+                width: 280px;
+            }
+
+            #scroll-left, #scroll-right {
+                width: 40px;
+                height: 40px;
+            }
+
+            .heading-primary {
+                font-size: 2.5rem;
+            }
+
+            .heading-secondary {
+                font-size: 2rem;
+            }
+
+            .text-large {
+                font-size: 1.125rem;
+            }
+
+            .text-body {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .leadership-card {
+                width: 260px;
+            }
+
+            .heading-primary {
+                font-size: 2rem;
+            }
+
+            .heading-secondary {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Enhanced form styling */
+        .form-input {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input:hover {
+            border-color: #9ca3af;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+            letter-spacing: 0.025em;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+
+        .form-input.has-icon {
+            padding-left: 38px;
+        }
+
+        .form-input:focus + .form-icon,
+        .form-group:hover .form-icon {
+            color: #3b82f6;
+        }
+
+        .form-select {
+            background: #ffffff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") no-repeat right 12px center/16px 16px;
+            appearance: none;
+            padding-right: 48px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .required-asterisk {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+        /* Form responsive enhancements */
+        @media (max-width: 640px) {
+            .form-input {
+                padding: 10px 14px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .form-input.has-icon {
+                padding-left: 36px;
+            }
+
+            .form-icon {
+                left: 10px;
+                font-size: 13px;
+            }
+        }
+
+        /* Form animation enhancements */
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success/Error message styling */
+        .form-message {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-message.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+
+        .form-message.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+
+        /* Focus states for accessibility */
+        .focus-visible:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        /* Logo styling */
+        .logo-image {
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Logo responsive sizing */
+        @media (max-width: 768px) {
+            .logo-mobile {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .logo-mobile {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .text-readable {
+                color: #000000 !important;
+            }
+
+            .text-readable-light {
+                color: #333333 !important;
+            }
+
+            .btn-primary-readable {
+                background: #000000;
+                border-color: #000000;
+            }
+
+            .logo-image {
+                border-color: #000000;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 nav-readable shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-18">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo" class="w-12 h-12 logo-mobile rounded-lg object-cover logo-image">
+                        <div class="ml-3">
+                            <span class="text-xl font-bold text-gray-900 block">Tabata Welfare</span>
+                            <span class="text-xs text-gray-600 hidden sm:block">Association</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="#home" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Home</a>
+                        <a href="#about" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">About</a>
+                        <a href="#services" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Services</a>
+                        <a href="#benefits" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Benefits</a>
+                        <a href="#leadership" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Leadership</a>
+                        <a href="#testimonials" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Testimonials</a>
+                        <a href="#contact" class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Contact</a>
+                        <a href="/login" class="btn-member-login px-6 py-2 rounded-lg text-sm font-medium focus-visible whitespace-nowrap">Member Login</a>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button type="button" class="mobile-menu-button nav-link-readable focus:outline-none focus-visible p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                <a href="#home" class="block px-4 py-3 text-gray-900 font-semibold text-base">Home</a>
+                <a href="#about" class="block px-4 py-3 nav-link-readable text-base">About</a>
+                <a href="#services" class="block px-4 py-3 nav-link-readable text-base">Services</a>
+                <a href="#benefits" class="block px-4 py-3 nav-link-readable text-base">Benefits</a>
+                <a href="#leadership" class="block px-4 py-3 nav-link-readable text-base">Leadership</a>
+                <a href="#testimonials" class="block px-4 py-3 nav-link-readable text-base">Testimonials</a>
+                <a href="#contact" class="block px-4 py-3 nav-link-readable text-base">Contact</a>
+                <a href="/login" class="block px-3 py-2 btn-member-login rounded-lg text-center mx-3 mt-4 whitespace-nowrap">Member Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative gradient-bg hero-pattern section-padding pt-24 lg:pt-32">
+        <div class="absolute inset-0 bg-readable-overlay"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
+                <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left" data-aos="fade-right">
+                    <h1 class="heading-primary text-readable-white sm:text-5xl lg:text-6xl">
+                        Building Community,
+                        <span class="text-yellow-300 font-extrabold">Securing Futures</span>
+                    </h1>
+                    <p class="mt-8 text-large text-readable-white max-w-3xl">
+                        Join Tabata Welfare Association - Tanzania's premier community welfare organization.
+                        Together, we provide financial security, disaster support, and peace of mind for our members and their families.
+                    </p>
+                    <div class="mt-10 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+                        <div class="flex flex-col sm:flex-row gap-6">
+                            <a href="#contact" class="btn-secondary-readable inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg transition-all focus-visible">
+                                <i class="fas fa-user-plus mr-3"></i>
+                                Join Today
+                            </a>
+                            <a href="#about" class="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-lg font-semibold rounded-lg text-readable-white hover:bg-white hover:text-blue-700 transition-all focus-visible">
+                                <i class="fas fa-info-circle mr-3"></i>
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center" data-aos="fade-left">
+                    <div class="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md">
+                        <div class="relative block w-full bg-white rounded-lg overflow-hidden">
+                            <img class="w-full h-64 sm:h-80 object-cover" src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Community gathering">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+
+                            <!-- Logo overlay -->
+                            <div class="absolute top-4 right-4">
+                                <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo" class="w-16 h-16 rounded-lg object-cover logo-image border-2 border-white/30">
+                            </div>
+
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-semibold text-lg">United We Stand Strong</h3>
+                                <p class="text-gray-200 text-sm mt-1">Supporting each other through life's challenges</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="bg-white section-padding">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="heading-secondary mb-4">Our Impact in Numbers</h2>
+                <p class="text-large text-readable-light max-w-3xl mx-auto">
+                    See the tangible difference we've made in our community over the years
+                </p>
+            </div>
+            <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="text-center bg-blue-50 rounded-2xl p-8 card-readable" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stats-counter text-blue-600 mb-4" data-target="500">0</div>
+                    <p class="text-readable font-semibold text-lg">Active Members</p>
+                    <p class="text-readable-light text-sm mt-2">Growing community of families</p>
+                </div>
+                <div class="text-center bg-green-50 rounded-2xl p-8 card-readable" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stats-counter text-green-600 mb-4" data-target="50000000">0</div>
+                    <p class="text-readable font-semibold text-lg">TZS Distributed</p>
+                    <p class="text-readable-light text-sm mt-2">Financial support provided</p>
+                </div>
+                <div class="text-center bg-purple-50 rounded-2xl p-8 card-readable" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stats-counter text-purple-600 mb-4" data-target="1200">0</div>
+                    <p class="text-readable font-semibold text-lg">Families Helped</p>
+                    <p class="text-readable-light text-sm mt-2">Lives positively impacted</p>
+                </div>
+                <div class="text-center bg-orange-50 rounded-2xl p-8 card-readable" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stats-counter text-orange-600 mb-4" data-target="8">0</div>
+                    <p class="text-readable font-semibold text-lg">Years of Service</p>
+                    <p class="text-readable-light text-sm mt-2">Trusted community partner</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-padding bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-20 items-center">
+                <div data-aos="fade-right">
+                    <h2 class="heading-secondary mb-8">
+                        About <span class="text-gradient">Tabata Welfare Association</span>
+                    </h2>
+                    <p class="text-body mb-6">
+                        Founded in 2016, Tabata Welfare Association has been at the forefront of community support in Tanzania.
+                        We believe that together, we can weather any storm and celebrate every success.
+                    </p>
+                    <p class="text-body mb-10">
+                        Our mission is simple: to provide financial security and peace of mind to our members through
+                        collective contributions, disaster support, and community solidarity.
+                    </p>
+
+                    <div class="space-y-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="heading-tertiary mb-2">Financial Security</h4>
+                                <p class="text-body">Monthly contributions build a safety net for all members, ensuring financial stability during challenging times.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-heart text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="heading-tertiary mb-2">Community Support</h4>
+                                <p class="text-body">We stand together in times of need and celebration, creating lasting bonds that strengthen our community.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="heading-tertiary mb-2">Trusted Leadership</h4>
+                                <p class="text-body">Transparent management with member-focused governance ensures accountability and trust in all our operations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 lg:mt-0" data-aos="fade-left">
+                    <div class="grid grid-cols-2 gap-4">
+                        <img class="rounded-lg shadow-lg" src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Community meeting">
+                        <img class="rounded-lg shadow-lg mt-8" src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Helping hands">
+                        <img class="rounded-lg shadow-lg -mt-8" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Financial planning">
+                        <img class="rounded-lg shadow-lg" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Team collaboration">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section-padding bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20" data-aos="fade-up">
+                <h2 class="heading-secondary mb-6">
+                    Our <span class="text-gradient">Services</span>
+                </h2>
+                <p class="text-large text-readable-light max-w-4xl mx-auto">
+                    Comprehensive welfare services designed to support our members through all of life's moments
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Monthly Contributions -->
+                <div class="card-readable card-hover rounded-2xl p-10 border-2 border-blue-100" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="heading-tertiary mb-6">Monthly Contributions</h3>
+                    <p class="text-body mb-8">
+                        Regular monthly contributions of 50,000 TZS build a collective fund that ensures financial security for all members.
+                    </p>
+                    <ul class="space-y-3 text-readable">
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Flexible payment options</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Automatic reminders</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Transparent tracking</span></li>
+                    </ul>
+                </div>
+
+                <!-- Disaster Support -->
+                <div class="card-readable card-hover rounded-2xl p-10 border-2 border-red-100" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="fas fa-hands-helping text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="heading-tertiary mb-6">Disaster Support</h3>
+                    <p class="text-body mb-8">
+                        Immediate financial assistance during emergencies, medical crises, or unexpected life events that affect our members.
+                    </p>
+                    <ul class="space-y-3 text-readable">
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Emergency medical support</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Family crisis assistance</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Quick disbursement</span></li>
+                    </ul>
+                </div>
+
+                <!-- Family Coverage -->
+                <div class="card-readable card-hover rounded-2xl p-10 border-2 border-green-100" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="fas fa-users text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="heading-tertiary mb-6">Family Coverage</h3>
+                    <p class="text-body mb-8">
+                        Extend welfare benefits to your dependents including spouse, children, and immediate family members.
+                    </p>
+                    <ul class="space-y-3 text-readable">
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Spouse coverage</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Children protection</span></li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span class="font-medium">Extended family support</span></li>
+                    </ul>
+                </div>
+
+                <!-- Financial Planning -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Financial Planning</h3>
+                    <p class="text-gray-600 mb-6">
+                        Professional guidance on financial planning, savings strategies, and long-term wealth building for members.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Personal consultations</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Investment advice</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Retirement planning</li>
+                    </ul>
+                </div>
+
+                <!-- Community Events -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="500">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Community Events</h3>
+                    <p class="text-gray-600 mb-6">
+                        Regular social gatherings, educational workshops, and community building activities for all members.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Monthly meetings</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Educational workshops</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Social celebrations</li>
+                    </ul>
+                </div>
+
+                <!-- Digital Platform -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="600">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-mobile-alt text-indigo-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Digital Platform</h3>
+                    <p class="text-gray-600 mb-6">
+                        Modern online platform for managing contributions, tracking benefits, and staying connected with the community.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Online dashboard</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Mobile-friendly</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Real-time updates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Why Choose <span class="text-gradient">Tabata Welfare</span>
+                </h2>
+                <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+                    Experience the peace of mind that comes with being part of a caring, supportive community
+                </p>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <!-- Left Column -->
+                <div class="space-y-8" data-aos="fade-right">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-primary-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Financial Security</h4>
+                            <p class="text-gray-600 mt-2">Build a safety net through collective contributions that protect you and your family during difficult times.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-secondary-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-secondary-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Strong Community</h4>
+                            <p class="text-gray-600 mt-2">Join a network of like-minded individuals who support each other through life's ups and downs.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Quick Response</h4>
+                            <p class="text-gray-600 mt-2">Fast processing and disbursement of disaster support when you need it most.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-8" data-aos="fade-left">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-eye text-red-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Transparent Operations</h4>
+                            <p class="text-gray-600 mt-2">Complete transparency in fund management with regular reports and member access to all financial information.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-purple-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Financial Education</h4>
+                            <p class="text-gray-600 mt-2">Regular workshops and training sessions to improve your financial literacy and planning skills.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-mobile-alt text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Modern Technology</h4>
+                            <p class="text-gray-600 mt-2">Easy-to-use digital platform for managing your membership, contributions, and accessing services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leadership Section -->
+    <section id="leadership" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Our <span class="text-gradient">Leadership Team</span>
+                </h2>
+                <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+                    Meet the dedicated leaders who guide our organization with wisdom, integrity, and commitment to our community
+                </p>
+            </div>
+
+            <!-- Leadership Cards Container -->
+            <div class="mt-16 relative">
+                <!-- Scroll Buttons -->
+                <button id="scroll-left" class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 opacity-50 hover:opacity-100">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <button id="scroll-right" class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+
+                <!-- Scrollable Container -->
+                <div id="leadership-container" class="overflow-x-auto scrollbar-hide scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="flex space-x-6 pb-4" style="width: max-content;">
+
+                        <!-- Leader 1 - Chairman -->
+                        <div class="leadership-card flex-shrink-0 w-80 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100" data-aos="fade-up" data-aos-delay="100">
+                            <div class="text-center">
+                                <div class="relative inline-block mb-6">
+                                    <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" src="/marketing/images/chairman.jpeg" alt="Chairman - Tabata Welfare Association">
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-crown text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Abdallah Mbura</h3>
+                                <p class="text-blue-600 font-semibold mb-4">Interim Chairman</p>
+                                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                    With extensive experience in community leadership, our Chairman has been instrumental in establishing and growing our welfare association. His vision for community empowerment drives our mission forward.
+                                </p>
+                                <div class="flex justify-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-blue-600 text-sm"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-envelope text-blue-600 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leader 2 - Secretary -->
+                        <div class="leadership-card flex-shrink-0 w-80 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-green-100" data-aos="fade-up" data-aos-delay="200">
+                            <div class="text-center">
+                                <div class="relative inline-block mb-6">
+                                    <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" src="/marketing/images/secretary.jpeg" alt="Secretary - Tabata Welfare Association">
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-pen text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Rajab H. Rajab</h3>
+                                <p class="text-green-600 font-semibold mb-4">Interim Secretary</p>
+                                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                    Our Secretary ensures smooth operations and maintains excellent records for our association. Their attention to detail and organizational skills keep our community running efficiently.
+                                </p>
+                                <div class="flex justify-center space-x-3">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-green-600 text-sm"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-envelope text-green-600 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leader 3 - Treasurer -->
+                        <div class="leadership-card flex-shrink-0 w-80 bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-100" data-aos="fade-up" data-aos-delay="300">
+                            <div class="text-center">
+                                <div class="relative inline-block mb-6">
+                                    <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" src="/marketing/images/tresurere.jpg" alt="Treasurer - Tabata Welfare Association">
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-coins text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Bi Lilian Kijugo</h3>
+                                <p class="text-purple-600 font-semibold mb-4">Interim Treasurer</p>
+                                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                    With a background in finance and accounting, our Treasurer manages our funds with transparency and accountability, ensuring every shilling is used for the benefit of our members.
+                                </p>
+                                <div class="flex justify-center space-x-3">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-purple-600 text-sm"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-envelope text-purple-600 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Leader 5 - Committee Member -->
+                        <div class="leadership-card flex-shrink-0 w-80 bg-gradient-to-br from-teal-50 to-cyan-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-teal-100" data-aos="fade-up" data-aos-delay="500">
+                            <div class="text-center">
+                                <div class="relative inline-block mb-6">
+                                    <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" src="/marketing/images/commitee.jpg" alt="Committee Member - Tabata Welfare Association">
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-users text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Blandina Edward</h3>
+                                <p class="text-teal-600 font-semibold mb-4">Interim Committee Member</p>
+                                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                    Our Committee Member coordinates outreach programs and ensures effective communication between the leadership and our members. Their dedication to service is truly inspiring.
+                                </p>
+                                <div class="flex justify-center space-x-3">
+                                    <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-teal-600 text-sm"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-envelope text-teal-600 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leader 6 - Spokesman -->
+                        <div class="leadership-card flex-shrink-0 w-80 bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-pink-100" data-aos="fade-up" data-aos-delay="600">
+                            <div class="text-center">
+                                <div class="relative inline-block mb-6">
+                                    <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" src="/marketing/images/spokesman.jpeg" alt="Spokesman - Tabata Welfare Association">
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-microphone text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Jackson Ngosha</h3>
+                                <p class="text-pink-600 font-semibold mb-4">Public Relations Officer</p>
+                                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                    Our Spokesman represents the voice of our organization and ensures effective communication with the public and media. They bring fresh perspectives to our leadership and coordinate our outreach initiatives.
+                                </p>
+                                <div class="flex justify-center space-x-3">
+                                    <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-pink-600 text-sm"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-envelope text-pink-600 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Scroll Indicators -->
+                <div class="flex justify-center mt-8 space-x-2">
+                    <div class="scroll-indicator w-2 h-2 bg-primary-500 rounded-full transition-all duration-300"></div>
+                    <div class="scroll-indicator w-2 h-2 bg-gray-300 rounded-full transition-all duration-300"></div>
+                    <div class="scroll-indicator w-2 h-2 bg-gray-300 rounded-full transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    What Our <span class="text-gradient">Members Say</span>
+                </h2>
+                <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+                    Real stories from real members who have experienced the benefits of our community
+                </p>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <!-- Testimonial 1 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full object-cover" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Sarah Mwangi">
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Sarah Mwangi</h4>
+                            <p class="text-gray-600">Member since 2018</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "When my husband was hospitalized unexpectedly, Tabata Welfare Association was there for us immediately.
+                        The disaster support helped us cover medical expenses without stress. I'm grateful for this community."
+                    </p>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="John Kimani">
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">John Kimani</h4>
+                            <p class="text-gray-600">Member since 2017</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "The monthly contributions are very manageable, and knowing that my family is protected gives me peace of mind.
+                        The digital platform makes everything so easy to track and manage."
+                    </p>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg p-8 border border-gray-100" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full object-cover" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Grace Mwende">
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Grace Mwende</h4>
+                            <p class="text-gray-600">Member since 2019</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "Beyond the financial benefits, I've found a true community here. The workshops have improved my financial knowledge,
+                        and the friendships I've made are invaluable."
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative gradient-bg hero-pattern section-padding">
+        <div class="absolute inset-0 bg-readable-overlay"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-aos="fade-up">
+            <h2 class="heading-secondary text-readable-white mb-8">
+                Ready to Join Our Community?
+            </h2>
+            <p class="text-large text-readable-white max-w-4xl mx-auto mb-12">
+                Take the first step towards financial security and community support.
+                Join hundreds of families who trust Tabata Welfare Association.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="#contact" class="btn-secondary-readable inline-flex items-center justify-center px-10 py-4 text-lg font-semibold rounded-lg transition-all focus-visible">
+                    <i class="fas fa-phone mr-3"></i>
+                    Contact Us Today
+                </a>
+                <a href="/login" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-lg text-white hover:bg-white hover:text-primary-700 transition-colors">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Member Portal
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Get in <span class="text-gradient">Touch</span>
+                </h2>
+                <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+                    Ready to join or have questions? We're here to help you every step of the way.
+                </p>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <!-- Contact Information -->
+                <div data-aos="fade-right">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Contact Information</h3>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-map-marker-alt text-primary-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold text-gray-900">Office Location</h4>
+                                <p class="text-gray-600">Tabata, Dar es Salaam, Tanzania</p>
+                                <p class="text-gray-600">Near Tabata Market</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-secondary-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-phone text-secondary-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold text-gray-900">Phone Numbers</h4>
+                                <p class="text-gray-600">+255 123 456 789</p>
+                                <p class="text-gray-600">+255 987 654 321</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-envelope text-yellow-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold text-gray-900">Email</h4>
+                                <p class="text-gray-600">info@tabatawelfare.org</p>
+                                <p class="text-gray-600">support@tabatawelfare.org</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold text-gray-900">Office Hours</h4>
+                                <p class="text-gray-600">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                                <p class="text-gray-600">Saturday: 9:00 AM - 2:00 PM</p>
+                                <p class="text-gray-600">Sunday: Closed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
+                                <i class="fab fa-facebook-f text-blue-600"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
+                                <i class="fab fa-twitter text-blue-600"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-200 transition-colors">
+                                <i class="fab fa-whatsapp text-green-600"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center hover:bg-pink-200 transition-colors">
+                                <i class="fab fa-instagram text-pink-600"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div data-aos="fade-left">
+                    <div class="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Send us a Message</h3>
+                            <p class="text-gray-600 text-sm">We'd love to hear from you.</p>
+                        </div>
+
+                        <form id="contact-form" class="space-y-4">
+                            <!-- Success/Error Messages -->
+                            <div id="form-messages" class="hidden"></div>
+
+                            <!-- Name Fields -->
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <div class="form-group">
+                                    <label for="from_name" class="form-label">
+                                        First Name<span class="required-asterisk">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="from_name" name="from_name" required
+                                               class="form-input has-icon w-full"
+                                               placeholder="Enter your first name">
+                                        <i class="fas fa-user form-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last_name" class="form-label">
+                                        Last Name<span class="required-asterisk">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="last_name" name="last_name" required
+                                               class="form-input has-icon w-full"
+                                               placeholder="Enter your last name">
+                                        <i class="fas fa-user form-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div class="form-group">
+                                <label for="reply_to" class="form-label">
+                                    Email Address<span class="required-asterisk">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="email" id="reply_to" name="reply_to" required
+                                           class="form-input has-icon w-full"
+                                           placeholder="your.email@example.com">
+                                    <i class="fas fa-envelope form-icon"></i>
+                                </div>
+                            </div>
+
+                            <!-- Phone and Subject Fields -->
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div class="form-group">
+                                    <label for="phone_number" class="form-label">Phone Number</label>
+                                    <div class="relative">
+                                        <input type="tel" id="phone_number" name="phone_number"
+                                               class="form-input has-icon w-full"
+                                               placeholder="+255 123 456 789">
+                                        <i class="fas fa-phone form-icon"></i>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="subject" class="form-label">
+                                        Subject<span class="required-asterisk">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select id="subject" name="subject" required class="form-input form-select w-full">
+                                            <option value="">Select a subject</option>
+                                            <option value="General Inquiry">💬 General Inquiry</option>
+                                            <option value="Membership Information">👥 Membership Information</option>
+                                            <option value="Support Request">🆘 Support Request</option>
+                                            <option value="Partnership Opportunity">🤝 Partnership Opportunity</option>
+                                            <option value="Financial Services">💰 Financial Services</option>
+                                            <option value="Community Events">🎉 Community Events</option>
+                                        </select>
+                                        <i class="fas fa-tag form-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Message Field -->
+                            <div class="form-group">
+                                <label for="message" class="form-label">
+                                    Message<span class="required-asterisk">*</span>
+                                </label>
+                                <div class="relative">
+                                    <textarea id="message" name="message" rows="3" required
+                                              class="form-input form-textarea w-full"
+                                              placeholder="Tell us how we can help you..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Hidden fields for EmailJS -->
+                            <input type="hidden" name="to_name" value="Tabata Welfare Association">
+                            <input type="hidden" name="website" value="twa.or.tz">
+
+                            <!-- Submit Button -->
+                            <div class="pt-1">
+                                <button type="submit" id="submit-btn"
+                                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                                    <span id="btn-text" class="flex items-center justify-center">
+                                        <i class="fas fa-paper-plane mr-2"></i>
+                                        <span>Send Message</span>
+                                    </span>
+                                    <span id="btn-loading" class="hidden items-center justify-center">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                        <span>Sending...</span>
+                                    </span>
+                                </button>
+
+                            </div>
+                        </form>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+                <!-- Company Info -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center mb-6">
+                        <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo" class="w-14 h-14 rounded-lg object-cover logo-image">
+                        <div class="ml-4">
+                            <span class="text-xl font-bold block">Tabata Welfare Association</span>
+                            <span class="text-sm text-gray-300">Building Community, Securing Futures</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        Building stronger communities through collective support, financial security, and shared prosperity.
+                        Together, we create a safety net that protects every member and their family.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-gray-300 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#services" class="text-gray-300 hover:text-white transition-colors">Our Services</a></li>
+                        <li><a href="#benefits" class="text-gray-300 hover:text-white transition-colors">Member Benefits</a></li>
+                        <li><a href="#testimonials" class="text-gray-300 hover:text-white transition-colors">Testimonials</a></li>
+                        <li><a href="#contact" class="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="/login" class="text-gray-300 hover:text-white transition-colors">Member Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Contact Info</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-primary-400 mt-1 mr-3"></i>
+                            <span class="text-gray-300">Tabata, Dar es Salaam<br>Tanzania</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone text-primary-400 mr-3"></i>
+                            <span class="text-gray-300">+255 123 456 789</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope text-primary-400 mr-3"></i>
+                            <span class="text-gray-300">info@twa.or.tz</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-clock text-primary-400 mr-3"></i>
+                            <span class="text-gray-300">Mon-Fri: 8AM-5PM</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Footer -->
+            <div class="border-t border-gray-800 mt-12 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm">
+                        © 2025 Tabata Welfare Association. All rights reserved.
+                    </p>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 w-12 h-12 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    <!-- JavaScript -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Stats counter animation
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+
+                // Format large numbers
+                if (target >= 1000000) {
+                    element.textContent = (current / 1000000).toFixed(1) + 'M';
+                } else if (target >= 1000) {
+                    element.textContent = (current / 1000).toFixed(0) + 'K';
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 20);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsSection = document.querySelector('.stats-counter').closest('section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.stats-counter').forEach(counter => {
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        animateCounter(counter, target);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+
+        // Back to top button
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.add('opacity-0', 'invisible');
+                backToTopButton.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // EmailJS Configuration
+        // REPLACE THESE WITH YOUR ACTUAL EMAILJS CREDENTIALS
+        const EMAILJS_CONFIG = {
+            USER_ID: 'Zi1ISG7P8SrBKupqX',        // Get from EmailJS dashboard
+            SERVICE_ID: 'service_c9h8m2h',          // Get from EmailJS dashboard
+            TEMPLATE_ID: 'template_ku339nl'         // Get from EmailJS dashboard
+        };
+
+        // Initialize EmailJS
+        (function() {
+            emailjs.init(EMAILJS_CONFIG.USER_ID);
+        })();
+
+        // Form submission with EmailJS
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form elements
+                const submitBtn = document.getElementById('submit-btn');
+                const btnText = document.getElementById('btn-text');
+                const btnLoading = document.getElementById('btn-loading');
+                const formMessages = document.getElementById('form-messages');
+
+                // Show loading state
+                btnText.classList.add('hidden');
+                btnLoading.classList.remove('hidden');
+                btnLoading.classList.add('flex');
+                submitBtn.disabled = true;
+                formMessages.classList.add('hidden');
+
+                // Prepare form data for EmailJS
+                const formData = new FormData(this);
+                const templateParams = {
+                    to_name: 'Tabata Welfare Association',
+                    from_name: formData.get('from_name'),
+                    last_name: formData.get('last_name'),
+                    reply_to: formData.get('reply_to'),
+                    phone_number: formData.get('phone_number'),
+                    subject: formData.get('subject'),
+                    message: formData.get('message'),
+                    website: 'twa.or.tz'
+                };
+
+                console.log('Sending email with data:', templateParams);
+
+                // Send email using EmailJS
+                emailjs.send(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    templateParams
+                ).then(function(response) {
+                    // Success
+                    console.log('SUCCESS!', response.status, response.text);
+                    showMessage('success', 'Thank you! Your message has been sent successfully. We will get back to you soon.');
+                    contactForm.reset();
+
+                }, function(error) {
+                    // Error
+                    console.log('FAILED...', error);
+                    showMessage('error', 'Sorry, there was an error sending your message. Please try again or contact us directly.');
+
+                }).finally(function() {
+                    // Reset button state
+                    btnText.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
+                    btnLoading.classList.remove('flex');
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+
+        // Show success/error messages
+        function showMessage(type, message) {
+            const formMessages = document.getElementById('form-messages');
+            formMessages.className = `form-message ${type}`;
+            formMessages.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-3 text-lg"></i>
+                <span>${message}</span>
+            `;
+            formMessages.classList.remove('hidden');
+
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    formMessages.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Navbar background on scroll
+        const navbar = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 50) {
+                navbar.classList.add('shadow-xl');
+                navbar.classList.remove('shadow-lg');
+            } else {
+                navbar.classList.add('shadow-lg');
+                navbar.classList.remove('shadow-xl');
+            }
+        });
+
+        // Leadership section horizontal scrolling
+        const leadershipContainer = document.getElementById('leadership-container');
+        const scrollLeftBtn = document.getElementById('scroll-left');
+        const scrollRightBtn = document.getElementById('scroll-right');
+        const scrollIndicators = document.querySelectorAll('.scroll-indicator');
+
+        if (leadershipContainer && scrollLeftBtn && scrollRightBtn) {
+            const cardWidth = 320; // Card width + gap
+            let currentIndex = 0;
+            const maxIndex = 2; // 3 sets of cards (0, 1, 2)
+
+            // Update scroll indicators
+            function updateIndicators() {
+                scrollIndicators.forEach((indicator, index) => {
+                    if (index === currentIndex) {
+                        indicator.classList.remove('bg-gray-300');
+                        indicator.classList.add('bg-primary-500');
+                    } else {
+                        indicator.classList.remove('bg-primary-500');
+                        indicator.classList.add('bg-gray-300');
+                    }
+                });
+            }
+
+            // Update button states
+            function updateButtons() {
+                scrollLeftBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+                scrollRightBtn.style.opacity = currentIndex === maxIndex ? '0.5' : '1';
+            }
+
+            // Scroll left
+            scrollLeftBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    leadershipContainer.scrollTo({
+                        left: currentIndex * cardWidth * 2,
+                        behavior: 'smooth'
+                    });
+                    updateIndicators();
+                    updateButtons();
+                }
+            });
+
+            // Scroll right
+            scrollRightBtn.addEventListener('click', () => {
+                if (currentIndex < maxIndex) {
+                    currentIndex++;
+                    leadershipContainer.scrollTo({
+                        left: currentIndex * cardWidth * 2,
+                        behavior: 'smooth'
+                    });
+                    updateIndicators();
+                    updateButtons();
+                }
+            });
+
+            // Touch/swipe support for mobile
+            let startX = 0;
+            let scrollLeft = 0;
+
+            leadershipContainer.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].pageX - leadershipContainer.offsetLeft;
+                scrollLeft = leadershipContainer.scrollLeft;
+            });
+
+            leadershipContainer.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const x = e.touches[0].pageX - leadershipContainer.offsetLeft;
+                const walk = (x - startX) * 2;
+                leadershipContainer.scrollLeft = scrollLeft - walk;
+            });
+
+            // Auto-scroll functionality (optional)
+            let autoScrollInterval;
+
+            function startAutoScroll() {
+                autoScrollInterval = setInterval(() => {
+                    if (currentIndex < maxIndex) {
+                        scrollRightBtn.click();
+                    } else {
+                        currentIndex = 0;
+                        leadershipContainer.scrollTo({
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                        updateIndicators();
+                        updateButtons();
+                    }
+                }, 5000); // Auto-scroll every 5 seconds
+            }
+
+            function stopAutoScroll() {
+                clearInterval(autoScrollInterval);
+            }
+
+            // Start auto-scroll
+            startAutoScroll();
+
+            // Pause auto-scroll on hover
+            leadershipContainer.addEventListener('mouseenter', stopAutoScroll);
+            leadershipContainer.addEventListener('mouseleave', startAutoScroll);
+
+            // Initialize button states
+            updateButtons();
+        }
+
+        // Leadership card hover effects
+        document.querySelectorAll('.leadership-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
