@@ -30,14 +30,12 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
                     <div className="ml-4 flex-1">
                         <h3 className="text-xl font-bold text-white">{member.name}</h3>
                         <div className="flex items-center mt-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                member.is_verified
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                                <svg className={`w-3 h-3 mr-1 ${
-                                    member.is_verified ? 'text-green-500' : 'text-yellow-500'
-                                }`} fill="currentColor" viewBox="0 0 20 20">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.is_verified
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                <svg className={`w-3 h-3 mr-1 ${member.is_verified ? 'text-green-500' : 'text-yellow-500'
+                                    }`} fill="currentColor" viewBox="0 0 20 20">
                                     {member.is_verified ? (
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     ) : (
@@ -420,7 +418,7 @@ const MemberForm = ({ closeModal, member }) => {
         for (const [key, value] of formData.entries()) {
             console.log(`${key}:`, value);
         }
-        
+
         if (member) {
             // For updates with file uploads, we use router.post with _method override
             formData.append('_method', 'PUT');
@@ -688,11 +686,10 @@ const MemberForm = ({ closeModal, member }) => {
                                                         clearErrors('email');
                                                     }
                                                 }}
-                                                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white transition-colors duration-200 ${
-                                                    errors.email
-                                                        ? 'border-red-500 dark:border-red-500 focus:ring-red-500 focus:border-red-500'
-                                                        : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500'
-                                                }`}
+                                                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white transition-colors duration-200 ${errors.email
+                                                    ? 'border-red-500 dark:border-red-500 focus:ring-red-500 focus:border-red-500'
+                                                    : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500'
+                                                    }`}
                                                 placeholder="Enter email address"
                                             />
                                             {errors.email && <div className="flex items-center text-red-500 text-sm mt-2">
@@ -1407,19 +1404,34 @@ export default function MembersIndex({ members }) {
             formData.append('file', selectedFile);
 
             router.post(route('members.import'), formData, {
-                onSuccess: () => {
+                onSuccess: (page) => {
                     setIsImportModalOpen(false);
                     setSelectedFile(null);
                     setIsImporting(false);
-                    toast.success('Members imported successfully!', {
+
+                    // Show success message from server or default
+                    const message = page.props.flash?.message || 'Members imported successfully!';
+                    toast.success(message, {
                         position: "top-right",
-                        autoClose: 3000,
+                        autoClose: 5000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
                     });
+
+                    // Clear browser cache and refresh the page to show new members
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => {
+                                caches.delete(name);
+                            });
+                        });
+                    }
+
+                    // Force reload with cache bypass
+                    window.location.reload(true);
                 },
                 onError: (errors) => {
                     setIsImporting(false);
@@ -1434,13 +1446,29 @@ export default function MembersIndex({ members }) {
 
                     toast.error(errorMessage, {
                         position: "top-right",
-                        autoClose: 5000,
+                        autoClose: 8000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
                     });
+
+                    // Show detailed import errors if available
+                    if (errors.import_errors && errors.import_errors.length > 0) {
+                        setTimeout(() => {
+                            const detailedErrors = errors.import_errors.slice(0, 5).join('\n');
+                            toast.error(`Import errors:\n${detailedErrors}`, {
+                                position: "top-right",
+                                autoClose: 10000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                            });
+                        }, 1000);
+                    }
                 }
             });
         }
@@ -1528,11 +1556,10 @@ export default function MembersIndex({ members }) {
                         <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                             <button
                                 onClick={() => setViewMode('table')}
-                                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                                    viewMode === 'table'
-                                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                                }`}
+                                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${viewMode === 'table'
+                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                    }`}
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9m-9 4h9m-9-8h9m-9 4h9" />
@@ -1541,11 +1568,10 @@ export default function MembersIndex({ members }) {
                             </button>
                             <button
                                 onClick={() => setViewMode('cards')}
-                                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                                    viewMode === 'cards'
-                                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                                }`}
+                                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${viewMode === 'cards'
+                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                    }`}
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
@@ -1895,11 +1921,10 @@ export default function MembersIndex({ members }) {
                         <button
                             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                             disabled={currentPage === 1}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                                currentPage === 1
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
-                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
-                            }`}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${currentPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                                }`}
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -1940,11 +1965,10 @@ export default function MembersIndex({ members }) {
                                         <button
                                             key={i}
                                             onClick={() => setCurrentPage(i)}
-                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                                                i === currentPage
-                                                    ? 'bg-indigo-600 text-white shadow-lg'
-                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
-                                            }`}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${i === currentPage
+                                                ? 'bg-indigo-600 text-white shadow-lg'
+                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                                                }`}
                                         >
                                             {i}
                                         </button>
@@ -1975,11 +1999,10 @@ export default function MembersIndex({ members }) {
                         <button
                             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                             disabled={currentPage === totalPages}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                                currentPage === totalPages
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
-                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
-                            }`}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${currentPage === totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                                }`}
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -2102,11 +2125,10 @@ export default function MembersIndex({ members }) {
                                         Upload a CSV or Excel file to import multiple members at once.
                                     </p>
 
-                                    <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                                        selectedFile
-                                            ? 'border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20'
-                                            : 'border-gray-300 dark:border-gray-600'
-                                    }`}>
+                                    <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${selectedFile
+                                        ? 'border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20'
+                                        : 'border-gray-300 dark:border-gray-600'
+                                        }`}>
                                         {selectedFile ? (
                                             <div>
                                                 <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

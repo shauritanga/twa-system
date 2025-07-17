@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Exports\MembersExport;
 use App\Models\Member;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class MemberController extends Controller
 {
@@ -46,12 +48,20 @@ class MemberController extends Controller
         $defaultPassword = \Illuminate\Support\Str::random(8);
 
         try {
+            // Get member role ID
+            $memberRole = \App\Models\Role::where('name', 'member')->first();
+            if (!$memberRole) {
+                return back()->withErrors([
+                    'role' => 'Member role not found in database. Please contact administrator.'
+                ])->withInput();
+            }
+
             // Create a User record
             $user = \App\Models\User::create([
                 'name' => $fullName,
                 'email' => $request->email,
                 'password' => \Illuminate\Support\Facades\Hash::make($defaultPassword),
-                'role' => 'member',
+                'role_id' => $memberRole->id,
             ]);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             // Handle unique constraint violation for users table
@@ -187,6 +197,38 @@ class MemberController extends Controller
         ]);
     }
 
+    public function downloadApplicationForm(Member $member)
+    {
+        if (!$member->application_form_path) {
+            abort(404, 'Application form not found');
+        }
+
+        $filePath = storage_path('app/public/' . $member->application_form_path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'Application form file not found');
+        }
+
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $member->name) . '_application_form.' . $extension;
+
+        // Get MIME type
+        $mimeType = mime_content_type($filePath);
+
+        // Log the download for audit purposes
+        Log::info('Application form downloaded', [
+            'member_id' => $member->id,
+            'member_name' => $member->name,
+            'file_path' => $member->application_form_path,
+            'downloaded_by' => auth()->user()->name ?? 'Unknown',
+            'downloaded_at' => now()
+        ]);
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => $mimeType,
+        ]);
+    }
+
     public function destroy(Member $member)
     {
         try {
@@ -228,6 +270,12 @@ class MemberController extends Controller
             $file = $request->file('file');
             $path = $file->getRealPath();
 
+            Log::info('Starting member import', [
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'file_extension' => $file->getClientOriginalExtension()
+            ]);
+
             // Read the file based on its extension
             if ($file->getClientOriginalExtension() === 'csv') {
                 $data = array_map('str_getcsv', file($path));
@@ -239,6 +287,12 @@ class MemberController extends Controller
                 $header = array_shift($rows);
                 $data = $rows;
             }
+
+            Log::info('File parsed successfully', [
+                'header_count' => count($header),
+                'data_rows' => count($data),
+                'headers' => $header
+            ]);
 
             $successCount = 0;
             $errorCount = 0;
@@ -253,10 +307,25 @@ class MemberController extends Controller
 
                     $rowData = array_combine($header, $row);
 
+                    Log::info("Processing row", [
+                        'row_index' => $index + 2,
+                        'email' => $rowData['email'] ?? 'missing',
+                        'first_name' => $rowData['first_name'] ?? 'missing',
+                        'surname' => $rowData['surname'] ?? 'missing'
+                    ]);
+
                     // Validate required fields
                     if (empty($rowData['first_name']) || empty($rowData['surname']) || empty($rowData['email'])) {
                         $errors[] = "Row " . ($index + 2) . ": Missing required fields (first_name, surname, email)";
                         $errorCount++;
+                        Log::warning("Row skipped - missing required fields", [
+                            'row_index' => $index + 2,
+                            'missing_fields' => [
+                                'first_name' => empty($rowData['first_name']),
+                                'surname' => empty($rowData['surname']),
+                                'email' => empty($rowData['email'])
+                            ]
+                        ]);
                         continue;
                     }
 
@@ -270,13 +339,44 @@ class MemberController extends Controller
                     // Generate a default password
                     $defaultPassword = \Illuminate\Support\Str::random(8);
 
+                    // Get member role ID
+                    $memberRole = \App\Models\Role::where('name', 'member')->first();
+                    if (!$memberRole) {
+                        throw new \Exception('Member role not found in database');
+                    }
+
                     // Create User record
+                    Log::info("Creating user", [
+                        'row_index' => $index + 2,
+                        'name' => $fullName,
+                        'email' => $rowData['email'],
+                        'role_id' => $memberRole->id
+                    ]);
+
                     $user = \App\Models\User::create([
                         'name' => $fullName,
                         'email' => $rowData['email'],
                         'password' => \Illuminate\Support\Facades\Hash::make($defaultPassword),
-                        'role' => 'member',
+                        'role_id' => $memberRole->id,
                     ]);
+
+                    Log::info("User created successfully", [
+                        'row_index' => $index + 2,
+                        'user_id' => $user->id,
+                        'email' => $user->email
+                    ]);
+
+                    // Helper function to handle date fields
+                    $parseDate = function($dateValue) {
+                        if (empty($dateValue) || trim($dateValue) === '') {
+                            return null;
+                        }
+                        try {
+                            return \Carbon\Carbon::parse($dateValue)->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            return null;
+                        }
+                    };
 
                     // Create Member record
                     $memberData = [
@@ -290,42 +390,72 @@ class MemberController extends Controller
                         'address' => $rowData['address'] ?? '',
                         'place_of_birth' => $rowData['place_of_birth'] ?? '',
                         'sex' => $rowData['sex'] ?? '',
-                        'date_of_birth' => $rowData['date_of_birth'] ?? null,
+                        'date_of_birth' => $parseDate($rowData['date_of_birth'] ?? ''),
                         'tribe' => $rowData['tribe'] ?? '',
                         'occupation' => $rowData['occupation'] ?? '',
                         'reason_for_membership' => $rowData['reason_for_membership'] ?? '',
-                        'applicant_date' => $rowData['applicant_date'] ?? null,
+                        'applicant_date' => $parseDate($rowData['applicant_date'] ?? ''),
                         'declaration_name' => $rowData['declaration_name'] ?? '',
                         'witness_name' => $rowData['witness_name'] ?? '',
-                        'witness_date' => $rowData['witness_date'] ?? null,
+                        'witness_date' => $parseDate($rowData['witness_date'] ?? ''),
                         'is_verified' => false,
                     ];
 
+                    Log::info("Creating member", [
+                        'row_index' => $index + 2,
+                        'user_id' => $user->id,
+                        'member_data_keys' => array_keys($memberData)
+                    ]);
+
                     $member = Member::create($memberData);
+
+                    Log::info("Member created successfully", [
+                        'row_index' => $index + 2,
+                        'member_id' => $member->id,
+                        'user_id' => $user->id,
+                        'email' => $member->email
+                    ]);
 
                     // Send welcome email
                     try {
                         \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user, $defaultPassword));
+                        Log::info("Welcome email sent", ['row_index' => $index + 2, 'email' => $user->email]);
                     } catch (\Exception $e) {
                         // Log email error but don't fail the import
                         Log::warning("Failed to send welcome email to {$user->email}: " . $e->getMessage());
                     }
 
                     $successCount++;
+                    Log::info("Row processed successfully", ['row_index' => $index + 2, 'success_count' => $successCount]);
 
                 } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
-                    $errors[] = "Row " . ($index + 2) . ": Email already exists - " . ($rowData['email'] ?? 'unknown');
+                    $errorMessage = "Row " . ($index + 2) . ": Email already exists - " . ($rowData['email'] ?? 'unknown');
+                    $errors[] = $errorMessage;
                     $errorCount++;
+                    Log::error("Unique constraint violation during import", [
+                        'row_index' => $index + 2,
+                        'email' => $rowData['email'] ?? 'unknown',
+                        'error' => $e->getMessage()
+                    ]);
                     // If user was created but member creation failed, delete the user
                     if (isset($user)) {
                         $user->delete();
+                        Log::info("Deleted user due to constraint violation", ['user_id' => $user->id]);
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                    $errorMessage = "Row " . ($index + 2) . ": " . $e->getMessage();
+                    $errors[] = $errorMessage;
                     $errorCount++;
+                    Log::error("General error during import", [
+                        'row_index' => $index + 2,
+                        'email' => $rowData['email'] ?? 'unknown',
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
                     // If user was created but member creation failed, delete the user
                     if (isset($user)) {
                         $user->delete();
+                        Log::info("Deleted user due to general error", ['user_id' => $user->id]);
                     }
                 }
             }
@@ -334,6 +464,13 @@ class MemberController extends Controller
             if ($errorCount > 0) {
                 $message .= ", {$errorCount} errors occurred";
             }
+
+            Log::info("Import process completed", [
+                'success_count' => $successCount,
+                'error_count' => $errorCount,
+                'total_rows_processed' => count($data),
+                'errors' => $errors
+            ]);
 
             return redirect()->back()->with([
                 'message' => $message,

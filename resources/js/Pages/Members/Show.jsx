@@ -85,6 +85,7 @@ const MemberShow = ({ member, auth }) => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [notification, setNotification] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
+    const [showFilePreview, setShowFilePreview] = useState(false);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -97,6 +98,17 @@ const MemberShow = ({ member, auth }) => {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    // Helper function to get file extension and determine if it's an image
+    const getFileInfo = (filePath) => {
+        if (!filePath) return { extension: '', isImage: false };
+        const extension = filePath.split('.').pop().toLowerCase();
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+        return {
+            extension: extension,
+            isImage: imageExtensions.includes(extension)
+        };
     };
 
     const removeImage = () => {
@@ -411,9 +423,9 @@ const MemberShow = ({ member, auth }) => {
     };
 
     const toggleDependentSelection = (dependentId) => {
-        setSelectedDependents(prev => 
-            prev.includes(dependentId) 
-                ? prev.filter(id => id !== dependentId) 
+        setSelectedDependents(prev =>
+            prev.includes(dependentId)
+                ? prev.filter(id => id !== dependentId)
                 : [...prev, dependentId]
         );
     };
@@ -437,9 +449,9 @@ const MemberShow = ({ member, auth }) => {
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-start">
                         {member.image_path ? (
-                            <img 
-                                src={`/storage/${member.image_path}`} 
-                                alt={member.name} 
+                            <img
+                                src={`/storage/${member.image_path}`}
+                                alt={member.name}
                                 className="w-48 h-48 rounded-lg object-cover mr-6 border-2 border-gray-200 dark:border-gray-700"
                             />
                         ) : (
@@ -450,7 +462,7 @@ const MemberShow = ({ member, auth }) => {
                         <div className="flex-1">
                             <h1 className="text-2xl font-bold dark:text-white flex items-center">
                                 {member.name}
-                                
+
                             </h1>
                             <div className="mt-2 space-y-2 dark:text-gray-100">
                                 <p><strong>Email:</strong> {member.email}</p>
@@ -458,9 +470,24 @@ const MemberShow = ({ member, auth }) => {
                                 <p><strong>Address:</strong> {member.address}</p>
                                 <p><strong>Date of Birth:</strong> {member.date_of_birth}</p>
                                 <p><strong>Status:</strong> {member.is_verified ? <><IoMdCheckmarkCircleOutline className='h-4 w-4 text-blue-500 inline-block' /><span className='text-blue-500'>Verified</span></> : <>
-                                            <AiOutlineClose className="h-4 w-4 text-red-500 inline-block" />
-                                            <span className='text-red-400'>Unverified</span>
-                                        </>}</p>
+                                    <AiOutlineClose className="h-4 w-4 text-red-500 inline-block" />
+                                    <span className='text-red-400'>Unverified</span>
+                                </>}</p>
+                                {member.application_form_path && (
+                                    <p><strong>Application Form:</strong>
+                                        <a
+                                            href={route('admin.members.application-form', member.id)}
+                                            className="ml-2 inline-flex items-center px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm font-medium rounded-md transition-colors duration-200"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download Application Form
+                                        </a>
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -485,6 +512,108 @@ const MemberShow = ({ member, auth }) => {
                     </div>
                 )}
             </div>
+
+            {/* Additional Member Details Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4 dark:text-white">Member Details</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
+                        <div className="space-y-2 text-sm dark:text-gray-100">
+                            <p><strong>First Name:</strong> {member.first_name || 'N/A'}</p>
+                            <p><strong>Middle Name:</strong> {member.middle_name || 'N/A'}</p>
+                            <p><strong>Surname:</strong> {member.surname || 'N/A'}</p>
+                            <p><strong>Sex:</strong> {member.sex || 'N/A'}</p>
+                            <p><strong>Place of Birth:</strong> {member.place_of_birth || 'N/A'}</p>
+                            <p><strong>Tribe:</strong> {member.tribe || 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Membership Information</h3>
+                        <div className="space-y-2 text-sm dark:text-gray-100">
+                            <p><strong>Occupation:</strong> {member.occupation || 'N/A'}</p>
+                            <p><strong>Reason for Membership:</strong> {member.reason_for_membership || 'N/A'}</p>
+                            <p><strong>Application Date:</strong> {member.applicant_date || 'N/A'}</p>
+                            <p><strong>Declaration Name:</strong> {member.declaration_name || 'N/A'}</p>
+                            <p><strong>Witness Name:</strong> {member.witness_name || 'N/A'}</p>
+                            <p><strong>Witness Date:</strong> {member.witness_date || 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Documents</h3>
+                        <div className="space-y-2">
+                            {member.application_form_path ? (
+                                <div className="flex items-center space-x-2">
+                                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm text-green-600 dark:text-green-400">Application Form Available</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">No Application Form</span>
+                                </div>
+                            )}
+
+                            {member.image_path ? (
+                                <div className="flex items-center space-x-2">
+                                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm text-green-600 dark:text-green-400">Profile Photo Available</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">No Profile Photo</span>
+                                </div>
+                            )}
+
+                            {member.application_form_path && (
+                                <div className="mt-3 space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                        <a
+                                            href={route('admin.members.application-form', member.id)}
+                                            className="inline-flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download
+                                        </a>
+
+                                        {getFileInfo(member.application_form_path).isImage && (
+                                            <button
+                                                onClick={() => setShowFilePreview(true)}
+                                                className="inline-flex items-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                            >
+                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                Preview
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        File type: {getFileInfo(member.application_form_path).extension.toUpperCase()}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <h2 className="text-xl font-semibold mb-4 dark:text-white">Dependants</h2>
                 {member.dependents.length > 0 ? (
@@ -494,9 +623,9 @@ const MemberShow = ({ member, auth }) => {
                                 <tr>
                                     {auth.user.role && auth.user.role.name === 'admin' && (
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={selectedDependents.length === member.dependents.length} 
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedDependents.length === member.dependents.length}
                                                 onChange={toggleSelectAll}
                                                 className="rounded"
                                             />
@@ -519,9 +648,9 @@ const MemberShow = ({ member, auth }) => {
                                     <tr key={dependent.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         {auth.user.role && auth.user.role.name === 'admin' && (
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={selectedDependents.includes(dependent.id)} 
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedDependents.includes(dependent.id)}
                                                     onChange={() => toggleDependentSelection(dependent.id)}
                                                     className="rounded"
                                                 />
@@ -529,9 +658,9 @@ const MemberShow = ({ member, auth }) => {
                                         )}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {dependent.image_path ? (
-                                                <img 
-                                                    src={`/storage/${dependent.image_path}`} 
-                                                    alt={dependent.name} 
+                                                <img
+                                                    src={`/storage/${dependent.image_path}`}
+                                                    alt={dependent.name}
                                                     className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                                                 />
                                             ) : (
@@ -554,13 +683,13 @@ const MemberShow = ({ member, auth }) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 flex space-x-2">
                                                 {dependent.status !== 'approved' && dependent.status !== 'rejected' && (
                                                     <>
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleIndividualApprove(dependent.id)}
                                                             className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                                                         >
                                                             Approve
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleIndividualReject(dependent.id)}
                                                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                                         >
@@ -582,7 +711,7 @@ const MemberShow = ({ member, auth }) => {
                         </table>
                         {auth.user.role && auth.user.role.name === 'admin' && selectedDependents.length > 0 && (
                             <div className="mt-4 flex space-x-3">
-                                <button 
+                                <button
                                     onClick={() => handleBulkVerification('approved')}
                                     className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
                                 >
@@ -591,7 +720,7 @@ const MemberShow = ({ member, auth }) => {
                                         return dep && dep.status !== 'approved' && dep.status !== 'rejected';
                                     }).length})
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => handleBulkVerification('rejected')}
                                     className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
                                 >
@@ -940,6 +1069,71 @@ const MemberShow = ({ member, auth }) => {
                         <SecondaryButton onClick={() => setShowBulkApproveModal(false)}>Cancel</SecondaryButton>
                         <PrimaryButton onClick={confirmBulkApprove}>Confirm</PrimaryButton>
                     </div>
+                </div>
+            </Modal>
+
+            {/* File Preview Modal */}
+            <Modal show={showFilePreview} onClose={() => setShowFilePreview(false)} maxWidth="4xl">
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Application Form Preview</h2>
+                        <button
+                            onClick={() => setShowFilePreview(false)}
+                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {member.application_form_path && getFileInfo(member.application_form_path).isImage ? (
+                        <div className="text-center">
+                            <img
+                                src={`/storage/${member.application_form_path}`}
+                                alt="Application Form"
+                                className="max-w-full max-h-96 mx-auto rounded-lg shadow-lg"
+                                style={{ maxHeight: '70vh' }}
+                            />
+                            <div className="mt-4 flex justify-center space-x-3">
+                                <a
+                                    href={route('admin.members.application-form', member.id)}
+                                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Download Full Size
+                                </a>
+                                <button
+                                    onClick={() => setShowFilePreview(false)}
+                                    className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                >
+                                    Close Preview
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-8">
+                            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">Preview not available for this file type</p>
+                            <a
+                                href={route('admin.members.application-form', member.id)}
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download File
+                            </a>
+                        </div>
+                    )}
                 </div>
             </Modal>
         </SidebarLayout>

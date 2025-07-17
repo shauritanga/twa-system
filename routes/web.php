@@ -128,6 +128,7 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::delete('/admin/permissions/{permission}', [AdminDashboardController::class, 'deletePermission'])->name('admin.permissions.delete');
     Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
     Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
+    Route::get('/admin/members/{member}/application-form', [MemberController::class, 'downloadApplicationForm'])->name('admin.members.application-form');
     Route::post('/admin/members', [MemberController::class, 'store'])->name('members.store');
     Route::match(['PUT', 'POST'], '/admin/members/{member}', [MemberController::class, 'update'])->name('members.update');
     Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
