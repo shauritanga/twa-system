@@ -46,7 +46,7 @@ class FixPenaltiesIndexes extends Command
         }
 
         // Check for problematic indexes
-        $problematicIndexes = ['idx_penalty_month', 'idx_status_due_date', 'idx_calculated_at'];
+        $problematicIndexes = ['idx_member_status', 'idx_penalty_month', 'idx_status_due_date', 'idx_calculated_at'];
         $existingProblematicIndexes = [];
 
         foreach ($problematicIndexes as $indexName) {

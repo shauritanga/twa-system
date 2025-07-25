@@ -31,6 +31,7 @@ return new class extends Migration
         });
 
         // Add indexes for better performance (with existence checks)
+        $this->addIndexIfNotExists('penalties', ['member_id', 'status'], 'idx_member_status');
         $this->addIndexIfNotExists('penalties', ['penalty_month'], 'idx_penalty_month');
         $this->addIndexIfNotExists('penalties', ['status', 'due_date'], 'idx_status_due_date');
         $this->addIndexIfNotExists('penalties', ['calculated_at'], 'idx_calculated_at');
@@ -52,6 +53,7 @@ return new class extends Migration
             $this->dropConstraintIfExists('penalties', 'unique_member_penalty_month', 'unique');
 
             // Drop indexes if they exist
+            $this->dropIndexIfExists('penalties', 'idx_member_status');
             $this->dropIndexIfExists('penalties', 'idx_penalty_month');
             $this->dropIndexIfExists('penalties', 'idx_status_due_date');
             $this->dropIndexIfExists('penalties', 'idx_calculated_at');
