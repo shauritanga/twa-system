@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Our Cause - Tabata Welfare Association</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#059669',
+                        accent: '#dc2626'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="logo.png" alt="Tabata Welfare Association" class="h-10 w-10 mr-3">
+                    <span class="text-xl font-bold text-primary">Tabata Welfare Association</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary transition-colors">Home</a>
+                    <a href="#about" class="text-gray-700 hover:text-primary transition-colors">About</a>
+                    <a href="#programs" class="text-gray-700 hover:text-primary transition-colors">Programs</a>
+                    <a href="fundraising.html" class="text-primary font-semibold">Donate</a>
+                    <a href="#contact" class="text-gray-700 hover:text-primary transition-colors">Contact</a>
+                </div>
+                <a href="/login" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    Member Login
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary to-blue-800 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Help Us Make a <span class="text-yellow-300">Difference</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                Your donation helps us support families in need, provide emergency assistance, and build stronger
+                communities in Tabata and beyond.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToSection('donation-options')"
+                    class="bg-yellow-500 text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition-colors">
+                    Donate Now
+                </button>
+                <button onclick="scrollToSection('impact')"
+                    class="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-primary transition-colors">
+                    See Our Impact
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Statistics -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Impact in Numbers</h2>
+                <p class="text-xl text-gray-600">See how your donations are making a real difference</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl">
+                    <div class="text-4xl font-bold text-primary mb-2">500+</div>
+                    <div class="text-gray-700 font-semibold">Families Supported</div>
+                    <div class="text-sm text-gray-600 mt-2">Emergency assistance provided</div>
+                </div>
+
+                <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl">
+                    <div class="text-4xl font-bold text-secondary mb-2">TZS 50M+</div>
+                    <div class="text-gray-700 font-semibold">Total Distributed</div>
+                    <div class="text-sm text-gray-600 mt-2">In disaster relief and support</div>
+                </div>
+
+                <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl">
+                    <div class="text-4xl font-bold text-purple-600 mb-2">1,200+</div>
+                    <div class="text-gray-700 font-semibold">Active Members</div>
+                    <div class="text-sm text-gray-600 mt-2">Contributing to the cause</div>
+                </div>
+
+                <div class="text-center p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-xl">
+                    <div class="text-4xl font-bold text-accent mb-2">15+</div>
+                    <div class="text-gray-700 font-semibold">Years of Service</div>
+                    <div class="text-sm text-gray-600 mt-2">Serving the community</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Options -->
+    <section id="donation-options" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Choose Your Way to Help</h2>
+                <p class="text-xl text-gray-600">Every contribution, no matter the size, makes a meaningful impact</p>
+            </div>
+
+            <!-- Quick Donation Amounts -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+                <h3 class="text-2xl font-bold text-center mb-8">Quick Donation</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <button onclick="selectAmount(10000)"
+                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-primary hover:bg-blue-50 transition-colors">
+                        <div class="text-2xl font-bold text-primary">TZS 10,000</div>
+                        <div class="text-sm text-gray-600">Basic Support</div>
+                    </button>
+                    <button onclick="selectAmount(25000)"
+                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-primary hover:bg-blue-50 transition-colors">
+                        <div class="text-2xl font-bold text-primary">TZS 25,000</div>
+                        <div class="text-sm text-gray-600">Family Meal</div>
+                    </button>
+                    <button onclick="selectAmount(50000)"
+                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-primary hover:bg-blue-50 transition-colors">
+                        <div class="text-2xl font-bold text-primary">TZS 50,000</div>
+                        <div class="text-sm text-gray-600">Medical Aid</div>
+                    </button>
+                    <button onclick="selectAmount(100000)"
+                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-primary hover:bg-blue-50 transition-colors">
+                        <div class="text-2xl font-bold text-primary">TZS 100,000</div>
+                        <div class="text-sm text-gray-600">Emergency Fund</div>
+                    </button>
+                </div>
+
+                <!-- Custom Amount -->
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Or enter custom amount (TZS)</label>
+                    <input type="number" id="customAmount" placeholder="Enter amount"
+                        class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+
+                <!-- Donation Form -->
+                <form id="donationForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                            <input type="text" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                            <input type="email" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Donation Purpose</label>
+                            <select
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option>General Support</option>
+                                <option>Emergency Relief</option>
+                                <option>Medical Assistance</option>
+                                <option>Education Support</option>
+                                <option>Community Development</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+                        <textarea rows="3"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                            placeholder="Share why you're supporting our cause..."></textarea>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="newsletter"
+                            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                        <label for="newsletter" class="ml-2 text-sm text-gray-700">
+                            Subscribe to our newsletter for updates on how your donation is being used
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary text-white py-4 px-8 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-heart mr-2"></i>
+                        Complete Donation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Secure Payment Options</h2>
+                <p class="text-xl text-gray-600">Choose your preferred payment method</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Mobile Money -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-100 p-8 rounded-xl text-center">
+                    <div class="text-4xl mb-4">📱</div>
+                    <h3 class="text-xl font-bold mb-4">Mobile Money</h3>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div><strong>M-Pesa:</strong> +255 XXX XXX XXX</div>
+                        <div><strong>Tigo Pesa:</strong> +255 XXX XXX XXX</div>
+                        <div><strong>Airtel Money:</strong> +255 XXX XXX XXX</div>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-4">Send payment and SMS reference to confirm</p>
+                </div>
+
+                <!-- Bank Transfer -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 rounded-xl text-center">
+                    <div class="text-4xl mb-4">🏦</div>
+                    <h3 class="text-xl font-bold mb-4">Bank Transfer</h3>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div><strong>Bank:</strong> CRDB Bank</div>
+                        <div><strong>Account:</strong> 0150XXXXXXXX</div>
+                        <div><strong>Name:</strong> Tabata Welfare Association</div>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-4">Include your name in transfer reference</p>
+                </div>
+
+                <!-- Online Payment -->
+                <div class="bg-gradient-to-br from-purple-50 to-violet-100 p-8 rounded-xl text-center">
+                    <div class="text-4xl mb-4">💳</div>
+                    <h3 class="text-xl font-bold mb-4">Online Payment</h3>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div>Visa & Mastercard</div>
+                        <div>PayPal</div>
+                        <div>Secure SSL Encryption</div>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-4">Instant confirmation and receipt</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Stories -->
+    <section id="impact" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Stories of Impact</h2>
+                <p class="text-xl text-gray-600">See how your donations are changing lives</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Story 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=250&fit=crop"
+                        alt="Family Support" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Emergency Medical Support</h3>
+                        <p class="text-gray-600 mb-4">
+                            "When my child fell seriously ill, the association provided immediate financial support for
+                            hospital treatment. Without their help, I don't know what would have happened."
+                        </p>
+                        <div class="text-sm text-gray-500">
+                            <strong>- Mama Fatuma, Tabata Resident</strong>
+                        </div>
+                        <div class="mt-4 bg-green-50 p-3 rounded-lg">
+                            <div class="text-sm text-green-800">
+                                <strong>Impact:</strong> TZS 150,000 provided for medical treatment
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 2 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=250&fit=crop"
+                        alt="Education Support" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Education Assistance</h3>
+                        <p class="text-gray-600 mb-4">
+                            "The scholarship program helped my daughter continue her secondary education. She's now in
+                            university studying medicine, thanks to the community support."
+                        </p>
+                        <div class="text-sm text-gray-500">
+                            <strong>- Baba John, Community Member</strong>
+                        </div>
+                        <div class="mt-4 bg-blue-50 p-3 rounded-lg">
+                            <div class="text-sm text-blue-800">
+                                <strong>Impact:</strong> 4-year scholarship worth TZS 800,000
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 3 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=250&fit=crop"
+                        alt="Disaster Relief" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Disaster Relief</h3>
+                        <p class="text-gray-600 mb-4">
+                            "After the floods destroyed our home, the welfare association provided emergency shelter and
+                            food supplies. They helped us rebuild our lives."
+                        </p>
+                        <div class="text-sm text-gray-500">
+                            <strong>- Mama Grace, Flood Victim</strong>
+                        </div>
+                        <div class="mt-4 bg-orange-50 p-3 rounded-lg">
+                            <div class="text-sm text-orange-800">
+                                <strong>Impact:</strong> Emergency aid for 50 families
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other Ways to Help -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Other Ways to Support Us</h2>
+                <p class="text-xl text-gray-600">Your contribution doesn't always have to be monetary</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Volunteer -->
+                <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="text-xl font-bold mb-3">Volunteer</h3>
+                    <p class="text-gray-600 mb-4">Join our team of volunteers and contribute your time and skills to
+                        help families in need.</p>
+                    <button class="bg-secondary text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        Join Us
+                    </button>
+                </div>
+
+                <!-- Spread the Word -->
+                <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl">
+                    <div class="text-4xl mb-4">📢</div>
+                    <h3 class="text-xl font-bold mb-3">Spread the Word</h3>
+                    <p class="text-gray-600 mb-4">Share our mission with friends and family. Help us reach more people
+                        who need support.</p>
+                    <div class="flex justify-center space-x-2">
+                        <button class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </button>
+                        <button class="bg-blue-400 text-white p-2 rounded-lg hover:bg-blue-500 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Corporate Partnership -->
+                <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl">
+                    <div class="text-4xl mb-4">🏢</div>
+                    <h3 class="text-xl font-bold mb-3">Corporate Partnership</h3>
+                    <p class="text-gray-600 mb-4">Partner with us for CSR initiatives and make a larger impact in the
+                        community.</p>
+                    <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                        Partner With Us
+                    </button>
+                </div>
+
+                <!-- In-Kind Donations -->
+                <div class="text-center p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-xl">
+                    <div class="text-4xl mb-4">📦</div>
+                    <h3 class="text-xl font-bold mb-3">In-Kind Donations</h3>
+                    <p class="text-gray-600 mb-4">Donate goods, supplies, or services that can directly help families in
+                        need.</p>
+                    <button class="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                        Donate Goods
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transparency Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Transparency & Accountability</h2>
+                <p class="text-xl text-gray-600">We believe in complete transparency about how your donations are used
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold mb-6">How Your Money is Used</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">Direct Aid to Families</span>
+                                    <span class="text-green-600 font-bold">75%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-blue-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">Program Operations</span>
+                                    <span class="text-blue-600 font-bold">15%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-orange-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">Administrative Costs</span>
+                                    <span class="text-orange-600 font-bold">10%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div class="bg-orange-500 h-2 rounded-full" style="width: 10%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-6 bg-white rounded-xl shadow-lg">
+                        <h4 class="font-bold mb-3">Our Commitment</h4>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Monthly financial reports published
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Annual independent audit
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Donor updates on fund usage
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Open book policy for major donors
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-6">Recent Financial Report</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span>Total Donations Received</span>
+                            <span class="font-bold text-green-600">TZS 12,500,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span>Emergency Aid Distributed</span>
+                            <span class="font-bold text-blue-600">TZS 9,375,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span>Families Helped This Month</span>
+                            <span class="font-bold text-purple-600">127</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span>Active Programs</span>
+                            <span class="font-bold text-orange-600">8</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button
+                            class="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Full Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-16 bg-gradient-to-r from-primary to-blue-800 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Make a Difference?</h2>
+            <p class="text-xl mb-8">
+                Join hundreds of donors who are already making a positive impact in our community.
+                Every donation, no matter the size, helps us support families in need.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToSection('donation-options')"
+                    class="bg-yellow-500 text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition-colors">
+                    <i class="fas fa-heart mr-2"></i>
+                    Donate Now
+                </button>
+                <button
+                    class="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-primary transition-colors">
+                    <i class="fas fa-envelope mr-2"></i>
+                    Contact Us
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="logo.png" alt="Tabata Welfare Association" class="h-8 w-8 mr-2">
+                        <span class="text-lg font-bold">Tabata Welfare Association</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Supporting families and building stronger communities in Tabata and beyond.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Our Programs</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Impact Stories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Financial Reports</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Get Involved</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Donate</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Volunteer</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Become a Member</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Corporate Partnership</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Contact Info</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>Tabata, Dar es Salaam, Tanzania</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            <span>+255 XXX XXX XXX</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <span>info@tabatawelfare.org</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Tabata Welfare Association. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function selectAmount(amount) {
+            document.getElementById('customAmount').value = amount;
+            // Remove active class from all buttons
+            document.querySelectorAll('.donation-btn').forEach(btn => {
+                btn.classList.remove('border-primary', 'bg-blue-50');
+                btn.classList.add('border-gray-300');
+            });
+            // Add active class to clicked button
+            event.target.closest('.donation-btn').classList.add('border-primary', 'bg-blue-50');
+            event.target.closest('.donation-btn').classList.remove('border-gray-300');
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('donationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const amount = document.getElementById('customAmount').value;
+            if (!amount || amount <= 0) {
+                alert('Please select or enter a donation amount');
+                return;
+            }
+            alert(`Thank you for your donation of TZS ${parseInt(amount).toLocaleString()}! You will be redirected to payment processing.`);
+            // Here you would integrate with actual payment processing
+        });
+    </script>
+</body>
+
+</html>

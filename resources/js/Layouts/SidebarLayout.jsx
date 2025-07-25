@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import Header from '../Components/Header';
-import { ChartBarIcon, UsersIcon, CogIcon, ShieldCheckIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
+import SessionTimeout from '@/Components/SessionTimeout';
+import { ChartBarIcon, UsersIcon, CogIcon, ShieldCheckIcon, CloudArrowUpIcon, DocumentTextIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { LiaCoinsSolid } from "react-icons/lia";
 
@@ -57,9 +58,11 @@ export default function SidebarLayout({ children }) {
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
                     { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
+                    { href: '/admin/documents', icon: DocumentTextIcon, label: 'Documents' },
                     { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                     { href: '/admin/roles', icon: ShieldCheckIcon, label: 'Roles' },
                     { href: '/admin/backups', icon: CloudArrowUpIcon, label: 'Backups' },
+                    { href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, label: 'Audit Trail' },
                     { href: '/admin/settings', icon: CogIcon, label: 'Settings' },
                 ];
             } else if (user.role.name === 'secretary') {
@@ -67,6 +70,7 @@ export default function SidebarLayout({ children }) {
                     { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
                     { href: '/admin/members', icon: UsersIcon, label: 'Members' },
                     { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
+                    { href: '/admin/documents', icon: DocumentTextIcon, label: 'Documents' },
                     { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
                 ];
             }
@@ -74,6 +78,7 @@ export default function SidebarLayout({ children }) {
         return [
             { href: '/member/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
             { href: '/financials', icon: LiaCoinsSolid, label: 'Financials' },
+            { href: '/member/documents', icon: DocumentTextIcon, label: 'Documents' },
             { href: '/member/dependents', icon: UsersIcon, label: 'Dependents' },
         ];
     };
@@ -198,6 +203,9 @@ export default function SidebarLayout({ children }) {
                     {children}
                 </main>
             </div>
+
+            {/* Session Timeout Component */}
+            <SessionTimeout enabled={true} />
         </div>
     );
 }

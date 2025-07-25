@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
-import { useForm, usePage, router } from '@inertiajs/react';
+import { useForm, usePage, router, Link } from '@inertiajs/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -1239,8 +1239,8 @@ const MemberForm = ({ closeModal, member }) => {
     );
 };
 
-export default function MembersIndex({ members }) {
-    const { auth } = usePage().props;
+export default function MembersIndex({ members, statistics = {} }) {
+    const { auth, flash } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMember, setEditingMember] = useState(null);
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
@@ -1259,6 +1259,30 @@ export default function MembersIndex({ members }) {
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(12);
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        }
+        if (flash?.error) {
+            toast.error(flash.error, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        }
+    }, [flash]);
 
     // Filter and sort members
     const filteredAndSortedMembers = React.useMemo(() => {
@@ -1352,9 +1376,13 @@ export default function MembersIndex({ members }) {
 
     const handleDelete = () => {
         if (deletingMember && deleteConfirmation === deletingMember.name) {
-            router.delete(route('members.destroy', deletingMember.id), {
+            const deleteRoute = route('members.destroy', deletingMember.id);
+            console.log('Delete route:', deleteRoute);
+            console.log('Member ID:', deletingMember.id);
+
+            router.delete(deleteRoute, {
                 onSuccess: () => {
-                    toast.success('Member deleted successfully.', {
+                    toast.success('Member archived successfully.', {
                         position: "top-right",
                         autoClose: 3000,
                         hideProgressBar: false,
@@ -1366,8 +1394,8 @@ export default function MembersIndex({ members }) {
                     closeDeleteModal();
                 },
                 onError: (errors) => {
-                    console.error('Delete errors:', errors);
-                    let errorMessage = 'An error occurred while deleting the member. Please try again.';
+                    console.error('Archive errors:', errors);
+                    let errorMessage = 'An error occurred while archiving the member. Please try again.';
 
                     // Check for specific error messages
                     if (errors.message) {
@@ -1580,15 +1608,27 @@ export default function MembersIndex({ members }) {
                             </button>
                         </div>
 
-                        <button
-                            onClick={openModal}
-                            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            Add New Member
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Link
+                                href={route('admin.members.archived')}
+                                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg hover:shadow-xl transition-all duration-200"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6m0 0l6-6m-6 6V3" />
+                                </svg>
+                                View Archive ({statistics?.deleted_members || 0})
+                            </Link>
+
+                            <button
+                                onClick={openModal}
+                                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add New Member
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2035,15 +2075,15 @@ export default function MembersIndex({ members }) {
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                         <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                             <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Delete Member</h3>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Archive Member</h3>
                                 <div className="mt-2">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this member? This action will also delete all related data, including contributions, debts, penalties, dependents, and certificates. This action cannot be undone.</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to archive this member? The member will be moved to the archive but can be restored later if needed. All related data (contributions, debts, penalties, dependents) will be preserved.</p>
                                     <input type="text" value={deleteConfirmation} onChange={e => setDeleteConfirmation(e.target.value)} placeholder={`Type "${deletingMember?.name || ''}" to confirm`} className="w-full mt-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" />
                                 </div>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button onClick={handleDelete} disabled={deleteConfirmation !== deletingMember?.name} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                    Delete
+                                <button onClick={handleDelete} disabled={deleteConfirmation !== deletingMember?.name} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Archive Member
                                 </button>
                                 <button onClick={closeDeleteModal} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                                     Cancel

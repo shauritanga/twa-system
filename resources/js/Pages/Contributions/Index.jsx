@@ -94,7 +94,7 @@ import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import ImportModal from '../../Components/ImportModal';
 
-export default function ContributionsIndex({ members, contributionsByMonth, filters }) {
+export default function ContributionsIndex({ members, allMembers, contributionsByMonth, filters }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const { auth } = usePage().props;
@@ -222,7 +222,7 @@ export default function ContributionsIndex({ members, contributionsByMonth, filt
                     ))
                 }
             </div>
-            {isModalOpen && <ContributionForm members={members.data} closeModel={closeModal} />}
+            {isModalOpen && <ContributionForm members={allMembers || members.data} closeModel={closeModal} />}
             <ImportModal
                 isOpen={isImportModalOpen}
                 onClose={() => setIsImportModalOpen(false)}

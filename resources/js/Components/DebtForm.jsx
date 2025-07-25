@@ -17,7 +17,7 @@ const DebtForm = ({ isOpen, onClose, members }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         post(route('debts.store'), {
             onSuccess: () => {
                 toast.success('Debt added successfully!');
@@ -71,7 +71,7 @@ const DebtForm = ({ isOpen, onClose, members }) => {
                             required
                         >
                             <option value="">Select a member</option>
-                            {members.data.map((member) => (
+                            {(members?.data || members || []).map((member) => (
                                 <option key={member.id} value={member.id}>
                                     {member.name}
                                 </option>

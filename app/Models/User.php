@@ -4,13 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\Auditable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes, Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -33,6 +35,9 @@ class User extends Authenticatable
         'postal_code',
         'preferences',
         'last_profile_update',
+        'otp_secret',
+        'otp_enabled',
+        'otp_verified_at',
     ];
 
     /**
@@ -59,6 +64,8 @@ class User extends Authenticatable
             'preferences' => 'array',
             'last_profile_update' => 'datetime',
             'last_login' => 'datetime',
+            'otp_enabled' => 'boolean',
+            'otp_verified_at' => 'datetime',
         ];
     }
 
@@ -167,5 +174,68 @@ class User extends Authenticatable
     public function logActivity(string $action, string $description, array $metadata = []): ActivityLog
     {
         return ActivityLog::log($action, $description, $metadata, $this);
+    }
+
+    /**
+     * Get the OTP codes for the user.
+     */
+    public function otpCodes()
+    {
+        return $this->hasMany(OtpCode::class);
+    }
+
+    /**
+     * Check if the user has OTP enabled.
+     */
+    public function hasOtpEnabled(): bool
+    {
+        return $this->otp_enabled;
+    }
+
+    /**
+     * Enable OTP for the user.
+     */
+    public function enableOtp(): void
+    {
+        $this->update([
+            'otp_enabled' => true,
+            'otp_secret' => \Str::random(32),
+        ]);
+    }
+
+    /**
+     * Disable OTP for the user.
+     */
+    public function disableOtp(): void
+    {
+        $this->update([
+            'otp_enabled' => false,
+            'otp_secret' => null,
+            'otp_verified_at' => null,
+        ]);
+
+        // Delete all existing OTP codes
+        $this->otpCodes()->delete();
+    }
+
+    /**
+     * Get the latest valid OTP code for the user.
+     */
+    public function getLatestValidOtpCode()
+    {
+        return $this->otpCodes()
+                    ->valid()
+                    ->latest()
+                    ->first();
+    }
+
+    /**
+     * Check if user needs OTP verification.
+     */
+    public function needsOtpVerification(): bool
+    {
+        return $this->hasOtpEnabled() &&
+               (is_null($this->otp_verified_at) ||
+                $this->otp_verified_at->diffInMinutes(now()) > 30);
     }
 }

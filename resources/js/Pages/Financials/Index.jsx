@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Link } from '@inertiajs/react';
 import DisasterPaymentForm from '../../Components/DisasterPaymentForm';
 import DebtForm from '../../Components/DebtForm';
 import {
@@ -12,10 +12,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { LiaCoinsSolid } from "react-icons/lia";
 
-const Financials = ({ members, contributionsByMonth, filters, debts, penalties, disasterPayments, penaltyStatistics, listOfShameData }) => {
+const Financials = ({ members, allMembers, monthlyContributionsByMonth, otherContributions, otherContributionsSummary, filters, debts, penalties, disasterPayments, penaltyStatistics, listOfShameData, statistics }) => {
     const { props } = usePage();
     const initialTab = props.tab || 'contributions';
     const [activeTab, setActiveTab] = useState(initialTab);
+    const [activeContributionTab, setActiveContributionTab] = useState('monthly');
 
     // Currency formatting function
     const formatCurrency = (amount) => {
@@ -54,7 +55,7 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
         },
         {
             id: 'disaster-payments',
-            name: 'Disaster Payments',
+            name: 'Disbursements',
             icon: HeartIcon,
             color: 'text-blue-600 dark:text-blue-400',
             bgColor: 'bg-blue-50 dark:bg-blue-900/20',
@@ -73,13 +74,25 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
     const renderContent = () => {
         switch (activeTab) {
             case 'contributions':
-                return <ContributionsTable members={members} contributionsByMonth={contributionsByMonth} filters={filters} />;
+                return (
+                    <ContributionsSection
+                        members={members}
+                        allMembers={allMembers}
+                        monthlyContributionsByMonth={monthlyContributionsByMonth}
+                        otherContributions={otherContributions}
+                        otherContributionsSummary={otherContributionsSummary}
+                        filters={filters}
+                        statistics={statistics}
+                        activeContributionTab={activeContributionTab}
+                        setActiveContributionTab={setActiveContributionTab}
+                    />
+                );
             case 'debts':
-                return <DebtsTable debts={debts} members={members} />;
+                return <DebtsTable debts={debts} members={allMembers} />;
             case 'penalties':
                 return <PenaltiesTable penalties={penalties} />;
             case 'disaster-payments':
-                return <DisasterPaymentsTable disasterPayments={disasterPayments} members={members} />;
+                return <DisasterPaymentsTable disasterPayments={disasterPayments} members={allMembers} allMembers={allMembers} />;
             case 'list-of-shame':
                 return <ListOfShame listOfShameData={listOfShameData} />;
             default:
@@ -113,13 +126,13 @@ const Financials = ({ members, contributionsByMonth, filters, debts, penalties, 
                             <div className="flex items-center space-x-6">
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                        {members?.data?.length || 0}
+                                        {statistics?.active_members || 0}
                                     </div>
                                     <div className="text-sm text-gray-500 dark:text-gray-400">Active Members</div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                        {Object.keys(contributionsByMonth || {}).length}
+                                        {statistics?.contributors || 0}
                                     </div>
                                     <div className="text-sm text-gray-500 dark:text-gray-400">Contributors</div>
                                 </div>
@@ -191,7 +204,7 @@ import InputLabel from '../../Components/InputLabel';
 import TextInput from '../../Components/TextInput';
 import InputError from '../../Components/InputError';
 
-const ContributionForm = ({ members, closeModel }) => {
+const ContributionForm = ({ members, closeModel, defaultType = 'monthly' }) => {
     const { props } = usePage();
     const settings = props.settings || {};
 
@@ -212,10 +225,22 @@ const ContributionForm = ({ members, closeModel }) => {
 
     const { data, setData, post, processing, errors } = useForm({
         member_id: '',
-        amount: monthlyContributionAmount,
+        type: defaultType, // Use defaultType prop
+        amount: defaultType === 'monthly' ? monthlyContributionAmount : '',
         date: new Date().toISOString().split('T')[0], // Today's date
-        purpose: 'Monthly Contribution', // Fixed purpose for monthly contributions
+        purpose: defaultType === 'monthly' ? 'Monthly Contribution' : '',
+        notes: '',
     });
+
+    // Handle contribution type change
+    const handleTypeChange = (type) => {
+        setData(prevData => ({
+            ...prevData,
+            type: type,
+            amount: type === 'monthly' ? monthlyContributionAmount : '',
+            purpose: type === 'monthly' ? 'Monthly Contribution' : '',
+        }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -225,112 +250,395 @@ const ContributionForm = ({ members, closeModel }) => {
     };
 
     return (
-        <Modal show={true} onClose={closeModel} title="Add Monthly Contribution" maxWidth="lg">
-            <form onSubmit={handleSubmit} className="p-6">
-                {/* Form Description */}
-                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-center">
-                        <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <div>
-                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Contribution</h4>
-                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                                Record a member's monthly contribution payment. Amount is automatically set from system settings.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    <div>
-                        <InputLabel htmlFor="member_id" value="Member" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
-                        <select
-                            id="member_id"
-                            value={data.member_id}
-                            onChange={e => setData('member_id', e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-xl shadow-sm transition-all duration-200"
-                        >
-                            <option value="">Select Member</option>
-                            {members.map(member => (
-                                <option key={member.id} value={member.id}>{member.name}</option>
-                            ))}
-                        </select>
-                        <InputError message={errors.member_id} className="mt-2" />
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="amount" value="Amount (TZS)" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
-                        <div className="relative">
-                            <TextInput
-                                id="amount"
-                                type="number"
-                                step="0.01"
-                                value={data.amount}
-                                onChange={e => setData('amount', e.target.value)}
-                                placeholder="Enter contribution amount"
-                                className="mt-1 block w-full px-12 py-3 rounded-xl shadow-sm transition-all duration-200"
-                            />
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">TZS</span>
-                            </div>
-                        </div>
-                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center">
-                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <Modal show={true} onClose={closeModel} title="Add Contribution" maxWidth="lg">
+            <div className="flex flex-col h-[600px]"> {/* Fixed height container */}
+                {/* Form Header - Fixed */}
+                <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-center">
+                            <svg className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                             </svg>
-                            Pre-filled with monthly contribution amount from settings ({formatCurrency(monthlyContributionAmount)})
-                        </p>
-                        <InputError message={errors.amount} className="mt-2" />
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="date" value="Date" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
-                        <TextInput
-                            id="date"
-                            type="date"
-                            value={data.date}
-                            onChange={e => setData('date', e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 rounded-xl shadow-sm transition-all duration-200"
-                        />
-                        <InputError message={errors.date} className="mt-2" />
-                    </div>
-
-
-                </div>
-
-                <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                        type="button"
-                        onClick={closeModel}
-                        className="px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600 dark:hover:to-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300 transform hover:scale-105"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                        {processing ? (
-                            <div className="flex items-center">
-                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Creating...
+                            <div className="min-w-0">
+                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                    {data.type === 'monthly' ? 'Monthly Contribution' : 'Other Contribution'}
+                                </h4>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                                    {data.type === 'monthly'
+                                        ? 'System handles multiple payments and advance payments automatically.'
+                                        : 'Record special projects, donations, etc.'
+                                    }
+                                </p>
                             </div>
-                        ) : (
-                            'Add Contribution'
-                        )}
-                    </button>
+                        </div>
+                    </div>
                 </div>
-            </form>
+
+                {/* Scrollable Form Content */}
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5"> {/* Scrollable content */}
+                        {/* Contribution Type Selector */}
+                        <div>
+                            <InputLabel htmlFor="type" value="Contribution Type" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => handleTypeChange('monthly')}
+                                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${data.type === 'monthly'
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-600'
+                                        }`}
+                                >
+                                    <div className="text-center">
+                                        <svg className="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <div className="font-medium">Monthly</div>
+                                        <div className="text-xs opacity-75">Regular monthly contribution</div>
+                                    </div>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleTypeChange('other')}
+                                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${data.type === 'other'
+                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-green-300 dark:hover:border-green-600'
+                                        }`}
+                                >
+                                    <div className="text-center">
+                                        <svg className="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        <div className="font-medium">Other</div>
+                                        <div className="text-xs opacity-75">Special projects, donations</div>
+                                    </div>
+                                </button>
+                            </div>
+                            <InputError message={errors.type} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="member_id" value="Member" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <select
+                                id="member_id"
+                                value={data.member_id}
+                                onChange={e => setData('member_id', e.target.value)}
+                                className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-xl shadow-sm transition-all duration-200"
+                            >
+                                <option value="">Select Member</option>
+                                {members.map(member => (
+                                    <option key={member.id} value={member.id}>{member.name}</option>
+                                ))}
+                            </select>
+                            <InputError message={errors.member_id} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="amount" value="Amount (TZS)" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <div className="relative">
+                                <TextInput
+                                    id="amount"
+                                    type="number"
+                                    step="0.01"
+                                    value={data.amount}
+                                    onChange={e => setData('amount', e.target.value)}
+                                    placeholder={data.type === 'monthly' ? 'Amount (adjustable)' : 'Enter contribution amount'}
+                                    className="mt-1 block w-full px-12 py-3 rounded-xl shadow-sm transition-all duration-200"
+                                />
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">TZS</span>
+                                </div>
+                            </div>
+                            {data.type === 'monthly' ? (
+                                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center">
+                                    <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Monthly: {formatCurrency(monthlyContributionAmount)} • Smart distribution enabled
+                                </p>
+                            ) : (
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                    Enter amount for special contribution
+                                </p>
+                            )}
+                            <InputError message={errors.amount} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="date" value="Date" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <TextInput
+                                id="date"
+                                type="date"
+                                value={data.date}
+                                onChange={e => setData('date', e.target.value)}
+                                className="mt-1 block w-full px-4 py-3 rounded-xl shadow-sm transition-all duration-200"
+                            />
+                            <InputError message={errors.date} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="purpose" value="Purpose" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <TextInput
+                                id="purpose"
+                                type="text"
+                                value={data.purpose}
+                                onChange={e => setData('purpose', e.target.value)}
+                                placeholder={data.type === 'monthly' ? 'Monthly Contribution' : 'Enter purpose (e.g., Building Fund, Equipment)'}
+                                className="mt-1 block w-full px-4 py-3 rounded-xl shadow-sm transition-all duration-200"
+                            />
+                            <InputError message={errors.purpose} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="notes" value="Notes (Optional)" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" />
+                            <textarea
+                                id="notes"
+                                value={data.notes}
+                                onChange={e => setData('notes', e.target.value)}
+                                placeholder="Additional notes about this contribution..."
+                                rows={3}
+                                className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-xl shadow-sm transition-all duration-200 resize-none"
+                            />
+                            <InputError message={errors.notes} className="mt-2" />
+                        </div>
+
+                    </div>
+
+                    {/* Fixed Footer */}
+                    <div className="flex-shrink-0 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={closeModel}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {processing ? (
+                                    <div className="flex items-center">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Creating...
+                                    </div>
+                                ) : (
+                                    'Add Contribution'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </Modal>
     );
 };
 
-const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
+// New ContributionsSection with tabbed interface
+const ContributionsSection = ({ members, allMembers, monthlyContributionsByMonth, otherContributions, otherContributionsSummary, filters, statistics, activeContributionTab, setActiveContributionTab }) => {
+
+    const renderContributionContent = () => {
+        switch (activeContributionTab) {
+            case 'monthly':
+                return (
+                    <MonthlyContributionsTable
+                        members={members}
+                        allMembers={allMembers}
+                        contributionsByMonth={monthlyContributionsByMonth}
+                        filters={filters}
+                        statistics={statistics}
+                    />
+                );
+            case 'other':
+                return (
+                    <OtherContributionsTable
+                        otherContributions={otherContributions}
+                        otherContributionsSummary={otherContributionsSummary}
+                        allMembers={allMembers}
+                        filters={filters}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="p-8">
+            {/* Enhanced Header with Statistics */}
+            <div className="mb-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div className="flex items-center">
+                        <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg mr-4">
+                            <LiaCoinsSolid className="h-8 w-8 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                                Member Contributions
+                            </h2>
+                            <p className="mt-1 text-gray-600 dark:text-gray-400">
+                                {(() => {
+                                    const { auth } = usePage().props;
+                                    const user = auth?.user;
+                                    const isAdmin = user?.role?.name === 'admin';
+                                    return isAdmin
+                                        ? "Track monthly contributions and special projects"
+                                        : "View monthly contributions and special projects (Read-only access)";
+                                })()}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Enhanced Statistics Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Monthly Contributions</p>
+                                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                        {new Intl.NumberFormat('en-TZ', {
+                                            style: 'currency',
+                                            currency: 'TZS',
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        }).format(statistics.monthly_contributions || 0)}
+                                    </p>
+                                    <p className="text-xs text-blue-500 dark:text-blue-400">
+                                        {statistics.monthly_compliance || 0}% Compliance
+                                    </p>
+                                </div>
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">Other Contributions</p>
+                                    <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                                        {new Intl.NumberFormat('en-TZ', {
+                                            style: 'currency',
+                                            currency: 'TZS',
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        }).format(statistics.other_contributions || 0)}
+                                    </p>
+                                    <p className="text-xs text-green-500 dark:text-green-400">
+                                        {otherContributionsSummary?.length || 0} Projects
+                                    </p>
+                                </div>
+                                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Total Contributions</p>
+                                    <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                                        {new Intl.NumberFormat('en-TZ', {
+                                            style: 'currency',
+                                            currency: 'TZS',
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        }).format(statistics.total_contributions || 0)}
+                                    </p>
+                                    <p className="text-xs text-purple-500 dark:text-purple-400">
+                                        {statistics.contributors || 0} Contributors
+                                    </p>
+                                </div>
+                                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                    <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Contribution Type Tabs */}
+            <div className="mb-6">
+                {(() => {
+                    const { auth } = usePage().props;
+                    const user = auth?.user;
+                    const isAdmin = user?.role?.name === 'admin';
+                    return !isAdmin && (
+                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                            <div className="flex items-center">
+                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                    You have view-only access to contributions. Only administrators can add or modify contributions.
+                                </span>
+                            </div>
+                        </div>
+                    );
+                })()}
+                <div className="border-b border-gray-200 dark:border-gray-700">
+                    <nav className="-mb-px flex space-x-8">
+                        <button
+                            onClick={() => setActiveContributionTab('monthly')}
+                            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${activeContributionTab === 'monthly'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                                }`}
+                        >
+                            <div className="flex items-center space-x-2">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Monthly Contributions</span>
+                                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
+                                    {statistics.monthly_compliance || 0}% Compliance
+                                </span>
+                            </div>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveContributionTab('other')}
+                            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${activeContributionTab === 'other'
+                                ? 'border-green-500 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                                }`}
+                        >
+                            <div className="flex items-center space-x-2">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                <span>Other Contributions</span>
+                                <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full">
+                                    {otherContributionsSummary?.length || 0} Projects
+                                </span>
+                            </div>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            {/* Tab Content */}
+            {renderContributionContent()}
+        </div>
+    );
+};
+
+// Renamed original ContributionsTable to MonthlyContributionsTable
+const MonthlyContributionsTable = ({ members, allMembers, contributionsByMonth, filters, statistics }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const { auth } = usePage().props;
@@ -415,13 +723,13 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
                             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                {members?.data?.length || 0}
+                                {statistics?.total_members || 0}
                             </div>
                             <div className="text-sm text-green-700 dark:text-green-300">Total Members</div>
                         </div>
                         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
                             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                {Object.keys(contributionsByMonth || {}).length}
+                                {statistics?.contributors || 0}
                             </div>
                             <div className="text-sm text-blue-700 dark:text-blue-300">Contributors</div>
                         </div>
@@ -461,7 +769,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                             <div className="absolute right-0 mt-2 w-56 rounded-xl shadow-2xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-20 border border-gray-200 dark:border-gray-700">
                                 <div className="py-2">
                                     <a href={route('contributions.export', { format: 'pdf', search, year, month })}
-                                       className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 group">
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 group">
                                         <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg mr-3 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors duration-200">
                                             <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
@@ -473,7 +781,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                                         </div>
                                     </a>
                                     <a href={route('contributions.export', { format: 'xlsx', search, year, month })}
-                                       className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-200 group">
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-200 group">
                                         <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg mr-3 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors duration-200">
                                             <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
@@ -485,7 +793,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                                         </div>
                                     </a>
                                     <a href={route('contributions.export', { format: 'csv', search, year, month })}
-                                       className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 group">
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 group">
                                         <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors duration-200">
                                             <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
@@ -750,15 +1058,12 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                                         <a
                                             key={index}
                                             href={link.url}
-                                            className={`relative inline-flex items-center px-4 py-3 border text-sm font-semibold transition-all duration-300 ${
-                                                link.active
-                                                    ? 'z-10 bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-500 text-white shadow-lg transform scale-105'
-                                                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-600 dark:hover:to-gray-500 hover:scale-105'
-                                            } ${
-                                                index === 0 ? 'rounded-l-xl' : ''
-                                            } ${
-                                                index === members.links.length - 1 ? 'rounded-r-xl' : ''
-                                            }`}
+                                            className={`relative inline-flex items-center px-4 py-3 border text-sm font-semibold transition-all duration-300 ${link.active
+                                                ? 'z-10 bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-500 text-white shadow-lg transform scale-105'
+                                                : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-600 dark:hover:to-gray-500 hover:scale-105'
+                                                } ${index === 0 ? 'rounded-l-xl' : ''
+                                                } ${index === members.links.length - 1 ? 'rounded-r-xl' : ''
+                                                }`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />
                                     ))}
@@ -768,7 +1073,7 @@ const ContributionsTable = ({ members, contributionsByMonth, filters }) => {
                     </div>
                 </div>
             )}
-            {isModalOpen && <ContributionForm members={members.data} closeModel={closeModal} />}
+            {isModalOpen && <ContributionForm members={allMembers || members.data} closeModel={closeModal} />}
             {isImportModalOpen && (
                 <ImportModal
                     isOpen={isImportModalOpen}
@@ -835,11 +1140,10 @@ const DebtsTable = ({ debts, members }) => {
                                     <h3 className="text-sm font-medium text-gray-900 dark:text-white">{debt.member.name}</h3>
                                 </div>
                             </div>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                debt.status === 'paid'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                    : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                            }`}>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${debt.status === 'paid'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                                }`}>
                                 {debt.status}
                             </span>
                         </div>
@@ -916,11 +1220,10 @@ const DebtsTable = ({ debts, members }) => {
                                         {debt.due_date}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            debt.status === 'paid'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                                : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                                        }`}>
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${debt.status === 'paid'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                                            }`}>
                                             {debt.status}
                                         </span>
                                     </td>
@@ -1006,11 +1309,10 @@ const PenaltiesTable = ({ penalties }) => {
                                     <h3 className="text-sm font-medium text-gray-900 dark:text-white">{penalty.member.name}</h3>
                                 </div>
                             </div>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                penalty.status === 'paid'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                    : 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
-                            }`}>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${penalty.status === 'paid'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                : 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+                                }`}>
                                 {penalty.status}
                             </span>
                         </div>
@@ -1087,11 +1389,10 @@ const PenaltiesTable = ({ penalties }) => {
                                         {penalty.due_date}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            penalty.status === 'paid'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                                : 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
-                                        }`}>
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${penalty.status === 'paid'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                            : 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+                                            }`}>
                                             {penalty.status}
                                         </span>
                                     </td>
@@ -1123,6 +1424,255 @@ const PenaltiesTable = ({ penalties }) => {
                         No penalty fees have been recorded.
                     </p>
                 </div>
+            )}
+        </div>
+    );
+};
+
+// Other Contributions Table Component
+const OtherContributionsTable = ({ otherContributions, otherContributionsSummary, allMembers, filters }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { auth } = usePage().props;
+    const user = auth?.user;
+    const isAdmin = user?.role?.name === 'admin';
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {otherContributionsSummary?.map((summary, index) => (
+                    <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-green-600 dark:text-green-400 truncate">
+                                    {summary.purpose}
+                                </p>
+                                <p className="text-xl font-bold text-green-900 dark:text-green-100">
+                                    {formatCurrency(summary.total)}
+                                </p>
+                                <p className="text-xs text-green-500 dark:text-green-400">
+                                    {summary.count} contribution{summary.count !== 1 ? 's' : ''}
+                                </p>
+                            </div>
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Other Contributions History
+                    </h3>
+                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm px-3 py-1 rounded-full">
+                        {otherContributions?.total || 0} total
+                    </span>
+                </div>
+                {isAdmin && (
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+                    >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Other Contribution
+                    </button>
+                )}
+            </div>
+
+            {/* Contributions Table */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-900/50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Member
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Purpose
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Amount
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Notes
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {otherContributions?.data?.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                                                No other contributions yet
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                                {isAdmin
+                                                    ? "Start by adding contributions for special projects, building funds, or donations."
+                                                    : "No special project contributions have been recorded yet."
+                                                }
+                                            </p>
+                                            {isAdmin && (
+                                                <button
+                                                    onClick={() => setIsModalOpen(true)}
+                                                    className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg"
+                                                >
+                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                    </svg>
+                                                    Add First Contribution
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                otherContributions?.data?.map((contribution) => (
+                                    <tr key={contribution.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                            {new Date(contribution.date).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric'
+                                            })}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="flex-shrink-0 h-8 w-8">
+                                                    <div className="h-8 w-8 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center">
+                                                        <span className="text-xs font-medium text-white">
+                                                            {contribution.member?.name?.charAt(0) || 'M'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="ml-3">
+                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {contribution.member?.name || 'Unknown Member'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200">
+                                                {contribution.purpose}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                            {formatCurrency(contribution.amount)}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
+                                            {contribution.notes || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            {isAdmin ? (
+                                                <>
+                                                    <button className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 mr-3">
+                                                        View
+                                                    </button>
+                                                    <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200">
+                                                        Delete
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <span className="text-gray-400 dark:text-gray-500 text-xs">
+                                                    View Only
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination */}
+                {otherContributions?.links && otherContributions.links.length > 3 && (
+                    <div className="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-1 flex justify-between sm:hidden">
+                                {otherContributions.prev_page_url && (
+                                    <Link
+                                        href={otherContributions.prev_page_url}
+                                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                    >
+                                        Previous
+                                    </Link>
+                                )}
+                                {otherContributions.next_page_url && (
+                                    <Link
+                                        href={otherContributions.next_page_url}
+                                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                    >
+                                        Next
+                                    </Link>
+                                )}
+                            </div>
+                            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        Showing <span className="font-medium">{otherContributions.from || 0}</span> to{' '}
+                                        <span className="font-medium">{otherContributions.to || 0}</span> of{' '}
+                                        <span className="font-medium">{otherContributions.total || 0}</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                        {otherContributions.links.map((link, index) => (
+                                            <Link
+                                                key={index}
+                                                href={link.url || '#'}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${link.active
+                                                    ? 'z-10 bg-green-50 border-green-500 text-green-600 dark:bg-green-900/20 dark:border-green-400 dark:text-green-200'
+                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+                                                    } ${index === 0 ? 'rounded-l-md' : ''
+                                                    } ${index === otherContributions.links.length - 1 ? 'rounded-r-md' : ''
+                                                    }`}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        ))}
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Add Contribution Modal */}
+            {isModalOpen && (
+                <ContributionForm
+                    members={allMembers}
+                    closeModel={() => setIsModalOpen(false)}
+                    defaultType="other"
+                />
             )}
         </div>
     );
@@ -1288,7 +1838,7 @@ const ListOfShame = ({ listOfShameData }) => {
     );
 };
 
-const DisasterPaymentsTable = ({ disasterPayments, members }) => {
+const DisasterPaymentsTable = ({ disasterPayments, members, allMembers }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { auth } = usePage().props;
     const user = auth?.user;
@@ -1312,7 +1862,7 @@ const DisasterPaymentsTable = ({ disasterPayments, members }) => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Disaster Relief Payments</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Relief Payments</h2>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Emergency financial assistance provided to members
                     </p>
@@ -1425,7 +1975,7 @@ const DisasterPaymentsTable = ({ disasterPayments, members }) => {
                 </div>
             )}
 
-            {isModalOpen && <DisasterPaymentForm members={members.data} closeModal={closeModal} />}
+            {isModalOpen && <DisasterPaymentForm members={allMembers || members} closeModal={closeModal} />}
         </div>
     );
 };

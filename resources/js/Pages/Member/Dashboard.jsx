@@ -39,7 +39,7 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
-export default function MemberDashboard({ contributions, debts, penalties, dependents, certificates, memberContributions, otherContributions, recentDisasterPayments, monthlyContributions, monthlyDisasterPayments }) {
+export default function MemberDashboard({ contributions, debts, penalties, dependents, certificates, memberContributions, otherContributions, recentDisasterPayments, monthlyContributions, monthlyDisasterPayments, recentDocuments }) {
     const { auth } = usePage().props;
 
     if (!auth.user.member) {
@@ -105,7 +105,30 @@ export default function MemberDashboard({ contributions, debts, penalties, depen
                     )}
                     viewAllLink={route('financials.index')}
                 />
+                <InfoCard
+                    title="Recent Documents"
+                    items={recentDocuments}
+                    renderItem={d => (
+                        <li key={d.id} className="flex items-center justify-between py-2">
+                            <div className="flex-1">
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {d.title}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    {d.category_display} • {new Date(d.created_at).toLocaleDateString()}
+                                </div>
                             </div>
+                            <a
+                                href={route('member.documents.show', d.id)}
+                                className="text-blue-500 hover:text-blue-600 text-xs"
+                            >
+                                View
+                            </a>
+                        </li>
+                    )}
+                    viewAllLink={route('member.documents.index')}
+                />
+            </div>
             <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg p-5 mt-6">
                 <h2 className="text-xl font-semibold mb-2 dark:text-white">Recent Disaster Payments</h2>
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

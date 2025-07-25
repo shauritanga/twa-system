@@ -26,6 +26,9 @@ class ContributionController extends Controller
 
         $members = $query->paginate(10);
 
+        // Get ALL members for form dropdowns (not paginated)
+        $allMembers = Member::orderBy('name')->get();
+
         $contributionsByMonth = [];
         foreach ($members as $member) {
             $contributionsByMonth[$member->id] = [];
@@ -40,8 +43,20 @@ class ContributionController extends Controller
             }
 
             foreach ($query->get() as $contribution) {
-                $month = date('Y-m', strtotime($contribution->date));
-                $contributionsByMonth[$member->id][$month] = $contribution;
+                // For monthly contributions, use contribution_month field
+                // For other contributions, use date field
+                if ($contribution->type === 'monthly' && $contribution->contribution_month) {
+                    $month = $contribution->contribution_month;
+                } else {
+                    $month = date('Y-m', strtotime($contribution->date));
+                }
+
+                // If multiple contributions exist for the same month, sum them
+                if (isset($contributionsByMonth[$member->id][$month])) {
+                    $contributionsByMonth[$member->id][$month]->amount += $contribution->amount;
+                } else {
+                    $contributionsByMonth[$member->id][$month] = $contribution;
+                }
             }
         }
 
@@ -51,6 +66,7 @@ class ContributionController extends Controller
 
         return Inertia::render('Contributions/Index', [
             'members' => $members,
+            'allMembers' => $allMembers, // All members for form dropdowns
             'contributionsByMonth' => $contributionsByMonth,
             'filters' => $request->only(['search', 'year', 'month']),
         ]);
@@ -58,23 +74,199 @@ class ContributionController extends Controller
 
     public function store(Request $request)
     {
+        // Check if user is admin
+        if (!auth()->user() || auth()->user()->role->name !== 'admin') {
+            abort(403, 'Only administrators can add contributions.');
+        }
+
         $request->validate([
             'member_id' => 'required|exists:members,id',
+            'type' => 'required|in:monthly,other',
+            'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
             'purpose' => 'required|string|max:255',
+            'notes' => 'nullable|string|max:500',
         ]);
 
         $monthlyContributionSetting = \App\Models\Setting::where('key', 'monthly_contribution_amount')->first();
-        $contributionAmount = $monthlyContributionSetting ? $monthlyContributionSetting->value : 50000;
+        $monthlyAmount = $monthlyContributionSetting ? (float)$monthlyContributionSetting->value : 50000;
 
+        $amount = (float)$request->amount;
+        $type = $request->type;
+        $contributionMonth = date('Y-m', strtotime($request->date));
+
+        if ($type === 'monthly') {
+            // Handle monthly contributions
+            $this->handleMonthlyContribution($request, $amount, $monthlyAmount, $contributionMonth);
+        } else {
+            // Handle other contributions
+            $this->handleOtherContribution($request, $amount);
+        }
+
+        return redirect()->route('admin.financials.index')->with('success', 'Contribution recorded successfully.');
+    }
+
+    private function handleMonthlyContribution($request, $amount, $monthlyAmount, $contributionMonth)
+    {
+        $memberId = $request->member_id;
+
+        // Check existing contributions for this member in this month
+        $existingContributions = Contribution::where('member_id', $memberId)
+            ->where('type', 'monthly')
+            ->where('contribution_month', $contributionMonth)
+            ->sum('amount');
+
+        $totalAmount = $existingContributions + $amount;
+
+        if ($totalAmount <= $monthlyAmount) {
+            // Normal monthly contribution or partial payment
+            \Log::info("Normal monthly contribution", [
+                'member_id' => $memberId,
+                'amount' => $amount,
+                'existing' => $existingContributions,
+                'total' => $totalAmount,
+                'monthly_amount' => $monthlyAmount,
+                'month' => $contributionMonth
+            ]);
+
+            Contribution::create([
+                'member_id' => $memberId,
+                'amount' => $amount,
+                'date' => $request->date,
+                'purpose' => $request->purpose,
+                'type' => 'monthly',
+                'months_covered' => 1,
+                'contribution_month' => $contributionMonth,
+                'notes' => $request->notes,
+            ]);
+        } else {
+            // Amount exceeds monthly requirement - distribute across months
+            \Log::info("Excess contribution - triggering redistribution", [
+                'member_id' => $memberId,
+                'amount' => $amount,
+                'existing' => $existingContributions,
+                'total' => $totalAmount,
+                'monthly_amount' => $monthlyAmount,
+                'month' => $contributionMonth
+            ]);
+
+            $this->distributeExcessContribution($request, $amount, $monthlyAmount, $contributionMonth);
+        }
+    }
+
+    private function distributeExcessContribution($request, $amount, $monthlyAmount, $startMonth)
+    {
+        $memberId = $request->member_id;
+        $remainingAmount = $amount;
+        $currentMonth = $startMonth;
+
+        // First, complete the current month if there are existing partial payments
+        $existingForCurrentMonth = Contribution::where('member_id', $memberId)
+            ->where('type', 'monthly')
+            ->where('contribution_month', $currentMonth)
+            ->sum('amount');
+
+        if ($existingForCurrentMonth > 0 && $existingForCurrentMonth < $monthlyAmount) {
+            // There are partial payments, complete the current month first
+            $neededForCurrentMonth = $monthlyAmount - $existingForCurrentMonth;
+            $amountForCurrentMonth = min($remainingAmount, $neededForCurrentMonth);
+
+            Contribution::create([
+                'member_id' => $memberId,
+                'amount' => $amountForCurrentMonth,
+                'date' => $request->date,
+                'purpose' => $request->purpose . ' (Completing ' . date('F Y', strtotime($currentMonth)) . ')',
+                'type' => 'monthly',
+                'months_covered' => 1,
+                'contribution_month' => $currentMonth,
+                'notes' => $request->notes . ' - Completing partial payment for ' . date('F Y', strtotime($currentMonth)),
+            ]);
+
+            $remainingAmount -= $amountForCurrentMonth;
+            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
+        } elseif ($existingForCurrentMonth == 0) {
+            // No existing contributions for current month, fill it first
+            $amountForCurrentMonth = min($remainingAmount, $monthlyAmount);
+
+            Contribution::create([
+                'member_id' => $memberId,
+                'amount' => $amountForCurrentMonth,
+                'date' => $request->date,
+                'purpose' => $request->purpose . ' (' . date('F Y', strtotime($currentMonth)) . ')',
+                'type' => 'monthly',
+                'months_covered' => 1,
+                'contribution_month' => $currentMonth,
+                'notes' => $request->notes,
+            ]);
+
+            $remainingAmount -= $amountForCurrentMonth;
+            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
+        } else {
+            // Current month is already complete, move to next month
+            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
+        }
+
+        // Distribute remaining amount across future months
+        while ($remainingAmount >= $monthlyAmount) {
+            // Check if this month already has contributions
+            $existingForMonth = Contribution::where('member_id', $memberId)
+                ->where('type', 'monthly')
+                ->where('contribution_month', $currentMonth)
+                ->sum('amount');
+
+            if ($existingForMonth == 0) {
+                Contribution::create([
+                    'member_id' => $memberId,
+                    'amount' => $monthlyAmount,
+                    'date' => $request->date,
+                    'purpose' => $request->purpose . ' (Advance for ' . date('F Y', strtotime($currentMonth)) . ')',
+                    'type' => 'monthly',
+                    'months_covered' => 1,
+                    'contribution_month' => $currentMonth,
+                    'notes' => $request->notes . ' - Advance payment for ' . date('F Y', strtotime($currentMonth)),
+                ]);
+
+                $remainingAmount -= $monthlyAmount;
+            }
+
+            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
+        }
+
+        // Handle any remaining partial amount
+        if ($remainingAmount > 0) {
+            // Check if the next month already has partial contributions
+            $existingForNextMonth = Contribution::where('member_id', $memberId)
+                ->where('type', 'monthly')
+                ->where('contribution_month', $currentMonth)
+                ->sum('amount');
+
+            if ($existingForNextMonth == 0) {
+                Contribution::create([
+                    'member_id' => $memberId,
+                    'amount' => $remainingAmount,
+                    'date' => $request->date,
+                    'purpose' => $request->purpose . ' (Partial for ' . date('F Y', strtotime($currentMonth)) . ')',
+                    'type' => 'monthly',
+                    'months_covered' => 1,
+                    'contribution_month' => $currentMonth,
+                    'notes' => $request->notes . ' - Partial advance payment for ' . date('F Y', strtotime($currentMonth)),
+                ]);
+            }
+        }
+    }
+
+    private function handleOtherContribution($request, $amount)
+    {
         Contribution::create([
             'member_id' => $request->member_id,
-            'amount' => $contributionAmount,
+            'amount' => $amount,
             'date' => $request->date,
             'purpose' => $request->purpose,
+            'type' => 'other',
+            'months_covered' => 0, // Not applicable for other contributions
+            'contribution_month' => null, // Not applicable for other contributions
+            'notes' => $request->notes,
         ]);
-
-        return redirect()->route('admin.financials.index');
     }
 
     public function export(Request $request)

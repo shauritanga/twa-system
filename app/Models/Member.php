@@ -3,22 +3,38 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Auditable;
 
 class Member extends Model
 {
+    use SoftDeletes, Auditable;
     /**
      * The "booted" method of the model.
      */
     protected static function booted(): void
     {
-        // When a member is deleted, also delete the associated user
+        // When a member is soft deleted, also soft delete the associated user
         static::deleted(function (Member $member) {
             if ($member->user_id) {
                 $user = User::find($member->user_id);
                 if ($user) {
-                    // Only delete the user if it's a member role or has no role
+                    // Only soft delete the user if it's a member role or has no role
                     if (!$user->role || $user->role->name === 'member') {
-                        $user->delete();
+                        $user->delete(); // This will be soft delete if User model uses SoftDeletes
+                    }
+                }
+            }
+        });
+
+        // When a member is restored, also restore the associated user
+        static::restored(function (Member $member) {
+            if ($member->user_id) {
+                $user = User::withTrashed()->find($member->user_id);
+                if ($user && $user->trashed()) {
+                    // Only restore the user if it's a member role or has no role
+                    if (!$user->role || $user->role->name === 'member') {
+                        $user->restore();
                     }
                 }
             }

@@ -11,13 +11,20 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Services\AuditService;
 
 class MemberController extends Controller
 {
     public function index()
     {
+        // Only calculate statistics needed for archive link
+        $statistics = [
+            'deleted_members' => Member::onlyTrashed()->count(),
+        ];
+
         return Inertia::render('Members/Index', [
             'members' => Member::all(),
+            'statistics' => $statistics,
         ]);
     }
 
@@ -232,14 +239,71 @@ class MemberController extends Controller
     public function destroy(Member $member)
     {
         try {
-            // Delete the member record (the model's booted method will handle user deletion automatically)
+            // Soft delete the member record (the model's booted method will handle user soft deletion automatically)
             $member->delete();
 
-            return redirect()->route('admin.members.index')->with('message', 'Member and associated user account deleted successfully.');
+            // Use Inertia redirect back with success message
+            return redirect()->back()->with('success', 'Member has been moved to archive. You can restore them later if needed.');
 
         } catch (\Exception $e) {
-            \Log::error('Error deleting member: ' . $e->getMessage());
-            return redirect()->route('admin.members.index')->with('error', 'An error occurred while deleting the member. Please try again.');
+            \Log::error('Error archiving member: ' . $e->getMessage());
+
+            // Use Inertia redirect back with error message
+            return redirect()->back()->with('error', 'An error occurred while archiving the member. Please try again.');
+        }
+    }
+
+    /**
+     * Show archived (soft deleted) members
+     */
+    public function archived()
+    {
+        return Inertia::render('Members/Archived', [
+            'archivedMembers' => Member::onlyTrashed()->with('user')->get(),
+        ]);
+    }
+
+    /**
+     * Restore a soft deleted member
+     */
+    public function restore($id)
+    {
+        try {
+            $member = Member::onlyTrashed()->findOrFail($id);
+            $member->restore();
+
+            return redirect()->back()->with('message', 'Member restored successfully.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error restoring member: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while restoring the member. Please try again.');
+        }
+    }
+
+    /**
+     * Permanently delete a member (force delete)
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $member = Member::onlyTrashed()->findOrFail($id);
+
+            // Force delete the associated user first if it exists
+            if ($member->user_id) {
+                $user = \App\Models\User::withTrashed()->find($member->user_id);
+                if ($user) {
+                    $user->forceDelete();
+                }
+            }
+
+            // Force delete the member
+            $member->forceDelete();
+
+            return redirect()->back()->with('message', 'Member permanently deleted from the system.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error permanently deleting member: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while permanently deleting the member. Please try again.');
         }
     }
 
@@ -471,6 +535,20 @@ class MemberController extends Controller
                 'total_rows_processed' => count($data),
                 'errors' => $errors
             ]);
+
+            // Log audit trail for import
+            AuditService::logSystem(
+                'member_import',
+                "Imported {$successCount} members from file '{$file->getClientOriginalName()}'",
+                [
+                    'file_name' => $file->getClientOriginalName(),
+                    'success_count' => $successCount,
+                    'error_count' => $errorCount,
+                    'total_rows' => count($data),
+                    'errors' => array_slice($errors, 0, 10), // Limit errors in audit log
+                ],
+                $errorCount > 0 ? 'medium' : 'low'
+            );
 
             return redirect()->back()->with([
                 'message' => $message,
