@@ -18,7 +18,7 @@ const utils = {
     // Throttle function for scroll events
     throttle: (func, limit) => {
         let inThrottle;
-        return function() {
+        return function () {
             const args = arguments;
             const context = this;
             if (!inThrottle) {
@@ -62,7 +62,7 @@ class FormValidator {
 
     init() {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        
+
         // Real-time validation
         const inputs = this.form.querySelectorAll('input, textarea, select');
         inputs.forEach(input => {
@@ -116,7 +116,7 @@ class FormValidator {
 
     showFieldError(field, message) {
         field.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        
+
         // Create or update error message
         let errorElement = field.parentNode.querySelector('.error-message');
         if (!errorElement) {
@@ -150,7 +150,7 @@ class FormValidator {
 
     handleSubmit(e) {
         e.preventDefault();
-        
+
         if (!this.validateForm()) {
             this.showFormError('Please correct the errors above');
             return;
@@ -182,7 +182,7 @@ class FormValidator {
     async submitForm() {
         const submitButton = this.form.querySelector('button[type="submit"]');
         const originalText = submitButton.innerHTML;
-        
+
         // Show loading state
         submitButton.innerHTML = '<div class="spinner inline-block mr-2"></div>Sending...';
         submitButton.disabled = true;
@@ -190,13 +190,13 @@ class FormValidator {
         try {
             // Simulate API call (replace with actual endpoint)
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             this.showFormSuccess('Thank you for your message! We will get back to you soon.');
             this.form.reset();
-            
+
             // Clear any existing errors
             Object.keys(this.errors).forEach(key => delete this.errors[key]);
-            
+
         } catch (error) {
             this.showFormError('Sorry, there was an error sending your message. Please try again.');
         } finally {
@@ -252,7 +252,7 @@ class StatsCounter {
                 current = target;
                 clearInterval(timer);
             }
-            
+
             element.textContent = this.formatNumber(Math.floor(current));
         }, stepTime);
     }
@@ -282,13 +282,20 @@ class SmoothScroll {
     }
 
     handleClick(e) {
-        e.preventDefault();
         const targetId = e.currentTarget.getAttribute('href');
+
+        // Only handle internal anchor links (starting with #)
+        if (!targetId.startsWith('#')) {
+            // Allow external links (like /login) to work normally
+            return;
+        }
+
+        e.preventDefault();
         const targetElement = document.querySelector(targetId);
-        
+
         if (targetElement) {
             const targetPosition = targetElement.offsetTop - this.headerHeight;
-            
+
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
@@ -322,44 +329,54 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeInteractiveElements() {
-    // Lazy loading for images
+    // Lazy loading for images (only for images with data-src)
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                    }
                     imageObserver.unobserve(img);
                 }
             });
         });
 
+        // Only observe images that actually have data-src attribute
         document.querySelectorAll('img[data-src]').forEach(img => {
             imageObserver.observe(img);
         });
     }
 
-    // Add loading states to buttons
-    document.querySelectorAll('button, .btn').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.type !== 'submit') {
-                this.classList.add('loading');
-                setTimeout(() => {
-                    this.classList.remove('loading');
-                }, 1000);
-            }
+    // Add loading states to buttons (exclude anchor links)
+    document.querySelectorAll('button:not([type="submit"]), input[type="button"]').forEach(button => {
+        button.addEventListener('click', function () {
+            this.classList.add('loading');
+            setTimeout(() => {
+                this.classList.remove('loading');
+            }, 1000);
         });
     });
 
     // Add hover effects to cards
     document.querySelectorAll('.card-hover').forEach(card => {
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-8px)';
         });
-        
-        card.addEventListener('mouseleave', function() {
+
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Ensure login links work properly
+    document.querySelectorAll('a[href="/login"], .btn-member-login').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.stopPropagation(); // Stop other event handlers
+            console.log('Login link clicked, navigating to:', this.href);
+            window.location.href = this.href;
         });
     });
 }

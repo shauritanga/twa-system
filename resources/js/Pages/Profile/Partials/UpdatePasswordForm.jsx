@@ -27,7 +27,12 @@ export default function UpdatePasswordForm({ className = '' }) {
     const updatePassword = (e) => {
         e.preventDefault();
 
-        put(route('password.update'), {
+        // Use role-specific route
+        const passwordRoute = window.location.pathname.startsWith('/admin/')
+            ? 'admin.profile.password.update'
+            : 'member.profile.password.update';
+
+        post(route(passwordRoute), {
             preserveScroll: true,
             onSuccess: () => reset(),
             onError: (errors) => {

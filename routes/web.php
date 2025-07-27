@@ -76,6 +76,15 @@ Route::middleware('auth')->group(function () {
         }
         return redirect()->route('member.profile.activities');
     });
+
+    // Legacy profile update route - redirect to role-specific routes
+    Route::patch('/profile', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin.profile.update');
+        }
+        return redirect()->route('member.profile.update');
+    })->name('profile.update');
 });
 
 Route::get('members/export', [MemberController::class, 'export'])->name('members.export');

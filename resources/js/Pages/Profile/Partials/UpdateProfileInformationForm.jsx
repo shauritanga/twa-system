@@ -21,7 +21,12 @@ export default function UpdateProfileInformation({
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        // Use role-specific route
+        const updateRoute = window.location.pathname.startsWith('/admin/')
+            ? 'admin.profile.update'
+            : 'member.profile.update';
+
+        patch(route(updateRoute));
     };
 
     return (

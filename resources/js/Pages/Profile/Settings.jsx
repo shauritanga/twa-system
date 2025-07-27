@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
 import { useForm } from '@inertiajs/react';
-import { 
-    CogIcon, 
-    BellIcon, 
+import {
+    CogIcon,
+    BellIcon,
     ArrowLeftIcon,
     SunIcon,
     MoonIcon,
@@ -44,9 +44,17 @@ export default function ProfileSettings({ user }) {
         timezone: preferences.timezone || 'UTC',
     });
 
+    const getPreferencesUrl = () => {
+        // Determine from current URL path
+        if (window.location.pathname.startsWith('/admin/')) {
+            return '/admin/profile/preferences';
+        }
+        return '/member/profile/preferences';
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/profile/preferences', {
+        post(getPreferencesUrl(), {
             preserveScroll: true,
         });
     };
@@ -111,11 +119,10 @@ export default function ProfileSettings({ user }) {
                                 return (
                                     <label
                                         key={theme.value}
-                                        className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            data.theme === theme.value
+                                        className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${data.theme === theme.value
                                                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                                 : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                                        }`}
+                                            }`}
                                     >
                                         <input
                                             type="radio"

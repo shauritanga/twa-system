@@ -335,38 +335,30 @@ class MemberController extends Controller
             'storage_writable' => is_writable(storage_path()),
         ]);
 
-        // Debug file information before validation
-        if ($request->hasFile('file')) {
-            $uploadedFile = $request->file('file');
-            Log::info('File upload details', [
-                'original_name' => $uploadedFile->getClientOriginalName(),
-                'extension' => $uploadedFile->getClientOriginalExtension(),
-                'mime_type' => $uploadedFile->getMimeType(),
-                'size' => $uploadedFile->getSize(),
-                'is_valid' => $uploadedFile->isValid(),
-                'error' => $uploadedFile->getError(),
+        // Environment-specific validation
+        if (app()->environment('production')) {
+            // More lenient validation for production
+            $request->validate([
+                'file' => 'required|file|max:10240', // 10MB max
+            ]);
+
+            // Check file extension manually
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $extension = strtolower($file->getClientOriginalExtension());
+
+                if (!in_array($extension, ['csv', 'xlsx', 'xls'])) {
+                    return redirect()->back()->withErrors([
+                        'file' => 'Please upload a CSV or Excel file.'
+                    ]);
+                }
+            }
+        } else {
+            // Strict validation for development
+            $request->validate([
+                'file' => 'required|mimes:csv,xlsx,xls',
             ]);
         }
-
-        // Simple validation - just check if file exists and has correct extension
-        if (!$request->hasFile('file')) {
-            return redirect()->back()->withErrors(['file' => 'Please select a file to import.']);
-        }
-
-        $file = $request->file('file');
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        if (!in_array($extension, ['csv', 'xlsx', 'xls'])) {
-            return redirect()->back()->withErrors(['file' => 'Please upload a CSV or Excel file.']);
-        }
-
-        // Log file details for debugging
-        Log::info('File validation passed', [
-            'name' => $file->getClientOriginalName(),
-            'extension' => $extension,
-            'size' => $file->getSize(),
-            'mime_type' => $file->getMimeType(),
-        ]);
 
         try {
             $file = $request->file('file');
@@ -417,6 +409,13 @@ class MemberController extends Controller
                 'headers' => $header
             ]);
 
+            // Validate expected headers
+            $requiredHeaders = ['first_name', 'surname', 'email'];
+            $missingHeaders = array_diff($requiredHeaders, $header);
+            if (!empty($missingHeaders)) {
+                throw new \Exception('Missing required columns: ' . implode(', ', $missingHeaders) . '. Found columns: ' . implode(', ', $header));
+            }
+
             $successCount = 0;
             $errorCount = 0;
             $errors = [];
@@ -452,6 +451,31 @@ class MemberController extends Controller
                                 'email' => empty($rowData['email'])
                             ]
                         ]);
+                        \DB::rollBack();
+                        continue;
+                    }
+
+                    // Validate email format
+                    if (!filter_var($rowData['email'], FILTER_VALIDATE_EMAIL)) {
+                        $errors[] = "Row " . ($index + 2) . ": Invalid email format - " . $rowData['email'];
+                        $errorCount++;
+                        Log::warning("Row skipped - invalid email", [
+                            'row_index' => $index + 2,
+                            'email' => $rowData['email']
+                        ]);
+                        \DB::rollBack();
+                        continue;
+                    }
+
+                    // Validate sex field if provided
+                    if (!empty($rowData['sex']) && !in_array($rowData['sex'], ['Male', 'Female'])) {
+                        $errors[] = "Row " . ($index + 2) . ": Invalid sex value - must be 'Male' or 'Female'";
+                        $errorCount++;
+                        Log::warning("Row skipped - invalid sex value", [
+                            'row_index' => $index + 2,
+                            'sex' => $rowData['sex']
+                        ]);
+                        \DB::rollBack();
                         continue;
                     }
 
@@ -607,10 +631,19 @@ class MemberController extends Controller
                 $errorCount > 0 ? 'medium' : 'low'
             );
 
-            return redirect()->back()->with([
+            // Prepare detailed response
+            $response = [
                 'message' => $message,
-                'import_errors' => $errors
-            ]);
+                'import_errors' => $errors,
+                'import_summary' => [
+                    'total_rows' => count($data),
+                    'successful' => $successCount,
+                    'failed' => $errorCount,
+                    'file_name' => $file->getClientOriginalName()
+                ]
+            ];
+
+            return redirect()->back()->with($response);
 
         } catch (\Exception $e) {
             // Enhanced error logging for production debugging
@@ -643,46 +676,78 @@ class MemberController extends Controller
         ];
 
         $columns = [
-            'first_name',
-            'middle_name',
-            'surname',
-            'email',
-            'phone_number',
-            'address',
-            'place_of_birth',
-            'sex',
-            'date_of_birth',
-            'tribe',
-            'occupation',
-            'reason_for_membership',
-            'applicant_date',
-            'declaration_name',
-            'witness_name',
-            'witness_date'
+            'first_name',        // Required: Member's first name
+            'middle_name',       // Optional: Member's middle name
+            'surname',          // Required: Member's surname/last name
+            'email',            // Required: Unique email address
+            'phone_number',     // Optional: Phone number with country code
+            'address',          // Optional: Physical address
+            'place_of_birth',   // Optional: Place of birth
+            'sex',              // Optional: Male or Female
+            'date_of_birth',    // Optional: Format: YYYY-MM-DD
+            'tribe',            // Optional: Tribal affiliation
+            'occupation',       // Optional: Current occupation
+            'reason_for_membership', // Optional: Why joining the association
+            'applicant_date',   // Optional: Application date (YYYY-MM-DD)
+            'declaration_name', // Optional: Name on declaration
+            'witness_name',     // Optional: Witness name
+            'witness_date'      // Optional: Witness date (YYYY-MM-DD)
         ];
 
         $callback = function() use ($columns) {
             $file = fopen('php://output', 'w');
+
+            // Add instructions as comments
+            fputcsv($file, ['# MEMBER IMPORT TEMPLATE - Tabata Welfare Association']);
+            fputcsv($file, ['# INSTRUCTIONS:']);
+            fputcsv($file, ['# 1. Required fields: first_name, surname, email']);
+            fputcsv($file, ['# 2. Email must be unique']);
+            fputcsv($file, ['# 3. Date format: YYYY-MM-DD (e.g., 1990-01-15)']);
+            fputcsv($file, ['# 4. Sex: Male or Female']);
+            fputcsv($file, ['# 5. Delete these instruction rows before importing']);
+            fputcsv($file, ['# 6. Keep the header row (first_name, middle_name, etc.)']);
+            fputcsv($file, ['']);
+
+            // Add column headers
             fputcsv($file, $columns);
 
-            // Add sample data row
+            // Add sample data rows
             fputcsv($file, [
-                'first_name' => 'John',
-                'middle_name' => 'William',
-                'surname' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'phone_number' => '+255123456789',
-                'address' => '123 Main Street, Dar es Salaam',
-                'place_of_birth' => 'Dar es Salaam',
-                'sex' => 'Male',
-                'date_of_birth' => '1990-01-15',
-                'tribe' => 'Chagga',
-                'occupation' => 'Teacher',
-                'reason_for_membership' => 'Community development',
-                'applicant_date' => '2024-01-01',
-                'declaration_name' => 'John William Doe',
-                'witness_name' => 'Jane Smith',
-                'witness_date' => '2024-01-01'
+                'John',
+                'William',
+                'Doe',
+                'john.doe@example.com',
+                '+255123456789',
+                '123 Main Street, Dar es Salaam',
+                'Dar es Salaam',
+                'Male',
+                '1990-01-15',
+                'Chagga',
+                'Teacher',
+                'Community development',
+                '2024-01-01',
+                'John William Doe',
+                'Jane Smith',
+                '2024-01-01'
+            ]);
+
+            fputcsv($file, [
+                'Mary',
+                'Grace',
+                'Johnson',
+                'mary.johnson@example.com',
+                '+255987654321',
+                '456 Oak Avenue, Arusha',
+                'Arusha',
+                'Female',
+                '1985-03-22',
+                'Maasai',
+                'Nurse',
+                'Healthcare support',
+                '2024-01-02',
+                'Mary Grace Johnson',
+                'Peter Wilson',
+                '2024-01-02'
             ]);
 
             fclose($file);

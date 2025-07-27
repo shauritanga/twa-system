@@ -47,9 +47,17 @@ export default function ProfileEdit({ user }) {
         avatar: null,
     });
 
+    const getUpdateUrl = () => {
+        // Determine from current URL path
+        if (window.location.pathname.startsWith('/admin/')) {
+            return '/admin/profile';
+        }
+        return '/member/profile';
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        patch('/profile', {
+        patch(getUpdateUrl(), {
             preserveScroll: true,
         });
     };
@@ -66,26 +74,53 @@ export default function ProfileEdit({ user }) {
         }
     };
 
-    const uploadAvatar = () => {
+    const getAvatarUploadUrl = () => {
+        // Determine from current URL path
+        if (window.location.pathname.startsWith('/admin/')) {
+            return '/admin/profile/avatar';
+        }
+        return '/member/profile/avatar';
+    };
+
+    const uploadAvatar = async () => {
         if (avatarData.avatar) {
+            const uploadUrl = getAvatarUploadUrl();
+            console.log('Uploading avatar to:', uploadUrl); // Debug log
+
             setIsUploading(true);
-            postAvatar('/profile/avatar', {
-                preserveScroll: true,
-                onSuccess: () => {
+
+            try {
+                const formData = new FormData();
+                formData.append('avatar', avatarData.avatar);
+
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    console.log('Avatar upload successful');
                     setAvatarPreview(null);
                     setAvatarData('avatar', null);
-                    setIsUploading(false);
-                },
-                onError: () => {
-                    setIsUploading(false);
+                    window.location.reload(); // Refresh to show new avatar
+                } else {
+                    throw new Error('Upload failed');
                 }
-            });
+            } catch (error) {
+                console.error('Avatar upload failed:', error);
+                alert('Failed to upload avatar. Please try again.');
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
     const removeAvatar = () => {
         if (confirm('Are you sure you want to remove your profile photo?')) {
-            fetch('/profile/avatar', {
+            fetch(getAvatarUploadUrl(), {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')

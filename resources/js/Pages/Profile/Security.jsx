@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import SidebarLayout from '../../Layouts/SidebarLayout';
 import { useForm } from '@inertiajs/react';
-import { 
-    ShieldCheckIcon, 
-    KeyIcon, 
+import {
+    ShieldCheckIcon,
+    KeyIcon,
     ArrowLeftIcon,
     EyeIcon,
     EyeSlashIcon,
@@ -42,9 +42,17 @@ export default function ProfileSecurity({ user, recentLogins }) {
         password_confirmation: '',
     });
 
+    const getPasswordUpdateUrl = () => {
+        // Determine from current URL path
+        if (window.location.pathname.startsWith('/admin/')) {
+            return '/admin/profile/password';
+        }
+        return '/member/profile/password';
+    };
+
     const handlePasswordChange = (e) => {
         e.preventDefault();
-        post('/profile/password', {
+        post(getPasswordUpdateUrl(), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -102,89 +110,89 @@ export default function ProfileSecurity({ user, recentLogins }) {
                             </div>
 
                             <form onSubmit={handlePasswordChange} className="space-y-6">
-                            {/* Current Password */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Current Password *
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showCurrentPassword ? 'text' : 'password'}
-                                        value={data.current_password}
-                                        onChange={(e) => setData('current_password', e.target.value)}
-                                        className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                    >
-                                        {showCurrentPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                                    </button>
+                                {/* Current Password */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Current Password *
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type={showCurrentPassword ? 'text' : 'password'}
+                                            value={data.current_password}
+                                            onChange={(e) => setData('current_password', e.target.value)}
+                                            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                        >
+                                            {showCurrentPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                    {errors.current_password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.current_password}</p>}
                                 </div>
-                                {errors.current_password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.current_password}</p>}
-                            </div>
 
-                            {/* New Password */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    New Password *
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showNewPassword ? 'text' : 'password'}
-                                        value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
-                                        className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowNewPassword(!showNewPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                    >
-                                        {showNewPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                                    </button>
+                                {/* New Password */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        New Password *
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type={showNewPassword ? 'text' : 'password'}
+                                            value={data.password}
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                        >
+                                            {showNewPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                    {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>}
                                 </div>
-                                {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>}
-                            </div>
 
-                            {/* Confirm Password */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Confirm New Password *
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        value={data.password_confirmation}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                    >
-                                        {showConfirmPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                                    </button>
+                                {/* Confirm Password */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Confirm New Password *
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={data.password_confirmation}
+                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                        >
+                                            {showConfirmPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                    {errors.password_confirmation && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password_confirmation}</p>}
                                 </div>
-                                {errors.password_confirmation && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password_confirmation}</p>}
-                            </div>
 
-                            {/* Password Requirements */}
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Password Requirements:</h4>
-                                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                                    <li>• At least 8 characters long</li>
-                                    <li>• Contains at least one uppercase letter</li>
-                                    <li>• Contains at least one lowercase letter</li>
-                                    <li>• Contains at least one number</li>
-                                    <li>• Contains at least one special character</li>
-                                </ul>
-                            </div>
+                                {/* Password Requirements */}
+                                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Password Requirements:</h4>
+                                    <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                                        <li>• At least 8 characters long</li>
+                                        <li>• Contains at least one uppercase letter</li>
+                                        <li>• Contains at least one lowercase letter</li>
+                                        <li>• Contains at least one number</li>
+                                        <li>• Contains at least one special character</li>
+                                    </ul>
+                                </div>
 
                                 {/* Submit Button */}
                                 <div className="flex justify-end">
@@ -218,35 +226,35 @@ export default function ProfileSecurity({ user, recentLogins }) {
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Login Activity</h2>
                             </div>
 
-                        <div className="space-y-4">
-                            {recentLogins && recentLogins.length > 0 ? (
-                                recentLogins.map((login, index) => (
-                                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                        <div className="flex items-center space-x-4">
-                                            <div className="text-gray-500 dark:text-gray-400">
-                                                {getDeviceIcon(login.user_agent)}
+                            <div className="space-y-4">
+                                {recentLogins && recentLogins.length > 0 ? (
+                                    recentLogins.map((login, index) => (
+                                        <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <div className="flex items-center space-x-4">
+                                                <div className="text-gray-500 dark:text-gray-400">
+                                                    {getDeviceIcon(login.user_agent)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-900 dark:text-white">
+                                                        {getBrowserName(login.user_agent)}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        {login.ip_address} • {new Date(login.created_at).toLocaleString()}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">
-                                                    {getBrowserName(login.user_agent)}
-                                                </p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {login.ip_address} • {new Date(login.created_at).toLocaleString()}
-                                                </p>
+                                            <div className="flex items-center text-green-600 dark:text-green-400">
+                                                <CheckCircleIcon className="w-5 h-5 mr-1" />
+                                                <span className="text-sm font-medium">Successful</span>
                                             </div>
                                         </div>
-                                        <div className="flex items-center text-green-600 dark:text-green-400">
-                                            <CheckCircleIcon className="w-5 h-5 mr-1" />
-                                            <span className="text-sm font-medium">Successful</span>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8">
+                                        <GlobeAltIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                        <p className="text-gray-500 dark:text-gray-400">No recent login activity</p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-8">
-                                    <GlobeAltIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500 dark:text-gray-400">No recent login activity</p>
-                                </div>
-                            )}
+                                )}
                             </div>
                         </div>
                     </div>
@@ -273,8 +281,8 @@ export default function ProfileSecurity({ user, recentLogins }) {
                         </ul>
                     </div>
                 </div>
-                </div>
-            
+            </div>
+
         </SidebarLayout>
     );
 }
