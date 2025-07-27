@@ -326,8 +326,46 @@ class MemberController extends Controller
 
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:csv,xlsx,xls',
+        // Debug info for production
+        Log::info('Import attempt started', [
+            'upload_max_filesize' => ini_get('upload_max_filesize'),
+            'post_max_size' => ini_get('post_max_size'),
+            'memory_limit' => ini_get('memory_limit'),
+            'max_execution_time' => ini_get('max_execution_time'),
+            'storage_writable' => is_writable(storage_path()),
+        ]);
+
+        // Debug file information before validation
+        if ($request->hasFile('file')) {
+            $uploadedFile = $request->file('file');
+            Log::info('File upload details', [
+                'original_name' => $uploadedFile->getClientOriginalName(),
+                'extension' => $uploadedFile->getClientOriginalExtension(),
+                'mime_type' => $uploadedFile->getMimeType(),
+                'size' => $uploadedFile->getSize(),
+                'is_valid' => $uploadedFile->isValid(),
+                'error' => $uploadedFile->getError(),
+            ]);
+        }
+
+        // Simple validation - just check if file exists and has correct extension
+        if (!$request->hasFile('file')) {
+            return redirect()->back()->withErrors(['file' => 'Please select a file to import.']);
+        }
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (!in_array($extension, ['csv', 'xlsx', 'xls'])) {
+            return redirect()->back()->withErrors(['file' => 'Please upload a CSV or Excel file.']);
+        }
+
+        // Log file details for debugging
+        Log::info('File validation passed', [
+            'name' => $file->getClientOriginalName(),
+            'extension' => $extension,
+            'size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
         ]);
 
         try {
@@ -342,8 +380,29 @@ class MemberController extends Controller
 
             // Read the file based on its extension
             if ($file->getClientOriginalExtension() === 'csv') {
-                $data = array_map('str_getcsv', file($path));
+                // Improved CSV reading with error handling
+                if (!is_readable($path)) {
+                    throw new \Exception('CSV file is not readable');
+                }
+
+                $fileContent = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if ($fileContent === false) {
+                    throw new \Exception('Failed to read CSV file');
+                }
+
+                $data = array_map('str_getcsv', $fileContent);
                 $header = array_shift($data);
+
+                // Validate CSV structure
+                if (empty($header)) {
+                    throw new \Exception('CSV file has no header row');
+                }
+
+                Log::info('CSV file read successfully', [
+                    'header_columns' => count($header),
+                    'data_rows' => count($data),
+                    'file_size' => filesize($path)
+                ]);
             } else {
                 // For Excel files, use Laravel Excel to read as array
                 $collection = Excel::toArray([], $file);
@@ -368,6 +427,9 @@ class MemberController extends Controller
                     if (empty(array_filter($row))) {
                         continue;
                     }
+
+                    // Use database transaction for each row
+                    \DB::beginTransaction();
 
                     $rowData = array_combine($header, $row);
 
@@ -489,10 +551,14 @@ class MemberController extends Controller
                         Log::warning("Failed to send welcome email to {$user->email}: " . $e->getMessage());
                     }
 
+                    // Commit the transaction
+                    \DB::commit();
+
                     $successCount++;
                     Log::info("Row processed successfully", ['row_index' => $index + 2, 'success_count' => $successCount]);
 
                 } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                    \DB::rollBack();
                     $errorMessage = "Row " . ($index + 2) . ": Email already exists - " . ($rowData['email'] ?? 'unknown');
                     $errors[] = $errorMessage;
                     $errorCount++;
@@ -501,12 +567,8 @@ class MemberController extends Controller
                         'email' => $rowData['email'] ?? 'unknown',
                         'error' => $e->getMessage()
                     ]);
-                    // If user was created but member creation failed, delete the user
-                    if (isset($user)) {
-                        $user->delete();
-                        Log::info("Deleted user due to constraint violation", ['user_id' => $user->id]);
-                    }
                 } catch (\Exception $e) {
+                    \DB::rollBack();
                     $errorMessage = "Row " . ($index + 2) . ": " . $e->getMessage();
                     $errors[] = $errorMessage;
                     $errorCount++;
@@ -516,11 +578,6 @@ class MemberController extends Controller
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString()
                     ]);
-                    // If user was created but member creation failed, delete the user
-                    if (isset($user)) {
-                        $user->delete();
-                        Log::info("Deleted user due to general error", ['user_id' => $user->id]);
-                    }
                 }
             }
 
@@ -556,8 +613,21 @@ class MemberController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // Enhanced error logging for production debugging
+            Log::error('Member import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file_name' => $request->file('file')?->getClientOriginalName(),
+                'file_size' => $request->file('file')?->getSize(),
+                'php_upload_max' => ini_get('upload_max_filesize'),
+                'php_post_max' => ini_get('post_max_size'),
+                'php_memory_limit' => ini_get('memory_limit'),
+                'storage_writable' => is_writable(storage_path()),
+            ]);
+
             return redirect()->back()->withErrors([
-                'file' => 'Failed to process the file: ' . $e->getMessage()
+                'file' => 'Failed to process the file: ' . $e->getMessage() .
+                         ' (Check server logs for detailed error information)'
             ]);
         }
     }
