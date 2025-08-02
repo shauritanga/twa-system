@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\DisasterPayment;
 use App\Models\Dependent;
 use App\Models\FundraisingCampaign;
+use App\Models\WebsiteVisit;
 use Illuminate\Support\Facades\DB;
 
 class MarketingController extends Controller
@@ -49,6 +50,9 @@ class MarketingController extends Controller
 
             // Total families helped (distinct members who received disaster payments)
             'helped_families' => DisasterPayment::distinct('member_id')->count('member_id'),
+
+            // Website visits
+            'website_visits' => WebsiteVisit::getTotalVisits(),
 
             // Additional useful stats
             'total_members' => Member::count(),

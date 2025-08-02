@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabata Welfare Association - Building Community, Securing Futures</title>
+    <title>{{ __('marketing.hero.title') }} - Tabata Welfare Association</title>
     <meta name="description"
-        content="Join Tabata Welfare Association - Tanzania's premier community welfare organization. Monthly contributions, disaster support, and financial security for members and families.">
+        content="{{ __('marketing.hero.subtitle') }}">
     <meta name="keywords"
         content="Tabata Welfare Association, Tanzania welfare, community support, financial security, disaster assistance, monthly contributions">
 
@@ -644,9 +644,17 @@
                         </p>
                     </div>
 
-                    <!-- Right TWA Logo -->
-                    <div class="flex-shrink-0">
-                        <img src="{{ asset('marketing/logo.jpeg') }}" alt="TWA Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain">
+                    <!-- Language Switcher with Country Flags -->
+                    <div class="flex items-center space-x-2 text-sm">
+                        <a href="?locale=en" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 transition-colors {{ app()->getLocale() == 'en' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700' }}">
+                            <span class="text-lg mr-1">🇬🇧</span>
+                            <span class="hidden sm:inline">EN</span>
+                        </a>
+                        <span class="text-gray-400">|</span>
+                        <a href="?locale=sw" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 transition-colors {{ app()->getLocale() == 'sw' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700' }}">
+                            <span class="text-lg mr-1">🇹🇿</span>
+                            <span class="hidden sm:inline">SW</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -659,41 +667,42 @@
                 <!-- Left Navigation - Home Only -->
                 <div class="hidden md:block">
                     <a href="#home"
-                        class="nav-link-readable px-4 py-3 text-base font-medium transition-colors focus-visible whitespace-nowrap">Home</a>
+                        class="nav-link-readable px-4 py-3 text-base font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.home') }}</a>
                 </div>
 
                 <!-- Right Navigation - All Other Items -->
                 <div class="hidden md:block">
                     <div class="flex items-center space-x-3 lg:space-x-4">
                         <a href="#announcements"
-                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Announcements</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.announcements') }}</a>
                         <a href="#about"
-                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">About</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.about') }}</a>
                         <a href="#services"
-                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Services</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.services') }}</a>
                         <a href="#benefits"
-                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Benefits</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.benefits') }}</a>
                         <a href="#leadership"
-                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Leadership</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.leadership') }}</a>
                         <a href="#testimonials"
-                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Testimonials</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.testimonials') }}</a>
                         <a href="#contact"
-                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Contact</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.contact') }}</a>
                         @if($activeCampaigns->count() > 0)
                         <a href="#donate"
                             class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 lg:px-4 py-3 rounded-lg text-sm font-medium hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap">
-                            <i class="fas fa-heart mr-1"></i>Donate
+                            <i class="fas fa-heart mr-1"></i>{{ __('marketing.nav.donate') }}
                         </a>
                         @endif
+
                         <a href="{{ route('login') }}"
-                            class="btn-member-login px-3 lg:px-4 py-3 rounded-lg text-sm font-medium focus-visible whitespace-nowrap">Login</a>
+                            class="btn-member-login px-3 lg:px-4 py-3 rounded-lg text-sm font-medium focus-visible whitespace-nowrap">{{ __('marketing.nav.login') }}</a>
                     </div>
                 </div>
 
                 <!-- Mobile Navigation -->
                 <div class="md:hidden flex items-center justify-between w-full">
                     <!-- Home link for mobile -->
-                    <a href="#home" class="nav-link-readable px-4 py-3 text-base font-medium">Home</a>
+                    <a href="#home" class="nav-link-readable px-4 py-3 text-base font-medium">{{ __('marketing.nav.home') }}</a>
 
                     <!-- Mobile menu button -->
                     <button type="button"
@@ -707,16 +716,15 @@
         <!-- Mobile Navigation -->
         <div class="mobile-menu hidden md:hidden bg-white border-t border-gray-200">
             <div class="px-6 py-6 space-y-3">
-                <a href="#announcements" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Announcements</a>
-                <a href="#about" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">About</a>
-                <a href="#services" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Services</a>
-                <a href="#benefits" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Benefits</a>
-                <a href="#leadership" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Leadership</a>
-                <a href="#testimonials" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Testimonials</a>
-                <a href="#contact" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Contact</a>
+                <a href="#announcements" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.announcements') }}</a>
+                <a href="#about" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.about') }}</a>
+                <a href="#services" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.services') }}</a>
+                <a href="#benefits" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.benefits') }}</a>
+                <a href="#leadership" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.leadership') }}</a>
+                <a href="#testimonials" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.testimonials') }}</a>
+                <a href="#contact" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.contact') }}</a>
                 <a href="{{ route('login') }}"
-                    class="block px-6 py-4 btn-member-login rounded-lg text-center mt-6 whitespace-nowrap">Member
-                    Login</a>
+                    class="block px-6 py-4 btn-member-login rounded-lg text-center mt-6 whitespace-nowrap">{{ __('marketing.nav.member_login') }}</a>
             </div>
         </div>
     </nav>
@@ -728,25 +736,22 @@
             <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
                 <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left" data-aos="fade-right">
                     <h1 class="heading-primary text-readable-white sm:text-5xl lg:text-6xl">
-                        Building Community,
-                        <span class="text-yellow-300 font-extrabold">Securing Futures</span>
+                        {{ __('marketing.hero.title') }}
                     </h1>
                     <p class="mt-8 text-large text-readable-white max-w-3xl">
-                        Join Tabata Welfare Association - Tanzania's premier community welfare organization.
-                        Together, we provide financial security, disaster support, and peace of mind for our members and
-                        their families.
+                        {{ __('marketing.hero.subtitle') }}
                     </p>
                     <div class="mt-10 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                         <div class="flex flex-col sm:flex-row gap-6">
                             <a href="#contact"
                                 class="btn-secondary-readable inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg transition-all focus-visible">
                                 <i class="fas fa-user-plus mr-3"></i>
-                                Join Today
+                                {{ __('marketing.hero.cta_join') }}
                             </a>
                             <a href="#about"
                                 class="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-lg font-semibold rounded-lg text-readable-white hover:bg-white hover:text-blue-700 transition-all focus-visible">
                                 <i class="fas fa-info-circle mr-3"></i>
-                                Learn More
+                                {{ __('marketing.hero.cta_learn') }}
                             </a>
                         </div>
                     </div>
@@ -781,35 +786,41 @@
     <section class="bg-white section-padding">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="heading-secondary mb-4">Our Impact in Numbers</h2>
+                <h2 class="heading-secondary mb-4">{{ __('marketing.stats.title') }}</h2>
                 <p class="text-large text-readable-light max-w-3xl mx-auto">
-                    See the tangible difference we've made in our community over the years
+                    {{ __('marketing.stats.subtitle') }}
                 </p>
             </div>
-            <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-5">
                 <div class="text-center bg-blue-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="100">
                     <div class="stats-counter text-blue-600 mb-4" data-target="{{ $stats['active_members'] }}">0</div>
-                    <p class="text-readable font-semibold text-lg">Active Members</p>
-                    <p class="text-readable-light text-sm mt-2">Growing community of families</p>
+                    <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.active_members') }}</p>
+                    <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.active_members_desc') }}</p>
                 </div>
                 <div class="text-center bg-green-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="200">
                     <div class="stats-counter text-green-600 mb-4" data-target="{{ $stats['amount_distributed'] }}">0</div>
-                    <p class="text-readable font-semibold text-lg">TZS Distributed</p>
-                    <p class="text-readable-light text-sm mt-2">Financial support provided</p>
+                    <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.amount_distributed') }}</p>
+                    <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.amount_distributed_desc') }}</p>
                 </div>
                 <div class="text-center bg-purple-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="300">
                     <div class="stats-counter text-purple-600 mb-4" data-target="{{ $stats['helped_families'] }}">0</div>
-                    <p class="text-readable font-semibold text-lg">Families Helped</p>
-                    <p class="text-readable-light text-sm mt-2">Lives positively impacted</p>
+                    <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.families_helped') }}</p>
+                    <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.families_helped_desc') }}</p>
                 </div>
                 <div class="text-center bg-orange-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="400">
                     <div class="stats-counter text-orange-600 mb-4" data-target="8">0</div>
-                    <p class="text-readable font-semibold text-lg">Years of Service</p>
-                    <p class="text-readable-light text-sm mt-2">Trusted community partner</p>
+                    <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.years_service') }}</p>
+                    <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.years_service_desc') }}</p>
+                </div>
+                <div class="text-center bg-cyan-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
+                    data-aos-delay="500">
+                    <div class="stats-counter text-cyan-600 mb-4" data-target="{{ $stats['website_visits'] ?? 0 }}">0</div>
+                    <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.website_visits') }}</p>
+                    <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.website_visits_desc') }}</p>
                 </div>
             </div>
         </div>
@@ -820,10 +831,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-                    Latest <span class="text-gradient">Announcements</span>
+                    {{ __('marketing.announcements.title') }}
                 </h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    Stay updated with the latest news, events, and important information from Tabata Welfare Association
+                    {{ __('marketing.announcements.subtitle') }}
                 </p>
             </div>
 
@@ -979,7 +990,7 @@
             <!-- View All Announcements Button -->
             <div class="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
                 <a href="{{ route('marketing.announcements') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                    View All Announcements
+                    {{ __('marketing.announcements.view_all') }}
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                     </svg>
@@ -994,16 +1005,13 @@
             <div class="lg:grid lg:grid-cols-2 lg:gap-20 items-center">
                 <div data-aos="fade-right">
                     <h2 class="heading-secondary mb-8">
-                        About <span class="text-gradient">Tabata Welfare Association</span>
+                        {{ __('marketing.about.title') }}
                     </h2>
                     <p class="text-body mb-6">
-                        Founded in 2016, Tabata Welfare Association has been at the forefront of community support in
-                        Tanzania.
-                        We believe that together, we can weather any storm and celebrate every success.
+                        {{ __('marketing.about.description') }}
                     </p>
                     <p class="text-body mb-10">
-                        Our mission is simple: to provide financial security and peace of mind to our members through
-                        collective contributions, disaster support, and community solidarity.
+                        {{ __('marketing.about.mission_text') }}
                     </p>
 
                     <div class="space-y-8">
@@ -1014,9 +1022,8 @@
                                 </div>
                             </div>
                             <div class="ml-6">
-                                <h4 class="heading-tertiary mb-2">Financial Security</h4>
-                                <p class="text-body">Monthly contributions build a safety net for all members, ensuring
-                                    financial stability during challenging times.</p>
+                                <h4 class="heading-tertiary mb-2">{{ __('marketing.benefits.financial_security.title') }}</h4>
+                                <p class="text-body">{{ __('marketing.benefits.financial_security.description') }}</p>
                             </div>
                         </div>
 
@@ -1027,9 +1034,8 @@
                                 </div>
                             </div>
                             <div class="ml-6">
-                                <h4 class="heading-tertiary mb-2">Community Support</h4>
-                                <p class="text-body">We stand together in times of need and celebration, creating
-                                    lasting bonds that strengthen our community.</p>
+                                <h4 class="heading-tertiary mb-2">{{ __('marketing.services.community_support.title') }}</h4>
+                                <p class="text-body">{{ __('marketing.services.community_support.description') }}</p>
                             </div>
                         </div>
 
@@ -1040,9 +1046,8 @@
                                 </div>
                             </div>
                             <div class="ml-6">
-                                <h4 class="heading-tertiary mb-2">Trusted Leadership</h4>
-                                <p class="text-body">Transparent management with member-focused governance ensures
-                                    accountability and trust in all our operations.</p>
+                                <h4 class="heading-tertiary mb-2">{{ __('marketing.about.values.integrity') }}</h4>
+                                <p class="text-body">{{ __('marketing.about.vision_text') }}</p>
                             </div>
                         </div>
                     </div>
@@ -1065,10 +1070,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20" data-aos="fade-up">
                 <h2 class="heading-secondary mb-6">
-                    Our <span class="text-gradient">Services</span>
+                    {{ __('marketing.services.title') }}
                 </h2>
                 <p class="text-large text-readable-light max-w-4xl mx-auto">
-                    Comprehensive welfare services designed to support our members through all of life's moments
+                    {{ __('marketing.services.subtitle') }}
                 </p>
             </div>
 
@@ -1079,18 +1084,17 @@
                     <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
                         <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
                     </div>
-                    <h3 class="heading-tertiary mb-6">Monthly Contributions</h3>
+                    <h3 class="heading-tertiary mb-6">{{ __('marketing.services.monthly_contributions.title') }}</h3>
                     <p class="text-body mb-8">
-                        Regular monthly contributions of 20,000 TZS build a collective fund that ensures financial
-                        security for all members.
+                        {{ __('marketing.services.monthly_contributions.description') }}
                     </p>
                     <ul class="space-y-3 text-readable">
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Flexible payment options</span></li>
+                                class="font-medium">{{ __('marketing.common.flexible_payment') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Automatic reminders</span></li>
+                                class="font-medium">{{ __('marketing.common.automatic_reminders') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Transparent tracking</span></li>
+                                class="font-medium">{{ __('marketing.common.transparent_tracking') }}</span></li>
                     </ul>
                 </div>
 
@@ -1100,18 +1104,17 @@
                     <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-8">
                         <i class="fas fa-hands-helping text-red-600 text-2xl"></i>
                     </div>
-                    <h3 class="heading-tertiary mb-6">Disaster Support</h3>
+                    <h3 class="heading-tertiary mb-6">{{ __('marketing.services.disaster_support.title') }}</h3>
                     <p class="text-body mb-8">
-                        Immediate financial assistance during emergencies, medical crises, or unexpected life events
-                        that affect our members.
+                        {{ __('marketing.services.disaster_support.description') }}
                     </p>
                     <ul class="space-y-3 text-readable">
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Emergency medical support</span></li>
+                                class="font-medium">{{ __('marketing.common.emergency_medical') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Family crisis assistance</span></li>
+                                class="font-medium">{{ __('marketing.common.family_crisis') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Quick disbursement</span></li>
+                                class="font-medium">{{ __('marketing.common.quick_disbursement') }}</span></li>
                     </ul>
                 </div>
 
@@ -1121,18 +1124,17 @@
                     <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-8">
                         <i class="fas fa-users text-green-600 text-2xl"></i>
                     </div>
-                    <h3 class="heading-tertiary mb-6">Family Coverage</h3>
+                    <h3 class="heading-tertiary mb-6">{{ __('marketing.services.family_protection.title') }}</h3>
                     <p class="text-body mb-8">
-                        Extend welfare benefits to your dependents including spouse, children, and immediate family
-                        members.
+                        {{ __('marketing.services.family_protection.description') }}
                     </p>
                     <ul class="space-y-3 text-readable">
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Spouse coverage</span></li>
+                                class="font-medium">{{ __('marketing.common.spouse_coverage') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Children protection</span></li>
+                                class="font-medium">{{ __('marketing.common.children_protection') }}</span></li>
                         <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3 text-lg"></i> <span
-                                class="font-medium">Extended family support</span></li>
+                                class="font-medium">{{ __('marketing.common.extended_family') }}</span></li>
                     </ul>
                 </div>
 
@@ -1142,18 +1144,14 @@
                     <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-chart-line text-yellow-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Financial Planning</h3>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ __('marketing.services.financial_planning.title') }}</h3>
                     <p class="text-gray-600 mb-6">
-                        Professional guidance on financial planning, savings strategies, and long-term wealth building
-                        for members.
+                        {{ __('marketing.services.financial_planning.description') }}
                     </p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Personal
-                            consultations</li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Investment advice
-                        </li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Retirement
-                            planning</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.personal_consultations') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.investment_advice') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.retirement_planning') }}</li>
                     </ul>
                 </div>
 
@@ -1163,18 +1161,14 @@
                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Community Events</h3>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ __('marketing.services.community_events.title') }}</h3>
                     <p class="text-gray-600 mb-6">
-                        Regular social gatherings, educational workshops, and community building activities for all
-                        members.
+                        {{ __('marketing.services.community_events.description') }}
                     </p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Monthly meetings
-                        </li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Educational
-                            workshops</li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Social
-                            celebrations</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.monthly_meetings') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.educational_workshops') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.social_celebrations') }}</li>
                     </ul>
                 </div>
 
@@ -1184,18 +1178,14 @@
                     <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-mobile-alt text-indigo-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Digital Platform</h3>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ __('marketing.services.digital_platform.title') }}</h3>
                     <p class="text-gray-600 mb-6">
-                        Modern online platform for managing contributions, tracking benefits, and staying connected with
-                        the community.
+                        {{ __('marketing.services.digital_platform.description') }}
                     </p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Online dashboard
-                        </li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Mobile-friendly
-                        </li>
-                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Real-time updates
-                        </li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.online_dashboard') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.mobile_friendly') }}</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> {{ __('marketing.common.realtime_updates') }}</li>
                     </ul>
                 </div>
             </div>
@@ -1207,10 +1197,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
-                    Why Choose <span class="text-gradient">Tabata Welfare</span>
+                    {{ __('marketing.benefits.title') }}
                 </h2>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-                    Experience the peace of mind that comes with being part of a caring, supportive community
+                    {{ __('marketing.benefits.subtitle') }}
                 </p>
             </div>
 
@@ -1224,9 +1214,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Financial Security</h4>
-                            <p class="text-gray-600 mt-2">Build a safety net through collective contributions that
-                                protect you and your family during difficult times.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.financial_security.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.financial_security.description') }}</p>
                         </div>
                     </div>
 
@@ -1237,9 +1226,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Strong Community</h4>
-                            <p class="text-gray-600 mt-2">Join a network of like-minded individuals who support each
-                                other through life's ups and downs.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.community_network.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.community_network.description') }}</p>
                         </div>
                     </div>
 
@@ -1250,9 +1238,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Quick Response</h4>
-                            <p class="text-gray-600 mt-2">Fast processing and disbursement of disaster support when you
-                                need it most.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.quick_response.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.quick_response.description') }}</p>
                         </div>
                     </div>
                 </div>
@@ -1266,9 +1253,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Transparent Operations</h4>
-                            <p class="text-gray-600 mt-2">Complete transparency in fund management with regular reports
-                                and member access to all financial information.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.transparent_operations.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.transparent_operations.description') }}</p>
                         </div>
                     </div>
 
@@ -1279,9 +1265,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Financial Education</h4>
-                            <p class="text-gray-600 mt-2">Regular workshops and training sessions to improve your
-                                financial literacy and planning skills.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.financial_education.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.financial_education.description') }}</p>
                         </div>
                     </div>
 
@@ -1292,9 +1277,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-gray-900">Modern Technology</h4>
-                            <p class="text-gray-600 mt-2">Easy-to-use digital platform for managing your membership,
-                                contributions, and accessing services.</p>
+                            <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.benefits.modern_technology.title') }}</h4>
+                            <p class="text-gray-600 mt-2">{{ __('marketing.benefits.modern_technology.description') }}</p>
                         </div>
                     </div>
                 </div>
@@ -1307,11 +1291,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
-                    Our <span class="text-gradient">Leadership Team</span>
+                    {{ __('marketing.leadership.title') }}
                 </h2>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-                    Meet the dedicated leaders who guide our organization with wisdom, integrity, and commitment to our
-                    community
+                    {{ __('marketing.leadership.subtitle') }}
                 </p>
             </div>
 
@@ -1346,11 +1329,9 @@
                                     </div>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Abdallah Mbura</h3>
-                                <p class="text-blue-600 font-semibold mb-4">Interim Chairman</p>
+                                <p class="text-blue-600 font-semibold mb-4">{{ __('marketing.leadership.chairman_title') }}</p>
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
-                                    With extensive experience in community leadership, our Chairman has been
-                                    instrumental in establishing and growing our welfare association. His vision for
-                                    community empowerment drives our mission forward.
+                                    {{ __('marketing.leadership.chairman_description') }}
                                 </p>
                                 <div class="flex justify-center space-x-3">
                                     <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -1377,11 +1358,9 @@
                                     </div>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Rajab H. Rajab</h3>
-                                <p class="text-green-600 font-semibold mb-4">Interim Secretary</p>
+                                <p class="text-green-600 font-semibold mb-4">{{ __('marketing.leadership.secretary_title') }}</p>
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
-                                    Our Secretary ensures smooth operations and maintains excellent records for our
-                                    association. Their attention to detail and organizational skills keep our community
-                                    running efficiently.
+                                    {{ __('marketing.leadership.secretary_description') }}
                                 </p>
                                 <div class="flex justify-center space-x-3">
                                     <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -1408,11 +1387,9 @@
                                     </div>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Bi Lilian Kijugo</h3>
-                                <p class="text-purple-600 font-semibold mb-4">Interim Treasurer</p>
+                                <p class="text-purple-600 font-semibold mb-4">{{ __('marketing.leadership.treasurer_title') }}</p>
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
-                                    With a background in finance and accounting, our Treasurer manages our funds with
-                                    transparency and accountability, ensuring every shilling is used for the benefit of
-                                    our members.
+                                    {{ __('marketing.leadership.treasurer_description') }}
                                 </p>
                                 <div class="flex justify-center space-x-3">
                                     <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -1441,11 +1418,9 @@
                                     </div>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Blandina Edward</h3>
-                                <p class="text-teal-600 font-semibold mb-4">Interim Committee Member</p>
+                                <p class="text-teal-600 font-semibold mb-4">{{ __('marketing.leadership.committee_title') }}</p>
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
-                                    Our Committee Member coordinates outreach programs and ensures effective
-                                    communication between the leadership and our members. Their dedication to service is
-                                    truly inspiring.
+                                    {{ __('marketing.leadership.committee_description') }}
                                 </p>
                                 <div class="flex justify-center space-x-3">
                                     <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
@@ -1472,11 +1447,9 @@
                                     </div>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Jackson Ngosha</h3>
-                                <p class="text-pink-600 font-semibold mb-4">Public Relations Officer</p>
+                                <p class="text-pink-600 font-semibold mb-4">{{ __('marketing.leadership.spokesman_title') }}</p>
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
-                                    Our Spokesman represents the voice of our organization and ensures effective
-                                    communication with the public and media. They bring fresh perspectives to our
-                                    leadership and coordinate our outreach initiatives.
+                                    {{ __('marketing.leadership.spokesman_description') }}
                                 </p>
                                 <div class="flex justify-center space-x-3">
                                     <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
@@ -1507,10 +1480,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
-                    What Our <span class="text-gradient">Members Say</span>
+                    {{ __('marketing.testimonials.title') }}
                 </h2>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-                    Real stories from real members who have experienced the benefits of our community
+                    {{ __('marketing.testimonials.subtitle') }}
                 </p>
             </div>
 
@@ -1524,7 +1497,7 @@
                             alt="Sarah Mwangi">
                         <div class="ml-4">
                             <h4 class="text-lg font-semibold text-gray-900">Sarah Mwangi</h4>
-                            <p class="text-gray-600">Member since 2018</p>
+                            <p class="text-gray-600">{{ __('marketing.testimonials.member_since') }} 2018</p>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4">
@@ -1535,10 +1508,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="text-gray-600 italic">
-                        "When my husband was hospitalized unexpectedly, Tabata Welfare Association was there for us
-                        immediately.
-                        The disaster support helped us cover medical expenses without stress. I'm grateful for this
-                        community."
+                        "{{ __('marketing.testimonials.testimonial_1') }}"
                     </p>
                 </div>
 
@@ -1551,7 +1521,7 @@
                             alt="John Kimani">
                         <div class="ml-4">
                             <h4 class="text-lg font-semibold text-gray-900">John Kimani</h4>
-                            <p class="text-gray-600">Member since 2017</p>
+                            <p class="text-gray-600">{{ __('marketing.testimonials.member_since') }} 2017</p>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4">
@@ -1562,9 +1532,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="text-gray-600 italic">
-                        "The monthly contributions are very manageable, and knowing that my family is protected gives me
-                        peace of mind.
-                        The digital platform makes everything so easy to track and manage."
+                        "{{ __('marketing.testimonials.testimonial_2') }}"
                     </p>
                 </div>
 
@@ -1577,7 +1545,7 @@
                             alt="Grace Mwende">
                         <div class="ml-4">
                             <h4 class="text-lg font-semibold text-gray-900">Grace Mwende</h4>
-                            <p class="text-gray-600">Member since 2019</p>
+                            <p class="text-gray-600">{{ __('marketing.testimonials.member_since') }} 2019</p>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4">
@@ -1588,9 +1556,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="text-gray-600 italic">
-                        "Beyond the financial benefits, I've found a true community here. The workshops have improved my
-                        financial knowledge,
-                        and the friendships I've made are invaluable."
+                        "{{ __('marketing.testimonials.testimonial_3') }}"
                     </p>
                 </div>
             </div>
@@ -1602,22 +1568,21 @@
         <div class="absolute inset-0 bg-readable-overlay"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-aos="fade-up">
             <h2 class="heading-secondary text-readable-white mb-8">
-                Ready to Join Our Community?
+                {{ __('marketing.cta.title') }}
             </h2>
             <p class="text-large text-readable-white max-w-4xl mx-auto mb-12">
-                Take the first step towards financial security and community support.
-                Join hundreds of families who trust Tabata Welfare Association.
+                {{ __('marketing.cta.subtitle') }}
             </p>
             <div class="flex flex-col sm:flex-row gap-6 justify-center">
                 <a href="#contact"
                     class="btn-secondary-readable inline-flex items-center justify-center px-10 py-4 text-lg font-semibold rounded-lg transition-all focus-visible">
                     <i class="fas fa-phone mr-3"></i>
-                    Contact Us Today
+                    {{ __('marketing.cta.contact_today') }}
                 </a>
                 <a href="{{ route('login') }}"
                     class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-lg text-white hover:bg-white hover:text-primary-700 transition-colors">
                     <i class="fas fa-sign-in-alt mr-2"></i>
-                    Member Portal
+                    {{ __('marketing.cta.member_portal') }}
                 </a>
             </div>
         </div>
@@ -1630,10 +1595,10 @@
             <!-- Section Header -->
             <div class="text-center mb-16" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-                    Support Our <span class="text-gradient">Mission</span>
+                    {{ __('marketing.donation.title') }}
                 </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Help us achieve our fundraising goals and make a positive impact in our community.
+                    {{ __('marketing.donation.subtitle') }}
                 </p>
             </div>
 
@@ -1670,7 +1635,7 @@
                             @if($campaign->acceptsDonations())
                                 <button onclick="selectCampaign('{{ $campaign->id }}', '{{ $campaign->title }}')"
                                         class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
-                                    Donate to This Campaign
+                                    {{ __('marketing.donation.donate_to_campaign') }}
                                 </button>
                             @else
                                 <div class="text-center py-3 text-gray-500 font-medium">
@@ -1689,8 +1654,8 @@
             </div>
             <!-- How to Donate -->
             <div class="bg-white rounded-2xl shadow-xl p-8 mb-12" data-aos="fade-up" data-aos-delay="200">
-                <h3 class="text-2xl font-bold text-center mb-8">How to Donate</h3>
-                <p class="text-center text-gray-600 mb-8">Choose a campaign above and use any of these convenient payment methods</p>
+                <h3 class="text-2xl font-bold text-center mb-8">{{ __('marketing.donation.how_to_donate') }}</h3>
+                <p class="text-center text-gray-600 mb-8">{{ __('marketing.donation.payment_instructions') }}</p>
 
                 <!-- Payment Methods -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1703,7 +1668,7 @@
                             <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
                                 <div class="flex items-center mb-4">
                                     <div class="text-3xl mr-3">📱</div>
-                                    <h4 class="text-xl font-bold text-gray-900">Mobile Money</h4>
+                                    <h4 class="text-xl font-bold text-gray-900">{{ __('marketing.donation.mobile_money') }}</h4>
                                 </div>
                                 <div class="space-y-2 text-sm text-gray-700">
                                     <div><strong>Number:</strong> {{ $featuredCampaign->mobile_money_number }}</div>
@@ -1743,8 +1708,8 @@
             <!-- Impact Stories - Completed Campaigns -->
             @if($completedCampaigns->count() > 0)
             <div class="mb-12" data-aos="fade-up" data-aos-delay="400">
-                <h3 class="text-2xl font-bold text-center mb-8">Stories of Impact</h3>
-                <p class="text-center text-gray-600 mb-8">See the real difference your donations have made in our community</p>
+                <h3 class="text-2xl font-bold text-center mb-8">{{ __('marketing.impact.title') }}</h3>
+                <p class="text-center text-gray-600 mb-8">{{ __('marketing.impact.subtitle') }}</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($completedCampaigns->take(6) as $campaign)
@@ -1757,7 +1722,7 @@
                                         <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                         </svg>
-                                        <p class="text-sm font-semibold">Campaign Completed</p>
+                                        <p class="text-sm font-semibold">{{ __('marketing.impact.campaign_completed') }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -1766,7 +1731,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <h4 class="text-lg font-bold text-gray-900">{{ $campaign->title }}</h4>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        ✅ Completed
+                                        ✅ {{ __('marketing.impact.completed') }}
                                     </span>
                                 </div>
 
@@ -1778,7 +1743,7 @@
                                 <div class="space-y-3">
                                     <div class="bg-green-50 p-3 rounded-lg">
                                         <div class="flex justify-between items-center mb-2">
-                                            <span class="text-sm font-medium text-green-800">Goal Achieved</span>
+                                            <span class="text-sm font-medium text-green-800">{{ __('marketing.impact.goal_achieved') }}</span>
                                             <span class="text-sm font-bold text-green-800">{{ number_format($campaign->progress_percentage, 0) }}%</span>
                                         </div>
                                         <div class="w-full bg-green-200 rounded-full h-2">
@@ -1788,11 +1753,11 @@
 
                                     <div class="grid grid-cols-2 gap-3 text-center">
                                         <div class="bg-blue-50 p-2 rounded">
-                                            <div class="text-xs text-blue-800 font-medium">Total Raised</div>
+                                            <div class="text-xs text-blue-800 font-medium">{{ __('marketing.impact.total_raised') }}</div>
                                             <div class="text-sm font-bold text-blue-900">{{ $campaign->formatted_raised_amount }}</div>
                                         </div>
                                         <div class="bg-purple-50 p-2 rounded">
-                                            <div class="text-xs text-purple-800 font-medium">Goal</div>
+                                            <div class="text-xs text-purple-800 font-medium">{{ __('marketing.impact.goal') }}</div>
                                             <div class="text-sm font-bold text-purple-900">{{ $campaign->formatted_goal_amount }}</div>
                                         </div>
                                     </div>
@@ -1804,7 +1769,7 @@
 
                 @if($completedCampaigns->count() > 6)
                     <div class="text-center mt-8">
-                        <p class="text-gray-600">And {{ $completedCampaigns->count() - 6 }} more successful campaigns...</p>
+                        <p class="text-gray-600">{{ __('marketing.impact.more_campaigns', ['count' => $completedCampaigns->count() - 6]) }}</p>
                     </div>
                 @endif
             </div>
@@ -1813,14 +1778,14 @@
             <!-- Call to Action -->
             <div class="text-center" data-aos="fade-up" data-aos-delay="500">
                 <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-                    <h3 class="text-2xl font-bold mb-4">Ready to Make a Difference?</h3>
+                    <h3 class="text-2xl font-bold mb-4">{{ __('marketing.donation.ready_to_make_difference') }}</h3>
                     <p class="text-lg mb-6 opacity-90">
-                        Join hundreds of donors who are already making a positive impact in our community.
+                        {{ __('marketing.donation.join_donors_text') }}
                     </p>
                     <button onclick="document.getElementById('customAmount').focus()"
                         class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
                         <i class="fas fa-heart mr-2"></i>
-                        Donate Now
+                        {{ __('marketing.donation.donate_now') }}
                     </button>
                 </div>
             </div>
@@ -1833,17 +1798,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center" data-aos="fade-up">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
-                    Get in <span class="text-gradient">Touch</span>
+                    {{ __('marketing.contact.title') }}
                 </h2>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-                    Ready to join or have questions? We're here to help you every step of the way.
+                    {{ __('marketing.contact.subtitle') }}
                 </p>
             </div>
 
             <div class="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <!-- Contact Information -->
                 <div data-aos="fade-right">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Contact Information</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">{{ __('marketing.contact.contact_information') }}</h3>
 
                     <div class="space-y-6">
                         <div class="flex items-start">
@@ -1853,9 +1818,9 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-gray-900">Office Location</h4>
-                                <p class="text-gray-600">Tabata, Dar es Salaam, Tanzania</p>
-                                <p class="text-gray-600">Near Tabata Market</p>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.contact.office_location') }}</h4>
+                                <p class="text-gray-600">{{ __('marketing.contact.address') }}</p>
+                                <p class="text-gray-600">{{ __('marketing.contact.landmark') }}</p>
                             </div>
                         </div>
 
@@ -1866,7 +1831,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-gray-900">Phone Numbers</h4>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.contact.phone_numbers') }}</h4>
                                 <p class="text-gray-600">+255 123 456 789</p>
                                 <p class="text-gray-600">+255 987 654 321</p>
                             </div>
@@ -1879,7 +1844,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-gray-900">Email</h4>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.contact.email') }}</h4>
                                 <p class="text-gray-600">info@tabatawelfare.org</p>
                                 <p class="text-gray-600">support@tabatawelfare.org</p>
                             </div>
@@ -1892,17 +1857,17 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-gray-900">Office Hours</h4>
-                                <p class="text-gray-600">Monday - Friday: 8:00 AM - 5:00 PM</p>
-                                <p class="text-gray-600">Saturday: 9:00 AM - 2:00 PM</p>
-                                <p class="text-gray-600">Sunday: Closed</p>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('marketing.contact.office_hours') }}</h4>
+                                <p class="text-gray-600">{{ __('marketing.contact.weekdays') }}</p>
+                                <p class="text-gray-600">{{ __('marketing.contact.saturday') }}</p>
+                                <p class="text-gray-600">{{ __('marketing.contact.sunday') }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Social Media -->
                     <div class="mt-8">
-                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h4>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ __('marketing.contact.follow_us') }}</h4>
                         <div class="flex space-x-4">
                             <a href="#"
                                 class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
@@ -1928,8 +1893,8 @@
                 <div data-aos="fade-left">
                     <div class="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
                         <div class="text-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Send us a Message</h3>
-                            <p class="text-gray-600 text-sm">We'd love to hear from you.</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('marketing.contact.send_message') }}</h3>
+                            <p class="text-gray-600 text-sm">{{ __('marketing.contact.love_to_hear') }}</p>
                         </div>
 
                         <form id="contact-form" class="space-y-4">
@@ -1940,21 +1905,21 @@
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div class="form-group">
                                     <label for="from_name" class="form-label">
-                                        First Name<span class="required-asterisk">*</span>
+                                        {{ __('marketing.contact.form.first_name') }}<span class="required-asterisk">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="text" id="from_name" name="from_name" required
-                                            class="form-input has-icon w-full" placeholder="Enter your first name">
+                                            class="form-input has-icon w-full" placeholder="{{ __('marketing.contact.form.first_name_placeholder') }}">
                                         <i class="fas fa-user form-icon"></i>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="last_name" class="form-label">
-                                        Last Name<span class="required-asterisk">*</span>
+                                        {{ __('marketing.contact.form.last_name') }}<span class="required-asterisk">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="text" id="last_name" name="last_name" required
-                                            class="form-input has-icon w-full" placeholder="Enter your last name">
+                                            class="form-input has-icon w-full" placeholder="{{ __('marketing.contact.form.last_name_placeholder') }}">
                                         <i class="fas fa-user form-icon"></i>
                                     </div>
                                 </div>
@@ -1963,7 +1928,7 @@
                             <!-- Email Field -->
                             <div class="form-group">
                                 <label for="reply_to" class="form-label">
-                                    Email Address<span class="required-asterisk">*</span>
+                                    {{ __('marketing.contact.form.email') }}<span class="required-asterisk">*</span>
                                 </label>
                                 <div class="relative">
                                     <input type="email" id="reply_to" name="reply_to" required
@@ -1975,7 +1940,7 @@
                             <!-- Phone and Subject Fields -->
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div class="form-group">
-                                    <label for="phone_number" class="form-label">Phone Number</label>
+                                    <label for="phone_number" class="form-label">{{ __('marketing.contact.form.phone') }}</label>
                                     <div class="relative">
                                         <input type="tel" id="phone_number" name="phone_number"
                                             class="form-input has-icon w-full" placeholder="+255 123 456 789">
@@ -1985,12 +1950,12 @@
 
                                 <div class="form-group">
                                     <label for="subject" class="form-label">
-                                        Subject<span class="required-asterisk">*</span>
+                                        {{ __('marketing.contact.form.subject') }}<span class="required-asterisk">*</span>
                                     </label>
                                     <div class="relative">
                                         <select id="subject" name="subject" required
                                             class="form-input form-select w-full">
-                                            <option value="">Select a subject</option>
+                                            <option value="">{{ __('marketing.contact.form.select_subject') }}</option>
                                             <option value="General Inquiry">💬 General Inquiry</option>
                                             <option value="Membership Information">👥 Membership Information</option>
                                             <option value="Support Request">🆘 Support Request</option>
@@ -2006,12 +1971,12 @@
                             <!-- Message Field -->
                             <div class="form-group">
                                 <label for="message" class="form-label">
-                                    Message<span class="required-asterisk">*</span>
+                                    {{ __('marketing.contact.form.message') }}<span class="required-asterisk">*</span>
                                 </label>
                                 <div class="relative">
                                     <textarea id="message" name="message" rows="3" required
                                         class="form-input form-textarea w-full"
-                                        placeholder="Tell us how we can help you..."></textarea>
+                                        placeholder="{{ __('marketing.contact.form.message_placeholder') }}"></textarea>
                                 </div>
                             </div>
 
@@ -2025,11 +1990,11 @@
                                     class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300">
                                     <span id="btn-text" class="flex items-center justify-center">
                                         <i class="fas fa-paper-plane mr-2"></i>
-                                        <span>Send Message</span>
+                                        <span>{{ __('marketing.contact.form.send_button') }}</span>
                                     </span>
                                     <span id="btn-loading" class="hidden items-center justify-center">
                                         <i class="fas fa-spinner fa-spin mr-2"></i>
-                                        <span>Sending...</span>
+                                        <span>{{ __('marketing.contact.form.sending') }}</span>
                                     </span>
                                 </button>
 
@@ -2053,13 +2018,11 @@
                             class="w-14 h-14 rounded-lg object-cover logo-image">
                         <div class="ml-4">
                             <span class="text-xl font-bold block">Tabata Welfare Association</span>
-                            <span class="text-sm text-gray-300">Building Community, Securing Futures</span>
+                            <span class="text-sm text-gray-300">{{ __('marketing.footer.tagline') }}</span>
                         </div>
                     </div>
                     <p class="text-gray-300 mb-6 max-w-md">
-                        Building stronger communities through collective support, financial security, and shared
-                        prosperity.
-                        Together, we create a safety net that protects every member and their family.
+                        {{ __('marketing.footer.description') }}
                     </p>
                     <div class="flex space-x-4">
                         <a href="#"
@@ -2083,27 +2046,25 @@
 
                 <!-- Quick Links -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-6">Quick Links</h3>
+                    <h3 class="text-lg font-semibold mb-6">{{ __('marketing.footer.quick_links') }}</h3>
                     <ul class="space-y-3">
-                        <li><a href="#about" class="text-gray-300 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#announcements" class="text-gray-300 hover:text-white transition-colors">Announcements</a></li>
-                        <li><a href="#services" class="text-gray-300 hover:text-white transition-colors">Our
-                                Services</a></li>
-                        <li><a href="#benefits" class="text-gray-300 hover:text-white transition-colors">Member
-                                Benefits</a></li>
+                        <li><a href="#about" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.about') }}</a></li>
+                        <li><a href="#announcements" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.announcements') }}</a></li>
+                        <li><a href="#services" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.services') }}</a></li>
+                        <li><a href="#benefits" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.benefits') }}</a></li>
                         <li><a href="#testimonials"
-                                class="text-gray-300 hover:text-white transition-colors">Testimonials</a></li>
-                        <li><a href="#contact" class="text-gray-300 hover:text-white transition-colors">Contact Us</a>
+                                class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.testimonials') }}</a></li>
+                        <li><a href="#contact" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.contact') }}</a>
                         </li>
-                        <li><a href="{{ route('login') }}" class="text-gray-300 hover:text-white transition-colors">Member Login</a>
+                        <li><a href="{{ route('login') }}" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.nav.member_login') }}</a>
                         </li>
-                        <li><a href="https://www.moha.go.tz/home" target="_blank" class="text-gray-300 hover:text-white transition-colors">Ministry of Home Affairs</a>
+                        <li><a href="https://www.moha.go.tz/home" target="_blank" class="text-gray-300 hover:text-white transition-colors">{{ __('marketing.footer.ministry_link') }}</a>
                     </ul>
                 </div>
 
                 <!-- Contact Info -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-6">Contact Info</h3>
+                    <h3 class="text-lg font-semibold mb-6">{{ __('marketing.footer.contact_info') }}</h3>
                     <ul class="space-y-3">
                         <li class="flex items-start">
                             <i class="fas fa-map-marker-alt text-primary-400 mt-1 mr-3"></i>
@@ -2129,13 +2090,12 @@
             <div class="border-t border-gray-800 mt-12 pt-8">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <p class="text-gray-400 text-sm">
-                        © 2025 Tabata Welfare Association. All rights reserved.
+                        {{ __('marketing.footer.copyright') }}
                     </p>
                     <div class="flex space-x-6 mt-4 md:mt-0">
-                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of
-                            Service</a>
-                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{ __('marketing.footer.privacy_policy') }}</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{ __('marketing.footer.terms_service') }}</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{ __('marketing.footer.cookie_policy') }}</a>
                     </div>
                 </div>
             </div>
