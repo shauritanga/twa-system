@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fundraising_campaigns', function (Blueprint $table) {
+        // Check if table already exists
+        if (!Schema::hasTable('fundraising_campaigns')) {
+            Schema::create('fundraising_campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description');
@@ -35,7 +37,8 @@ return new class extends Migration
             $table->index(['status', 'start_date']);
             $table->index(['is_featured', 'status']);
             $table->index('end_date');
-        });
+            });
+        }
     }
 
     /**

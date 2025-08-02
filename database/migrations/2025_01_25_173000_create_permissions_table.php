@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->string('description')->nullable();
-            $table->timestamps();
-        });
+        // Check if table already exists
+        if (!Schema::hasTable('permissions')) {
+            Schema::create('permissions', function (Blueprint $table) {
+                $table->id();
+                $table->string('name')->unique();
+                $table->string('description')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

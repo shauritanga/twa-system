@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role_permission', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('role_id')->constrained()->onDelete('cascade');
-            $table->foreignId('permission_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-            
-            $table->unique(['role_id', 'permission_id']);
-        });
+        // Check if table already exists
+        if (!Schema::hasTable('role_permission')) {
+            Schema::create('role_permission', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('role_id')->constrained()->onDelete('cascade');
+                $table->foreignId('permission_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+
+                $table->unique(['role_id', 'permission_id']);
+            });
+        }
     }
 
     /**

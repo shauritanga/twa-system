@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
+        // Check if table already exists
+        if (!Schema::hasTable('audit_logs')) {
+            Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
 
             // User information
@@ -57,7 +59,8 @@ return new class extends Migration
 
             // Foreign key constraint
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-        });
+            });
+        }
     }
 
     /**
