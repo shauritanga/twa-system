@@ -12,9 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('otp_secret')->nullable()->after('remember_token');
-            $table->boolean('otp_enabled')->default(false)->after('otp_secret');
-            $table->timestamp('otp_verified_at')->nullable()->after('otp_enabled');
+            // Check if columns don't exist before adding them
+            if (!Schema::hasColumn('users', 'otp_secret')) {
+                $table->string('otp_secret')->nullable()->after('remember_token');
+            }
+            if (!Schema::hasColumn('users', 'otp_enabled')) {
+                $table->boolean('otp_enabled')->default(false)->after('otp_secret');
+            }
+            if (!Schema::hasColumn('users', 'otp_verified_at')) {
+                $table->timestamp('otp_verified_at')->nullable()->after('otp_enabled');
+            }
         });
     }
 
@@ -24,7 +31,21 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['otp_secret', 'otp_enabled', 'otp_verified_at']);
+            // Check if columns exist before dropping them
+            $columnsToDrop = [];
+            if (Schema::hasColumn('users', 'otp_secret')) {
+                $columnsToDrop[] = 'otp_secret';
+            }
+            if (Schema::hasColumn('users', 'otp_enabled')) {
+                $columnsToDrop[] = 'otp_enabled';
+            }
+            if (Schema::hasColumn('users', 'otp_verified_at')) {
+                $columnsToDrop[] = 'otp_verified_at';
+            }
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };
