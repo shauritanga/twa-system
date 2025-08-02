@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contributions', function (Blueprint $table) {
-            $table->enum('type', ['monthly', 'other'])->default('monthly')->after('purpose');
-            $table->integer('months_covered')->default(1)->after('type');
-            $table->string('contribution_month')->nullable()->after('months_covered'); // Format: YYYY-MM
-            $table->text('notes')->nullable()->after('contribution_month');
+            if (!Schema::hasColumn('contributions', 'type')) {
+                $table->enum('type', ['monthly', 'other'])->default('monthly')->after('purpose');
+            }
+            if (!Schema::hasColumn('contributions', 'months_covered')) {
+                $table->integer('months_covered')->default(1)->after('type');
+            }
+            if (!Schema::hasColumn('contributions', 'contribution_month')) {
+                $table->string('contribution_month')->nullable()->after('months_covered'); // Format: YYYY-MM
+            }
+            if (!Schema::hasColumn('contributions', 'notes')) {
+                $table->text('notes')->nullable()->after('contribution_month');
+            }
         });
     }
 
@@ -25,7 +33,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contributions', function (Blueprint $table) {
-            $table->dropColumn(['type', 'months_covered', 'contribution_month', 'notes']);
+            $columnsToDrop = [];
+            $columns = ['type', 'months_covered', 'contribution_month', 'notes'];
+
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('contributions', $column)) {
+                    $columnsToDrop[] = $column;
+                }
+            }
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

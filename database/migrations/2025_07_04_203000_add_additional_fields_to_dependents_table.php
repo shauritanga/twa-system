@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dependents', function (Blueprint $table) {
-            $table->date('date_of_birth')->nullable()->after('relationship');
-            $table->string('tribe')->nullable()->after('date_of_birth');
-            $table->string('residence')->nullable()->after('tribe');
+            if (!Schema::hasColumn('dependents', 'date_of_birth')) {
+                $table->date('date_of_birth')->nullable()->after('relationship');
+            }
+            if (!Schema::hasColumn('dependents', 'tribe')) {
+                $table->string('tribe')->nullable()->after('date_of_birth');
+            }
+            if (!Schema::hasColumn('dependents', 'residence')) {
+                $table->string('residence')->nullable()->after('tribe');
+            }
         });
     }
 
@@ -24,7 +30,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('dependents', function (Blueprint $table) {
-            $table->dropColumn(['date_of_birth', 'tribe', 'residence']);
+            $columnsToDrop = [];
+            $columns = ['date_of_birth', 'tribe', 'residence'];
+
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('dependents', $column)) {
+                    $columnsToDrop[] = $column;
+                }
+            }
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

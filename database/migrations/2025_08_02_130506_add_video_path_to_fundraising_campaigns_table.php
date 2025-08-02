@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('fundraising_campaigns', function (Blueprint $table) {
-            $table->string('video_path')->nullable()->after('image_path');
+            if (!Schema::hasColumn('fundraising_campaigns', 'video_path')) {
+                $table->string('video_path')->nullable()->after('image_path');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('fundraising_campaigns', function (Blueprint $table) {
-            $table->dropColumn('video_path');
+            if (Schema::hasColumn('fundraising_campaigns', 'video_path')) {
+                $table->dropColumn('video_path');
+            }
         });
     }
 };

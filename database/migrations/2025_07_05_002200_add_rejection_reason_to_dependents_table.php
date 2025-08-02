@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dependents', function (Blueprint $table) {
-            $table->text('rejection_reason')->nullable()->after('status');
-            $table->softDeletes()->after('updated_at');
+            if (!Schema::hasColumn('dependents', 'rejection_reason')) {
+                $table->text('rejection_reason')->nullable()->after('status');
+            }
+            if (!Schema::hasColumn('dependents', 'deleted_at')) {
+                $table->softDeletes()->after('updated_at');
+            }
         });
     }
 
@@ -23,8 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('dependents', function (Blueprint $table) {
-            $table->dropColumn('rejection_reason');
-            $table->dropSoftDeletes();
+            if (Schema::hasColumn('dependents', 'rejection_reason')) {
+                $table->dropColumn('rejection_reason');
+            }
+            if (Schema::hasColumn('dependents', 'deleted_at')) {
+                $table->dropSoftDeletes();
+            }
         });
     }
 };
