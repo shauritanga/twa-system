@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            \App\Http\Middleware\EnsureSessionIntegrity::class,
             \App\Http\Middleware\SessionTimeoutMiddleware::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
             'handle.large.uploads' => \App\Http\Middleware\HandleLargeFileUploads::class,
+            'session.integrity' => \App\Http\Middleware\EnsureSessionIntegrity::class,
         ]);
     })
     ->withProviders([

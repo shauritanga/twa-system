@@ -15,12 +15,12 @@
     <meta property="og:description"
         content="Join Tanzania's premier community welfare organization. Monthly contributions, disaster support, and financial security for members and families.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tabatawelfare.org">
-    <meta property="og:image" content="/marketing/logo.jpeg">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('marketing/logo.jpeg') }}">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="/marketing/logo.jpeg">
-    <link rel="apple-touch-icon" href="/marketing/logo.jpeg">
+    <link rel="icon" type="image/jpeg" href="{{ asset('marketing/logo.jpeg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('marketing/logo.jpeg') }}">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -544,31 +544,7 @@
             outline-offset: 2px;
         }
 
-        /* Logo styling */
-        .logo-image {
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
 
-        .logo-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Logo responsive sizing */
-        @media (max-width: 768px) {
-            .logo-mobile {
-                width: 2.5rem;
-                height: 2.5rem;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .logo-mobile {
-                width: 2rem;
-                height: 2rem;
-            }
-        }
 
         /* High contrast mode support */
         @media (prefers-contrast: high) {
@@ -582,10 +558,6 @@
 
             .btn-primary-readable {
                 background: #000000;
-                border-color: #000000;
-            }
-
-            .logo-image {
                 border-color: #000000;
             }
         }
@@ -631,15 +603,32 @@
 </head>
 
 <body class="font-sans antialiased">
+    <!-- Flash Messages -->
+    @if(session('status'))
+        <div id="flash-message" class="fixed top-4 right-4 z-50 max-w-sm w-full bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-sm font-medium">{{ session('status') }}</span>
+                <button onclick="closeFlashMessage()" class="ml-4 text-white hover:text-gray-200 focus:outline-none">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    @endif
+
     <!-- Combined Header and Navigation -->
     <nav class="fixed w-full z-50 nav-readable shadow-lg bg-white">
         <!-- Header Section -->
-        <div class="w-full border-b border-gray-200 py-3 px-4">
-            <div class="max-w-7xl mx-auto">
+        <div class="w-full border-b border-gray-200 py-3">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between">
                     <!-- Left TWA Logo -->
                     <div class="flex-shrink-0">
-                        <img src="/marketing/logo.jpeg" alt="TWA Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain">
+                        <img src="{{ asset('marketing/logo.jpeg') }}" alt="TWA Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain">
                     </div>
 
                     <!-- Center Text -->
@@ -657,7 +646,7 @@
 
                     <!-- Right TWA Logo -->
                     <div class="flex-shrink-0">
-                        <img src="/marketing/logo.jpeg" alt="TWA Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain">
+                        <img src="{{ asset('marketing/logo.jpeg') }}" alt="TWA Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain">
                     </div>
                 </div>
             </div>
@@ -665,52 +654,50 @@
 
         <!-- Navigation Menu -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-18">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center">
-                        <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo"
-                            class="w-12 h-12 logo-mobile rounded-lg object-cover logo-image">
-                        <div class="ml-3">
-                            <span class="text-xl font-bold text-gray-900 block">Tabata Welfare</span>
-                            <span class="text-xs text-gray-600 hidden sm:block">Association</span>
-                        </div>
-                    </div>
-                </div> 
+            <div class="flex justify-between items-center py-8">
 
-                <!-- Desktop Navigation -->
+                <!-- Left Navigation - Home Only -->
                 <div class="hidden md:block">
-                    <div class="ml-10 flex items-center space-x-4">
-                        <a href="#home"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Home</a>
+                    <a href="#home"
+                        class="nav-link-readable px-4 py-3 text-base font-medium transition-colors focus-visible whitespace-nowrap">Home</a>
+                </div>
+
+                <!-- Right Navigation - All Other Items -->
+                <div class="hidden md:block">
+                    <div class="flex items-center space-x-3 lg:space-x-4">
                         <a href="#announcements"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Announcements</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Announcements</a>
                         <a href="#about"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">About</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">About</a>
                         <a href="#services"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Services</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Services</a>
                         <a href="#benefits"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Benefits</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Benefits</a>
                         <a href="#leadership"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Leadership</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Leadership</a>
                         <a href="#testimonials"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Testimonials</a>
+                            class="hidden lg:block nav-link-readable px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Testimonials</a>
                         <a href="#contact"
-                            class="nav-link-readable px-3 py-2 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Contact</a>
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Contact</a>
+                        @if($activeCampaigns->count() > 0)
                         <a href="#donate"
-                            class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap">
+                            class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 lg:px-4 py-3 rounded-lg text-sm font-medium hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap">
                             <i class="fas fa-heart mr-1"></i>Donate
                         </a>
-                        <a href="/login"
-                            class="btn-member-login px-6 py-2 rounded-lg text-sm font-medium focus-visible whitespace-nowrap">Member
-                            Login</a>
+                        @endif
+                        <a href="{{ route('login') }}"
+                            class="btn-member-login px-3 lg:px-4 py-3 rounded-lg text-sm font-medium focus-visible whitespace-nowrap">Login</a>
                     </div>
                 </div>
 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
+                <!-- Mobile Navigation -->
+                <div class="md:hidden flex items-center justify-between w-full">
+                    <!-- Home link for mobile -->
+                    <a href="#home" class="nav-link-readable px-4 py-3 text-base font-medium">Home</a>
+
+                    <!-- Mobile menu button -->
                     <button type="button"
-                        class="mobile-menu-button nav-link-readable focus:outline-none focus-visible p-2">
+                        class="mobile-menu-button nav-link-readable focus:outline-none focus-visible p-3">
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
                 </div>
@@ -719,24 +706,23 @@
 
         <!-- Mobile Navigation -->
         <div class="mobile-menu hidden md:hidden bg-white border-t border-gray-200">
-            <div class="px-4 pt-4 pb-6 space-y-2">
-                <a href="#home" class="block px-4 py-3 text-gray-900 font-semibold text-base">Home</a>
-                <a href="#announcements" class="block px-4 py-3 nav-link-readable text-base">Announcements</a>
-                <a href="#about" class="block px-4 py-3 nav-link-readable text-base">About</a>
-                <a href="#services" class="block px-4 py-3 nav-link-readable text-base">Services</a>
-                <a href="#benefits" class="block px-4 py-3 nav-link-readable text-base">Benefits</a>
-                <a href="#leadership" class="block px-4 py-3 nav-link-readable text-base">Leadership</a>
-                <a href="#testimonials" class="block px-4 py-3 nav-link-readable text-base">Testimonials</a>
-                <a href="#contact" class="block px-4 py-3 nav-link-readable text-base">Contact</a>
-                <a href="/login"
-                    class="block px-3 py-2 btn-member-login rounded-lg text-center mx-3 mt-4 whitespace-nowrap">Member
+            <div class="px-6 py-6 space-y-3">
+                <a href="#announcements" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Announcements</a>
+                <a href="#about" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">About</a>
+                <a href="#services" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Services</a>
+                <a href="#benefits" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Benefits</a>
+                <a href="#leadership" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Leadership</a>
+                <a href="#testimonials" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Testimonials</a>
+                <a href="#contact" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">Contact</a>
+                <a href="{{ route('login') }}"
+                    class="block px-6 py-4 btn-member-login rounded-lg text-center mt-6 whitespace-nowrap">Member
                     Login</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="relative gradient-bg hero-pattern section-padding pt-32 lg:pt-40">
+    <section id="home" class="relative gradient-bg hero-pattern section-padding pt-48 lg:pt-56">
         <div class="absolute inset-0 bg-readable-overlay"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
@@ -769,13 +755,13 @@
                     data-aos="fade-left">
                     <div class="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md">
                         <div class="relative block w-full bg-white rounded-lg overflow-hidden">
-                            <img class="w-full h-64 sm:h-80 object-cover" src="/marketing/images/event.jpeg"
+                            <img class="w-full h-64 sm:h-80 object-cover" src="{{ asset('marketing/images/event.jpeg') }}"
                                 alt="Community gathering">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
                             <!-- Logo overlay -->
                             <div class="absolute top-4 right-4">
-                                <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo"
+                                <img src="{{ asset('marketing/logo.jpeg') }}" alt="Tabata Welfare Association Logo"
                                     class="w-16 h-16 rounded-lg object-cover logo-image border-2 border-white/30">
                             </div>
 
@@ -803,19 +789,19 @@
             <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="text-center bg-blue-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="100">
-                    <div class="stats-counter text-blue-600 mb-4" data-target="61">0</div>
+                    <div class="stats-counter text-blue-600 mb-4" data-target="{{ $stats['active_members'] }}">0</div>
                     <p class="text-readable font-semibold text-lg">Active Members</p>
                     <p class="text-readable-light text-sm mt-2">Growing community of families</p>
                 </div>
                 <div class="text-center bg-green-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="200">
-                    <div class="stats-counter text-green-600 mb-4" data-target="50000000">0</div>
+                    <div class="stats-counter text-green-600 mb-4" data-target="{{ $stats['amount_distributed'] }}">0</div>
                     <p class="text-readable font-semibold text-lg">TZS Distributed</p>
                     <p class="text-readable-light text-sm mt-2">Financial support provided</p>
                 </div>
                 <div class="text-center bg-purple-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="300">
-                    <div class="stats-counter text-purple-600 mb-4" data-target="1200">0</div>
+                    <div class="stats-counter text-purple-600 mb-4" data-target="{{ $stats['helped_families'] }}">0</div>
                     <p class="text-readable font-semibold text-lg">Families Helped</p>
                     <p class="text-readable-light text-sm mt-2">Lives positively impacted</p>
                 </div>
@@ -842,91 +828,157 @@
             </div>
 
             <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <!-- Announcement 1 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                                </svg>
-                                Important
-                            </span>
-                            <span class="text-sm text-gray-500">Jan 15, 2025</span>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                            Annual General Meeting 2025
-                        </h3>
-                        <p class="text-gray-600 mb-4">
-                            Join us for our Annual General Meeting on February 15th, 2025. All members are encouraged to attend and participate in important decisions for our association.
-                        </p>
-                        <a href="#contact" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                            Learn More
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
+                @forelse($announcements as $index => $announcement)
+                    <!-- Announcement {{ $index + 1 }} -->
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                         data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
 
-                <!-- Announcement 2 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                Event
-                            </span>
-                            <span class="text-sm text-gray-500">Jan 10, 2025</span>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                            New Member Registration Open
-                        </h3>
-                        <p class="text-gray-600 mb-4">
-                            We are now accepting new member applications for 2025. Join our growing community and enjoy exclusive benefits and support services.
-                        </p>
-                        <a href="/login" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                            Apply Now
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
+                        @if($announcement->hasMedia())
+                            <!-- Media Section -->
+                            <div class="relative">
+                                @if($announcement->media_type === 'image' && $announcement->image_path)
+                                    <img src="{{ $announcement->image_url }}"
+                                         alt="{{ $announcement->image_alt_text ?? $announcement->title }}"
+                                         class="w-full h-48 object-cover">
+                                @elseif($announcement->media_type === 'video' && $announcement->video_path)
+                                    <video class="w-full h-48 object-cover" controls>
+                                        <source src="{{ $announcement->video_url_full }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @elseif($announcement->media_type === 'video_url' && $announcement->isYoutubeVideo())
+                                    <div class="relative h-48">
+                                        <iframe class="w-full h-full"
+                                                src="https://www.youtube.com/embed/{{ $announcement->youtube_video_id }}"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                @elseif($announcement->media_type === 'video_url' && $announcement->video_url)
+                                    <div class="relative h-48 bg-gray-100 flex items-center justify-center">
+                                        <a href="{{ $announcement->video_url }}" target="_blank"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path>
+                                            </svg>
+                                            Watch Video
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
 
-                <!-- Announcement 3 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="300">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                                </svg>
-                                Update
-                            </span>
-                            <span class="text-sm text-gray-500">Jan 5, 2025</span>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $announcement->type_badge_color }}">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        {!! $announcement->type_icon !!}
+                                    </svg>
+                                    {{ ucfirst($announcement->type) }}
+                                </span>
+                                <span class="text-sm text-gray-500">{{ $announcement->announcement_date->format('M d, Y') }}</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                {{ $announcement->title }}
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                {{ Str::limit($announcement->content, 120) }}
+                            </p>
+                            @if($announcement->link_url)
+                                <a href="{{ $announcement->link_url }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                                    {{ $announcement->link_text ?? 'Learn More' }}
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                            @endif
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                            Updated Contribution Guidelines
-                        </h3>
-                        <p class="text-gray-600 mb-4">
-                            Please review the updated monthly contribution guidelines and payment methods. New digital payment options are now available for your convenience.
-                        </p>
-                        <a href="#services" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                            View Details
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
                     </div>
-                </div>
+                @empty
+                    <!-- Default announcements when no database entries exist -->
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Important
+                                </span>
+                                <span class="text-sm text-gray-500">Jan 15, 2025</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                Welcome to Our New Website
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                We're excited to launch our new website with improved features and better user experience for all our members.
+                            </p>
+                            <a href="#contact" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                                Learn More
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Event
+                                </span>
+                                <span class="text-sm text-gray-500">Jan 10, 2025</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                New Member Registration Open
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                We are now accepting new member applications for 2025. Join our growing community and enjoy exclusive benefits and support services.
+                            </p>
+                            <a href="{{ route('login') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                                Apply Now
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Update
+                                </span>
+                                <span class="text-sm text-gray-500">Jan 5, 2025</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                Updated Contribution Guidelines
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Please review the updated monthly contribution guidelines and payment methods. New digital payment options are now available for your convenience.
+                            </p>
+                            <a href="#services" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                                View Details
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endforelse
             </div>
 
             <!-- View All Announcements Button -->
             <div class="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
-                <a href="/login" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <a href="{{ route('marketing.announcements') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                     View All Announcements
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -998,10 +1050,10 @@
 
                 <div class="mt-12 lg:mt-0" data-aos="fade-left">
                     <div class="grid grid-cols-2 gap-4">
-                        <img class="rounded-lg shadow-lg" src="/marketing/images/magufuli.jpeg" alt="Community meeting">
-                        <img class="rounded-lg shadow-lg mt-8" src="/marketing/images/4.jpg" alt="Helping hands">
-                        <img class="rounded-lg shadow-lg -mt-8" src="/marketing/images/3.jpeg" alt="Financial planning">
-                        <img class="rounded-lg shadow-lg" src="/marketing/images/1.jpeg" alt="Team collaboration">
+                        <img class="rounded-lg shadow-lg" src="{{ asset('marketing/images/magufuli.jpeg') }}" alt="Community meeting">
+                        <img class="rounded-lg shadow-lg mt-8" src="{{ asset('marketing/images/4.jpg') }}" alt="Helping hands">
+                        <img class="rounded-lg shadow-lg -mt-8" src="{{ asset('marketing/images/3.jpeg') }}" alt="Financial planning">
+                        <img class="rounded-lg shadow-lg" src="{{ asset('marketing/images/1.jpeg') }}" alt="Team collaboration">
                     </div>
                 </div>
             </div>
@@ -1286,7 +1338,7 @@
                             <div class="text-center">
                                 <div class="relative inline-block mb-6">
                                     <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                        src="/marketing/images/chairman.jpeg"
+                                        src="{{ asset('marketing/images/chairman.jpeg') }}"
                                         alt="Chairman - Tabata Welfare Association">
                                     <div
                                         class="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -1317,7 +1369,7 @@
                             <div class="text-center">
                                 <div class="relative inline-block mb-6">
                                     <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                        src="/marketing/images/secretary.jpeg"
+                                        src="{{ asset('marketing/images/secretary.jpeg') }}"
                                         alt="Secretary - Tabata Welfare Association">
                                     <div
                                         class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -1348,7 +1400,7 @@
                             <div class="text-center">
                                 <div class="relative inline-block mb-6">
                                     <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                        src="/marketing/images/tresurere.jpg"
+                                        src="{{ asset('marketing/images/tresurere.jpg') }}"
                                         alt="Treasurer - Tabata Welfare Association">
                                     <div
                                         class="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
@@ -1381,7 +1433,7 @@
                             <div class="text-center">
                                 <div class="relative inline-block mb-6">
                                     <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                        src="/marketing/images/commitee.jpg"
+                                        src="{{ asset('marketing/images/commitee.jpg') }}"
                                         alt="Committee Member - Tabata Welfare Association">
                                     <div
                                         class="absolute -bottom-2 -right-2 w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
@@ -1412,7 +1464,7 @@
                             <div class="text-center">
                                 <div class="relative inline-block mb-6">
                                     <img class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                        src="/marketing/images/spokesman.jpeg"
+                                        src="{{ asset('marketing/images/spokesman.jpeg') }}"
                                         alt="Spokesman - Tabata Welfare Association">
                                     <div
                                         class="absolute -bottom-2 -right-2 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
@@ -1562,7 +1614,7 @@
                     <i class="fas fa-phone mr-3"></i>
                     Contact Us Today
                 </a>
-                <a href="/login"
+                <a href="{{ route('login') }}"
                     class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-lg text-white hover:bg-white hover:text-primary-700 transition-colors">
                     <i class="fas fa-sign-in-alt mr-2"></i>
                     Member Portal
@@ -1571,6 +1623,7 @@
         </div>
     </section>
 
+    @if($activeCampaigns->count() > 0)
     <!-- Fund-Raising Section -->
     <section id="donate" class="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1580,239 +1633,182 @@
                     Support Our <span class="text-gradient">Mission</span>
                 </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Your donation helps us support families in need, provide emergency assistance, and build stronger
-                    communities in Tabata and beyond.
+                    Help us achieve our fundraising goals and make a positive impact in our community.
                 </p>
             </div>
 
-            <!-- Impact Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16" data-aos="fade-up"
-                data-aos-delay="100">
-                <div
-                    class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div class="text-4xl font-bold text-blue-600 mb-2">500+</div>
-                    <div class="text-gray-700 font-semibold">Families Supported</div>
-                    <div class="text-sm text-gray-600 mt-2">Emergency assistance provided</div>
-                </div>
+            <!-- Active Campaigns -->
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-16">
+                @foreach($activeCampaigns as $campaign)
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        @if($campaign->image_path)
+                            <img src="{{ $campaign->image_url }}" alt="{{ $campaign->title }}" class="w-full h-48 object-cover">
+                        @endif
 
-                <div
-                    class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div class="text-4xl font-bold text-green-600 mb-2">TZS 50M+</div>
-                    <div class="text-gray-700 font-semibold">Total Distributed</div>
-                    <div class="text-sm text-gray-600 mt-2">In disaster relief and support</div>
-                </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $campaign->title }}</h3>
+                            <p class="text-gray-600 mb-4">{{ $campaign->description }}</p>
 
-                <div
-                    class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div class="text-4xl font-bold text-purple-600 mb-2">1,200+</div>
-                    <div class="text-gray-700 font-semibold">Active Members</div>
-                    <div class="text-sm text-gray-600 mt-2">Contributing to the cause</div>
-                </div>
+                            <!-- Progress Bar -->
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                    <span>{{ $campaign->formatted_raised_amount }} raised</span>
+                                    <span>{{ number_format($campaign->progress_percentage, 1) }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+                                         style="width: {{ $campaign->progress_percentage }}%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-500 mt-2">
+                                    <span>Goal: {{ $campaign->formatted_goal_amount }}</span>
+                                    @if($campaign->days_remaining !== null)
+                                        <span>{{ $campaign->days_remaining }} days left</span>
+                                    @endif
+                                </div>
+                            </div>
 
-                <div
-                    class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div class="text-4xl font-bold text-red-600 mb-2">15+</div>
-                    <div class="text-gray-700 font-semibold">Years of Service</div>
-                    <div class="text-sm text-gray-600 mt-2">Serving the community</div>
-                </div>
+                            @if($campaign->acceptsDonations())
+                                <button onclick="selectCampaign('{{ $campaign->id }}', '{{ $campaign->title }}')"
+                                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+                                    Donate to This Campaign
+                                </button>
+                            @else
+                                <div class="text-center py-3 text-gray-500 font-medium">
+                                    @if($campaign->is_completed)
+                                        ✅ Goal Achieved!
+                                    @elseif($campaign->is_expired)
+                                        ⏰ Campaign Ended
+                                    @else
+                                        ⏸️ Campaign Paused
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             </div>
-
-            <!-- Donation Options -->
+            <!-- How to Donate -->
             <div class="bg-white rounded-2xl shadow-xl p-8 mb-12" data-aos="fade-up" data-aos-delay="200">
-                <h3 class="text-2xl font-bold text-center mb-8">Make a Donation</h3>
+                <h3 class="text-2xl font-bold text-center mb-8">How to Donate</h3>
+                <p class="text-center text-gray-600 mb-8">Choose a campaign above and use any of these convenient payment methods</p>
 
-                <!-- Quick Donation Amounts -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <button onclick="selectAmount(10000)"
-                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
-                        <div class="text-2xl font-bold text-blue-600">TZS 10,000</div>
-                        <div class="text-sm text-gray-600">Basic Support</div>
-                    </button>
-                    <button onclick="selectAmount(25000)"
-                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
-                        <div class="text-2xl font-bold text-blue-600">TZS 25,000</div>
-                        <div class="text-sm text-gray-600">Family Meal</div>
-                    </button>
-                    <button onclick="selectAmount(50000)"
-                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
-                        <div class="text-2xl font-bold text-blue-600">TZS 50,000</div>
-                        <div class="text-sm text-gray-600">Medical Aid</div>
-                    </button>
-                    <button onclick="selectAmount(100000)"
-                        class="donation-btn p-4 border-2 border-gray-300 rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
-                        <div class="text-2xl font-bold text-blue-600">TZS 100,000</div>
-                        <div class="text-sm text-gray-600">Emergency Fund</div>
-                    </button>
+                <!-- Payment Methods -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    @if($activeCampaigns->count() > 0)
+                        @php $featuredCampaign = $activeCampaigns->where('is_featured', true)->first() ?? $activeCampaigns->first(); @endphp
+
+                        @if($featuredCampaign && $featuredCampaign->payment_methods)
+                            @if(in_array('mobile_money', $featuredCampaign->payment_methods) && $featuredCampaign->mobile_money_number)
+                            <!-- Mobile Money -->
+                            <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
+                                <div class="flex items-center mb-4">
+                                    <div class="text-3xl mr-3">📱</div>
+                                    <h4 class="text-xl font-bold text-gray-900">Mobile Money</h4>
+                                </div>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <div><strong>Number:</strong> {{ $featuredCampaign->mobile_money_number }}</div>
+                                    <div><strong>Name:</strong> Tabata Welfare Association</div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-3">Send payment and SMS reference to confirm</p>
+                            </div>
+                            @endif
+
+                            @if(in_array('bank_transfer', $featuredCampaign->payment_methods) && $featuredCampaign->bank_details)
+                            <!-- Bank Transfer -->
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+                                <div class="flex items-center mb-4">
+                                    <div class="text-3xl mr-3">🏦</div>
+                                    <h4 class="text-xl font-bold text-gray-900">Bank Transfer</h4>
+                                </div>
+                                <div class="space-y-1 text-sm text-gray-700 whitespace-pre-line">{{ $featuredCampaign->bank_details }}</div>
+                                <p class="text-xs text-gray-600 mt-3">Include campaign name in transfer reference</p>
+                            </div>
+                            @endif
+                        @endif
+                    @endif
                 </div>
 
-                <!-- Custom Amount -->
-                <div class="mb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Or enter custom amount (TZS)</label>
-                    <input type="number" id="customAmount" placeholder="Enter amount"
-                        class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <!-- Donation Form -->
-                <form id="donationForm" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                            <input type="text" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-                            <input type="email" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                            <input type="tel"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Donation Purpose</label>
-                            <select
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option>General Support</option>
-                                <option>Emergency Relief</option>
-                                <option>Medical Assistance</option>
-                                <option>Education Support</option>
-                                <option>Community Development</option>
-                            </select>
-                        </div>
+                <!-- Contact for Donations -->
+                <div class="mt-8 text-center">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p class="text-sm text-yellow-800">
+                            <strong>Need help with your donation?</strong> Contact us at
+                            <a href="tel:+255123456789" class="font-medium underline">+255 123 456 789</a> or
+                            <a href="mailto:donations@tabatawelfare.org" class="font-medium underline">donations@tabatawelfare.org</a>
+                        </p>
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
-                        <textarea rows="3"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Share why you're supporting our cause..."></textarea>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input type="checkbox" id="newsletter"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="newsletter" class="ml-2 text-sm text-gray-700">
-                            Subscribe to our newsletter for updates on how your donation is being used
-                        </label>
-                    </div>
-
-                    <button type="submit"
-                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-8 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-heart mr-2"></i>
-                        Complete Donation
-                    </button>
-                </form>
-            </div>
-
-            <!-- Payment Methods -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12" data-aos="fade-up" data-aos-delay="300">
-                <!-- Mobile Money -->
-                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                    <div class="text-4xl mb-4">📱</div>
-                    <h3 class="text-xl font-bold mb-4">Mobile Money</h3>
-                    <div class="space-y-2 text-sm text-gray-700">
-                        <div><strong>M-Pesa:</strong> +255 XXX XXX XXX</div>
-                        <div><strong>Tigo Pesa:</strong> +255 XXX XXX XXX</div>
-                        <div><strong>Airtel Money:</strong> +255 XXX XXX XXX</div>
-                    </div>
-                    <p class="text-xs text-gray-600 mt-4">Send payment and SMS reference to confirm</p>
-                </div>
-
-                <!-- Bank Transfer -->
-                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                    <div class="text-4xl mb-4">🏦</div>
-                    <h3 class="text-xl font-bold mb-4">Bank Transfer</h3>
-                    <div class="space-y-2 text-sm text-gray-700">
-                        <div><strong>Bank:</strong> CRDB Bank</div>
-                        <div><strong>Account:</strong> 0150XXXXXXXX</div>
-                        <div><strong>Name:</strong> Tabata Welfare Association</div>
-                    </div>
-                    <p class="text-xs text-gray-600 mt-4">Include your name in transfer reference</p>
-                </div>
-
-                <!-- Online Payment -->
-                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                    <div class="text-4xl mb-4">💳</div>
-                    <h3 class="text-xl font-bold mb-4">Online Payment</h3>
-                    <div class="space-y-2 text-sm text-gray-700">
-                        <div>Visa & Mastercard</div>
-                        <div>PayPal</div>
-                        <div>Secure SSL Encryption</div>
-                    </div>
-                    <p class="text-xs text-gray-600 mt-4">Instant confirmation and receipt</p>
                 </div>
             </div>
 
-            <!-- Impact Stories -->
+            <!-- Impact Stories - Completed Campaigns -->
+            @if($completedCampaigns->count() > 0)
             <div class="mb-12" data-aos="fade-up" data-aos-delay="400">
                 <h3 class="text-2xl font-bold text-center mb-8">Stories of Impact</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Story 1 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=200&fit=crop"
-                            alt="Family Support" class="w-full h-40 object-cover">
-                        <div class="p-6">
-                            <h4 class="text-lg font-bold mb-2">Emergency Medical Support</h4>
-                            <p class="text-gray-600 text-sm mb-3">
-                                "When my child fell seriously ill, the association provided immediate financial support
-                                for hospital treatment."
-                            </p>
-                            <div class="text-xs text-gray-500 mb-2">
-                                <strong>- Mama Fatuma, Tabata Resident</strong>
-                            </div>
-                            <div class="bg-green-50 p-2 rounded">
-                                <div class="text-xs text-green-800">
-                                    <strong>Impact:</strong> TZS 150,000 provided
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <p class="text-center text-gray-600 mb-8">See the real difference your donations have made in our community</p>
 
-                    <!-- Story 2 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=200&fit=crop"
-                            alt="Education Support" class="w-full h-40 object-cover">
-                        <div class="p-6">
-                            <h4 class="text-lg font-bold mb-2">Education Assistance</h4>
-                            <p class="text-gray-600 text-sm mb-3">
-                                "The scholarship program helped my daughter continue her education. She's now in
-                                university studying medicine."
-                            </p>
-                            <div class="text-xs text-gray-500 mb-2">
-                                <strong>- Baba John, Community Member</strong>
-                            </div>
-                            <div class="bg-blue-50 p-2 rounded">
-                                <div class="text-xs text-blue-800">
-                                    <strong>Impact:</strong> 4-year scholarship worth TZS 800,000
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach($completedCampaigns->take(6) as $campaign)
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+                            @if($campaign->image_path)
+                                <img src="{{ $campaign->image_url }}" alt="{{ $campaign->title }}" class="w-full h-40 object-cover">
+                            @else
+                                <div class="w-full h-40 bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
+                                    <div class="text-white text-center">
+                                        <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-sm font-semibold">Campaign Completed</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                            @endif
 
-                    <!-- Story 3 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=200&fit=crop"
-                            alt="Disaster Relief" class="w-full h-40 object-cover">
-                        <div class="p-6">
-                            <h4 class="text-lg font-bold mb-2">Disaster Relief</h4>
-                            <p class="text-gray-600 text-sm mb-3">
-                                "After the floods destroyed our home, the association provided emergency shelter and
-                                food supplies."
-                            </p>
-                            <div class="text-xs text-gray-500 mb-2">
-                                <strong>- Mama Grace, Flood Victim</strong>
-                            </div>
-                            <div class="bg-orange-50 p-2 rounded">
-                                <div class="text-xs text-orange-800">
-                                    <strong>Impact:</strong> Emergency aid for 50 families
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-bold text-gray-900">{{ $campaign->title }}</h4>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        ✅ Completed
+                                    </span>
+                                </div>
+
+                                <p class="text-gray-600 text-sm mb-4">
+                                    {{ Str::limit($campaign->description, 100) }}
+                                </p>
+
+                                <!-- Success Metrics -->
+                                <div class="space-y-3">
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm font-medium text-green-800">Goal Achieved</span>
+                                            <span class="text-sm font-bold text-green-800">{{ number_format($campaign->progress_percentage, 0) }}%</span>
+                                        </div>
+                                        <div class="w-full bg-green-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ min(100, $campaign->progress_percentage) }}%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3 text-center">
+                                        <div class="bg-blue-50 p-2 rounded">
+                                            <div class="text-xs text-blue-800 font-medium">Total Raised</div>
+                                            <div class="text-sm font-bold text-blue-900">{{ $campaign->formatted_raised_amount }}</div>
+                                        </div>
+                                        <div class="bg-purple-50 p-2 rounded">
+                                            <div class="text-xs text-purple-800 font-medium">Goal</div>
+                                            <div class="text-sm font-bold text-purple-900">{{ $campaign->formatted_goal_amount }}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
+
+                @if($completedCampaigns->count() > 6)
+                    <div class="text-center mt-8">
+                        <p class="text-gray-600">And {{ $completedCampaigns->count() - 6 }} more successful campaigns...</p>
+                    </div>
+                @endif
             </div>
+            @endif
 
             <!-- Call to Action -->
             <div class="text-center" data-aos="fade-up" data-aos-delay="500">
@@ -1830,6 +1826,7 @@
             </div>
         </div>
     </section>
+    @endif
 
     <!-- Contact Section -->
     <section id="contact" class="py-20 bg-gray-50">
@@ -2052,7 +2049,7 @@
                 <!-- Company Info -->
                 <div class="lg:col-span-2">
                     <div class="flex items-center mb-6">
-                        <img src="/marketing/logo.jpeg" alt="Tabata Welfare Association Logo"
+                        <img src="{{ asset('marketing/logo.jpeg') }}" alt="Tabata Welfare Association Logo"
                             class="w-14 h-14 rounded-lg object-cover logo-image">
                         <div class="ml-4">
                             <span class="text-xl font-bold block">Tabata Welfare Association</span>
@@ -2098,8 +2095,9 @@
                                 class="text-gray-300 hover:text-white transition-colors">Testimonials</a></li>
                         <li><a href="#contact" class="text-gray-300 hover:text-white transition-colors">Contact Us</a>
                         </li>
-                        <li><a href="/login" class="text-gray-300 hover:text-white transition-colors">Member Login</a>
+                        <li><a href="{{ route('login') }}" class="text-gray-300 hover:text-white transition-colors">Member Login</a>
                         </li>
+                        <li><a href="https://www.moha.go.tz/home" target="_blank" class="text-gray-300 hover:text-white transition-colors">Ministry of Home Affairs</a>
                     </ul>
                 </div>
 
@@ -2156,7 +2154,7 @@
             duration: 800,
             easing: 'ease-in-out',
             once: true,
-            offset: 100
+            offset: 200
         });
 
         // Mobile menu toggle
@@ -2173,10 +2171,15 @@
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                    // Calculate offset for fixed navigation (approximately 180px for header + nav)
+                    const navOffset = 180;
+                    const targetPosition = target.offsetTop - navOffset;
+
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
                     });
+
                     // Close mobile menu if open
                     mobileMenu.classList.add('hidden');
                 }
@@ -2463,34 +2466,52 @@
             });
         });
 
-        // Donation functionality
-        function selectAmount(amount) {
-            document.getElementById('customAmount').value = amount;
-            // Remove active class from all buttons
-            document.querySelectorAll('.donation-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'bg-blue-50');
-                btn.classList.add('border-gray-300');
-            });
-            // Add active class to clicked button
-            event.target.closest('.donation-btn').classList.add('border-blue-500', 'bg-blue-50');
-            event.target.closest('.donation-btn').classList.remove('border-gray-300');
+        // Campaign functionality
+        function selectCampaign(campaignId, campaignTitle) {
+            // Scroll to donation instructions
+            const donationSection = document.querySelector('#donate');
+            if (donationSection) {
+                // Calculate offset for fixed navigation
+                const navOffset = 180;
+                const targetPosition = donationSection.offsetTop - navOffset;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+
+                // Show alert with campaign selection
+                setTimeout(() => {
+                    alert(`You selected: ${campaignTitle}\\n\\nPlease use the payment methods below to donate to this campaign. Include the campaign name in your payment reference.`);
+                }, 500);
+            }
         }
 
-        // Handle donation form submission
-        document.addEventListener('DOMContentLoaded', function () {
-            const donationForm = document.getElementById('donationForm');
-            if (donationForm) {
-                donationForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const amount = document.getElementById('customAmount').value;
-                    if (!amount || amount <= 0) {
-                        alert('Please select or enter a donation amount');
-                        return;
-                    }
-                    alert(`Thank you for your donation of TZS ${parseInt(amount).toLocaleString()}! You will be redirected to payment processing.`);
-                    // Here you would integrate with actual payment processing
-                });
+        // Flash message functionality
+        function closeFlashMessage() {
+            const flashMessage = document.getElementById('flash-message');
+            if (flashMessage) {
+                flashMessage.style.transform = 'translateX(100%)';
+                flashMessage.style.opacity = '0';
+                setTimeout(() => {
+                    flashMessage.remove();
+                }, 300);
             }
+        }
+
+        // Auto-hide flash message after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashMessage = document.getElementById('flash-message');
+            if (flashMessage) {
+                setTimeout(() => {
+                    closeFlashMessage();
+                }, 5000);
+            }
+        });
+
+        // Initialize page functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Tabata Welfare Association website loaded successfully');
         });
     </script>
 </body>

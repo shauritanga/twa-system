@@ -139,9 +139,6 @@ export default function Index({ documents, filters, categories, statuses }) {
     return (
         <SidebarLayout>
             <Head title="Document Management" />
-
-            <div className="py-6">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="md:flex md:items-center md:justify-between mb-6">
                         <div className="min-w-0 flex-1">
@@ -400,9 +397,6 @@ export default function Index({ documents, filters, categories, statuses }) {
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
-
             {/* Delete Confirmation Modal */}
             <ConfirmationModal
                 show={showDeleteModal}

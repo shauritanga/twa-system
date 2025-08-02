@@ -44,8 +44,8 @@ export default function SessionTimeout({ enabled = true }) {
                     setTimeoutMinutes(data.timeout_minutes);
                 }
             } else if (response.status === 401) {
-                // Session already expired, redirect to login
-                window.location.href = route('login');
+                // Session already expired, redirect to main website
+                window.location.href = '/';
             }
         } catch (error) {
             console.error('Error checking session warning:', error);
@@ -77,8 +77,8 @@ export default function SessionTimeout({ enabled = true }) {
                     // You could add a toast notification here
                 }
             } else if (response.status === 401) {
-                // Session expired, redirect to login
-                window.location.href = route('login');
+                // Session expired, redirect to main website
+                window.location.href = '/';
             }
         } catch (error) {
             console.error('Error extending session:', error);
@@ -87,9 +87,11 @@ export default function SessionTimeout({ enabled = true }) {
         }
     };
 
-    // Logout immediately
+    // Logout immediately and redirect to main website
     const logoutNow = () => {
-        router.post(route('logout'));
+        // Force a complete page redirect using the alternative logout route
+        // This bypasses Inertia.js SPA behavior and ensures URL changes
+        window.location.href = route('logout.alt');
     };
 
     // Update remaining time countdown
@@ -101,8 +103,9 @@ export default function SessionTimeout({ enabled = true }) {
                 const newTime = prev - 1;
                 
                 if (newTime <= 0) {
-                    // Time's up, redirect to login
-                    window.location.href = route('login');
+                    // Time's up, logout and redirect to main website
+                    // Force a complete page redirect using the alternative logout route
+                    window.location.href = route('logout.alt');
                     return 0;
                 }
                 

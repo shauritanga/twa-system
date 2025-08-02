@@ -122,6 +122,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Redirect to main website homepage with success message
+        // Use the named route to ensure proper redirect
+        return redirect()->route('marketing.index')->with('status', 'You have been successfully logged out.');
     }
 }

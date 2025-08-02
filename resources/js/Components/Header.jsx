@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { SunIcon, MoonIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 import { useTheme } from '../Providers/ThemeProvider';
 
@@ -16,6 +16,15 @@ export default function Header({ sidebarOpen, setSidebarOpen, isMobile = false }
             return names[0][0] + names[names.length - 1][0];
         }
         return name.substring(0, 2);
+    };
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        setDropdownOpen(false);
+
+        // Force a complete page redirect using the alternative logout route
+        // This bypasses Inertia.js SPA behavior and ensures URL changes
+        window.location.href = route('logout.alt');
     };
 
     useEffect(() => {
@@ -109,17 +118,15 @@ export default function Header({ sidebarOpen, setSidebarOpen, isMobile = false }
                                     </svg>
                                     My Profile
                                 </Link>
-                                <Link
-                                    href={route('logout')}
-                                    method="post"
-                                    as="button"
+                                <button
+                                    onClick={handleLogout}
                                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
                                 >
                                     <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                     Logout
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     )}

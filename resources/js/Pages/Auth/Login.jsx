@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -12,6 +13,15 @@ export default function Login({ status, canResetPassword }) {
         password: '',
         remember: false,
     });
+
+    // Clear any cached authentication state on component mount
+    useEffect(() => {
+        // Force a fresh page load if we detect caching issues
+        const isFromCache = performance.navigation?.type === 2; // Back/forward cache
+        if (isFromCache) {
+            window.location.reload();
+        }
+    }, []);
 
     const submit = (e) => {
         e.preventDefault();

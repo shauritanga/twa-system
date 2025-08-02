@@ -285,6 +285,9 @@ const MemberForm = ({ closeModal, member }) => {
     const [imagePreview, setImagePreview] = useState(member?.image_path ? `/storage/${member.image_path}` : null);
     const [applicationFormPreview, setApplicationFormPreview] = useState(null);
 
+    // Manual loading state for form submission
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     // Reset form data when member prop changes (switching between create/edit modes)
     useEffect(() => {
         // For backward compatibility, if new name fields don't exist, try to parse from full name
@@ -378,6 +381,18 @@ const MemberForm = ({ closeModal, member }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Show immediate feedback to user
+        toast.info(member ? 'Updating member...' : 'Creating member...', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+
         const formData = new FormData();
 
         // New name fields
@@ -422,8 +437,10 @@ const MemberForm = ({ closeModal, member }) => {
         if (member) {
             // For updates with file uploads, we use router.post with _method override
             formData.append('_method', 'PUT');
+            setIsSubmitting(true); // Set loading state
             router.post(route('members.update', member.id), formData, {
                 onSuccess: () => {
+                    setIsSubmitting(false); // Clear loading state
                     clearErrors(); // Clear any existing errors
                     toast.success('Member updated successfully.', {
                         position: "top-right",
@@ -437,6 +454,7 @@ const MemberForm = ({ closeModal, member }) => {
                     closeModal();
                 },
                 onError: (errors) => {
+                    setIsSubmitting(false); // Clear loading state on error
                     console.log('Update errors:', errors);
 
                     // Set form errors for field validation display
@@ -477,8 +495,10 @@ const MemberForm = ({ closeModal, member }) => {
                 }
             });
         } else {
+            setIsSubmitting(true); // Set loading state
             router.post(route('members.store'), formData, {
                 onSuccess: () => {
+                    setIsSubmitting(false); // Clear loading state
                     clearErrors(); // Clear any existing errors
                     toast.success('Member created successfully.', {
                         position: "top-right",
@@ -492,6 +512,7 @@ const MemberForm = ({ closeModal, member }) => {
                     closeModal();
                 },
                 onError: (errors) => {
+                    setIsSubmitting(false); // Clear loading state on error
                     console.log('Create errors:', errors);
 
                     // Set form errors for field validation display
@@ -1200,10 +1221,10 @@ const MemberForm = ({ closeModal, member }) => {
                             <div className="flex flex-col sm:flex-row-reverse gap-3">
                                 <button
                                     type="submit"
-                                    disabled={processing}
+                                    disabled={isSubmitting}
                                     className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
                                 >
-                                    {processing ? (
+                                    {isSubmitting ? (
                                         <>
                                             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1223,7 +1244,8 @@ const MemberForm = ({ closeModal, member }) => {
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                                    disabled={isSubmitting}
+                                    className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

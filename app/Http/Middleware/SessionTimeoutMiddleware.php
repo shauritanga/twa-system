@@ -45,18 +45,13 @@ class SessionTimeoutMiddleware
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'message' => 'Session expired due to inactivity',
-                    'redirect' => route('login'),
+                    'redirect' => '/',
                     'timeout' => true,
                 ], 401);
             }
 
-            // For Inertia requests
-            if ($request->header('X-Inertia')) {
-                return redirect()->route('login')->with('message', 'Your session has expired due to inactivity. Please log in again.');
-            }
-
-            // Regular web requests
-            return redirect()->route('login')->with('message', 'Your session has expired due to inactivity. Please log in again.');
+            // For Inertia requests and regular web requests - redirect to main website
+            return redirect('/')->with('message', 'Your session has expired due to inactivity.');
         }
 
         // Update last activity for valid requests

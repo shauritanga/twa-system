@@ -12,18 +12,19 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\MemberDashboardController;
 use App\Http\Controllers\FinancialsController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\MarketingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Marketing website route
-Route::get('/', function () {
-    return response()->file(public_path('marketing/index.html'));
-});
+// Marketing website routes
+Route::get('/', [MarketingController::class, 'index'])->name('marketing.index');
+Route::get('/announcements', [MarketingController::class, 'announcements'])->name('marketing.announcements');
+Route::get('/announcements/{announcement}', [MarketingController::class, 'announcement'])->name('marketing.announcement');
 
-// Serve marketing website assets
+// Legacy marketing route (redirect to new route)
 Route::get('/marketing', function () {
-    return response()->file(public_path('marketing/index.html'));
+    return redirect()->route('marketing.index');
 });
 
 // Original welcome route (for development/testing)
@@ -186,6 +187,29 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     ])->middleware('handle.large.uploads');
     Route::post('/admin/documents/{document}/publish', [\App\Http\Controllers\Admin\DocumentController::class, 'publish'])->name('admin.documents.publish');
     Route::post('/admin/documents/{document}/unpublish', [\App\Http\Controllers\Admin\DocumentController::class, 'unpublish'])->name('admin.documents.unpublish');
+
+    // Admin Announcement Management Routes
+    Route::resource('/admin/announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->names([
+        'index' => 'admin.announcements.index',
+        'create' => 'admin.announcements.create',
+        'store' => 'admin.announcements.store',
+        'show' => 'admin.announcements.show',
+        'edit' => 'admin.announcements.edit',
+        'update' => 'admin.announcements.update',
+        'destroy' => 'admin.announcements.destroy',
+    ])->middleware('handle.large.uploads');
+
+    // Admin Fundraising Campaign Management Routes
+    Route::resource('/admin/fundraising-campaigns', \App\Http\Controllers\Admin\FundraisingCampaignController::class)->names([
+        'index' => 'admin.fundraising-campaigns.index',
+        'create' => 'admin.fundraising-campaigns.create',
+        'store' => 'admin.fundraising-campaigns.store',
+        'show' => 'admin.fundraising-campaigns.show',
+        'edit' => 'admin.fundraising-campaigns.edit',
+        'update' => 'admin.fundraising-campaigns.update',
+        'destroy' => 'admin.fundraising-campaigns.destroy',
+    ])->middleware('handle.large.uploads');
+    Route::patch('/admin/fundraising-campaigns/{fundraisingCampaign}/update-raised-amount', [\App\Http\Controllers\Admin\FundraisingCampaignController::class, 'updateRaisedAmount'])->name('admin.fundraising-campaigns.update-raised-amount');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
