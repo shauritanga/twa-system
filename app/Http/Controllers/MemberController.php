@@ -69,6 +69,7 @@ class MemberController extends Controller
                 'email' => $request->email,
                 'password' => \Illuminate\Support\Facades\Hash::make($defaultPassword),
                 'role_id' => $memberRole->id,
+                'otp_enabled' => true, // Enable OTP for new members
             ]);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             // Handle unique constraint violation for users table
@@ -508,6 +509,7 @@ class MemberController extends Controller
                         'email' => $rowData['email'],
                         'password' => \Illuminate\Support\Facades\Hash::make($defaultPassword),
                         'role_id' => $memberRole->id,
+                        'otp_enabled' => true, // Enable OTP for new members
                     ]);
 
                     Log::info("User created successfully", [
