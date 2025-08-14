@@ -40,6 +40,27 @@ class FixVisitTracking extends Command
             }
         } else {
             $this->info('   ✅ Table exists');
+
+            // Check if required columns exist
+            $requiredColumns = ['ip_address', 'session_id', 'visited_at'];
+            $missingColumns = [];
+
+            foreach ($requiredColumns as $column) {
+                if (!Schema::hasColumn('website_visits', $column)) {
+                    $missingColumns[] = $column;
+                }
+            }
+
+            if (!empty($missingColumns)) {
+                $this->warn('   ⚠️  Missing columns: ' . implode(', ', $missingColumns));
+                if ($force || $this->confirm('Run migrations to add missing columns?')) {
+                    $this->info('   🔄 Running migrations...');
+                    Artisan::call('migrate', ['--force' => true]);
+                    $this->info('   ✅ Migrations completed');
+                }
+            } else {
+                $this->info('   ✅ All required columns exist');
+            }
         }
 
         // 2. Clear caches
