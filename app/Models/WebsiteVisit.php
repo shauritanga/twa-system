@@ -26,52 +26,121 @@ class WebsiteVisit extends Model
     public static function recordVisit($request)
     {
         try {
-            // Get session ID, fallback to generating one if session not available
-            $sessionId = null;
-            try {
-                $sessionId = session()->getId();
-                if (empty($sessionId)) {
-                    session()->start();
-                    $sessionId = session()->getId();
-                }
-            } catch (\Exception $e) {
-                // If session fails, create a unique identifier based on IP and user agent
-                $sessionId = md5($request->ip() . $request->userAgent() . date('Y-m-d'));
+            // Get real IP address (handle proxies/CDNs)
+            $ipAddress = self::getRealIpAddress($request);
+
+            // Generate session identifier
+            $sessionId = self::getSessionIdentifier($request);
+
+            // Use cache to check recent visits (performance optimization)
+            $cacheKey = "visit_check_{$sessionId}";
+            if (\Cache::has($cacheKey)) {
+                return false; // Already recorded recently
             }
 
-            $ipAddress = $request->ip();
-
-            // Check if this session/IP has already been counted today
-            $existingVisit = self::where(function($query) use ($sessionId, $ipAddress) {
-                    $query->where('session_id', $sessionId)
-                          ->orWhere('ip_address', $ipAddress);
-                })
-                ->whereDate('visited_at', Carbon::today())
-                ->first();
+            // Check database for existing visit (with optimized query)
+            $existingVisit = self::where('session_id', $sessionId)
+                ->where('visited_at', '>=', now()->subHours(24))
+                ->exists();
 
             if (!$existingVisit) {
-                self::create([
+                $visitData = [
                     'ip_address' => $ipAddress,
-                    'user_agent' => $request->userAgent() ?? 'Unknown',
-                    'page_url' => $request->fullUrl(),
-                    'referrer' => $request->header('referer'),
+                    'user_agent' => substr($request->userAgent() ?? 'Unknown', 0, 500),
+                    'page_url' => substr($request->fullUrl(), 0, 500),
+                    'referrer' => substr($request->header('referer'), 0, 500),
                     'session_id' => $sessionId,
                     'visited_at' => now(),
-                ]);
+                ];
+
+                // Try to queue the write, fallback to direct write
+                try {
+                    if (config('queue.default') !== 'sync') {
+                        \Queue::push(function() use ($visitData) {
+                            self::create($visitData);
+                        });
+                    } else {
+                        // Direct write if queue is sync or not available
+                        self::create($visitData);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback to direct write if queue fails
+                    try {
+                        self::create($visitData);
+                    } catch (\Exception $e2) {
+                        \Log::error('Failed to record visit', [
+                            'error' => $e2->getMessage(),
+                            'session_id' => $sessionId,
+                        ]);
+                        return false;
+                    }
+                }
+
+                // Cache the visit to prevent duplicates
+                \Cache::put($cacheKey, true, now()->addHours(24));
 
                 return true; // Visit recorded
             }
 
-            return false; // Visit already recorded today
+            return false; // Visit already recorded
         } catch (\Exception $e) {
             \Log::error('Error recording website visit', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
                 'url' => $request->fullUrl(),
                 'ip' => $request->ip(),
             ]);
             return false;
         }
+    }
+
+    /**
+     * Get real IP address handling proxies and CDNs
+     */
+    private static function getRealIpAddress($request)
+    {
+        // Check for IP from shared internet
+        if (!empty($request->server('HTTP_CLIENT_IP'))) {
+            return $request->server('HTTP_CLIENT_IP');
+        }
+        // Check for IP passed from proxy
+        elseif (!empty($request->server('HTTP_X_FORWARDED_FOR'))) {
+            // Can contain multiple IPs, get the first one
+            $ips = explode(',', $request->server('HTTP_X_FORWARDED_FOR'));
+            return trim($ips[0]);
+        }
+        // Check for IP from remote address
+        else {
+            return $request->ip();
+        }
+    }
+
+    /**
+     * Generate session identifier with fallbacks
+     */
+    private static function getSessionIdentifier($request)
+    {
+        try {
+            $sessionId = session()->getId();
+            if (!empty($sessionId)) {
+                return $sessionId;
+            }
+
+            // Try to start session
+            session()->start();
+            $sessionId = session()->getId();
+            if (!empty($sessionId)) {
+                return $sessionId;
+            }
+        } catch (\Exception $e) {
+            // Session failed, create fingerprint
+        }
+
+        // Fallback: Create unique identifier based on IP, user agent, and date
+        $fingerprint = $request->ip() .
+                      substr($request->userAgent() ?? '', 0, 100) .
+                      date('Y-m-d');
+
+        return 'fp_' . md5($fingerprint);
     }
 
     /**

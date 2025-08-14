@@ -24,8 +24,10 @@ return new class extends Migration
                 $table->timestamps();
 
                 // Indexes for better performance
-                $table->index(['ip_address', 'session_id']);
-                $table->index('visited_at');
+                $table->index('session_id'); // Primary lookup
+                $table->index(['ip_address', 'visited_at']); // IP-based queries
+                $table->index('visited_at'); // Date-based queries
+                $table->index(['session_id', 'visited_at']); // Combined queries
             });
         } else {
             // If table exists but columns are missing, add them

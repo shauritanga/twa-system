@@ -78,15 +78,50 @@ class TrackWebsiteVisits
             return false;
         }
 
-        // Skip requests from bots (basic check)
-        $userAgent = $request->userAgent();
-        $botPatterns = ['bot', 'crawler', 'spider', 'scraper'];
-        foreach ($botPatterns as $pattern) {
-            if (stripos($userAgent, $pattern) !== false) {
-                return false;
-            }
+        // Enhanced bot detection
+        if ($this->isBot($request)) {
+            return false;
         }
 
         return true;
+    }
+
+    /**
+     * Enhanced bot detection
+     */
+    private function isBot(Request $request): bool
+    {
+        $userAgent = strtolower($request->userAgent() ?? '');
+
+        // Comprehensive bot patterns
+        $botPatterns = [
+            'bot', 'crawler', 'spider', 'scraper', 'crawl', 'fetch',
+            'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+            'yandexbot', 'facebookexternalhit', 'twitterbot', 'linkedinbot',
+            'whatsapp', 'telegram', 'discord', 'slack', 'skype',
+            'curl', 'wget', 'python', 'java', 'php', 'ruby', 'perl',
+            'postman', 'insomnia', 'httpie', 'axios', 'requests',
+            'headless', 'phantom', 'selenium', 'puppeteer', 'playwright',
+            'monitor', 'uptime', 'ping', 'check', 'test', 'scan'
+        ];
+
+        foreach ($botPatterns as $pattern) {
+            if (stripos($userAgent, $pattern) !== false) {
+                return true;
+            }
+        }
+
+        // Check for missing or suspicious user agents
+        if (empty($userAgent) || strlen($userAgent) < 10) {
+            return true;
+        }
+
+        // Check for suspicious request patterns
+        if ($request->header('X-Requested-With') === 'XMLHttpRequest' &&
+            !$request->header('Referer')) {
+            return true;
+        }
+
+        return false;
     }
 }
