@@ -19,7 +19,7 @@ return [
 
     // Hero Section
     'hero' => [
-        'title' => 'Kujenga Jamii, Kuhakikisha Maisha Bora',
+        'title' => 'Kujenga Maisha Bora ya Kizazi Cha Sasa na cha Baadae',
         'subtitle' => 'Jiunge na chama kikuu cha ustawi cha Tanzania kinachotoa usalama wa kifedha, msaada wa majanga, na umoja wa kijamii kwa wanachama na familia zao.',
         'cta_join' => 'Jiunge na Jamii Yetu',
         'cta_learn' => 'Jifunze Zaidi',

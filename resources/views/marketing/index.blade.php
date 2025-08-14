@@ -287,19 +287,19 @@
 
         /* Enhanced navigation readability */
         .nav-readable {
-            background: rgba(255, 255, 255, 0.98);
+            background: #2563eb !important;
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         .nav-link-readable {
-            color: #374151;
+            color: #e0e7ff !important;
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .nav-link-readable:hover {
-            color: #1e40af;
+            color: #ffffff !important;
         }
 
         /* Improved section spacing */
@@ -564,7 +564,6 @@
 
         /* Combined Header and Navigation Styles */
         nav {
-            background: white !important;
             top: 0 !important;
         }
 
@@ -621,9 +620,9 @@
     @endif
 
     <!-- Combined Header and Navigation -->
-    <nav class="fixed w-full z-50 nav-readable shadow-lg bg-white">
+    <nav class="fixed w-full z-50 nav-readable shadow-lg">
         <!-- Header Section -->
-        <div class="w-full border-b border-gray-200 py-3">
+        <div class="w-full border-b border-blue-500 py-3">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between">
                     <!-- Left TWA Logo -->
@@ -633,25 +632,22 @@
 
                     <!-- Center Text -->
                     <div class="flex-1 text-center px-4">
-                        <h1 class="text-sm sm:text-lg md:text-xl font-bold text-gray-800 leading-tight">
-                            The United Republic of Tanzania
-                        </h1>
-                        <h2 class="text-xs sm:text-base md:text-lg font-semibold text-gray-700 mt-1">
+                        <h2 class="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mt-1">
                             Tabata Welfare Association (TWA)
                         </h2>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1 italic hidden sm:block">
-                            We Build Your Future
+                        <p class="text-sm sm:text-base text-blue-100 mt-1 italic hidden sm:block">
+                            TWA, Together We Can Together We Succeed
                         </p>
                     </div>
 
                     <!-- Language Switcher with Country Flags -->
                     <div class="flex items-center space-x-2 text-sm">
-                        <a href="?locale=en" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 transition-colors {{ app()->getLocale() == 'en' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700' }}">
+                        <a href="?locale=en" class="flex items-center px-2 py-1 rounded hover:bg-blue-500 transition-colors {{ app()->getLocale() == 'en' ? 'bg-blue-500 text-white font-semibold' : 'text-blue-100' }}">
                             <span class="text-lg mr-1">🇬🇧</span>
                             <span class="hidden sm:inline">EN</span>
                         </a>
-                        <span class="text-gray-400">|</span>
-                        <a href="?locale=sw" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 transition-colors {{ app()->getLocale() == 'sw' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700' }}">
+                        <span class="text-blue-300">|</span>
+                        <a href="?locale=sw" class="flex items-center px-2 py-1 rounded hover:bg-blue-500 transition-colors {{ app()->getLocale() == 'sw' ? 'bg-blue-500 text-white font-semibold' : 'text-blue-100' }}">
                             <span class="text-lg mr-1">🇹🇿</span>
                             <span class="hidden sm:inline">SW</span>
                         </a>
@@ -662,7 +658,7 @@
 
         <!-- Navigation Menu -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-8">
+            <div class="flex justify-between items-center py-4">
 
                 <!-- Left Navigation - Home Only -->
                 <div class="hidden md:block">
@@ -714,15 +710,20 @@
         </div>
 
         <!-- Mobile Navigation -->
-        <div class="mobile-menu hidden md:hidden bg-white border-t border-gray-200">
+        <div class="mobile-menu hidden md:hidden bg-blue-600 border-t border-blue-500">
             <div class="px-6 py-6 space-y-3">
-                <a href="#announcements" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.announcements') }}</a>
-                <a href="#about" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.about') }}</a>
-                <a href="#services" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.services') }}</a>
-                <a href="#benefits" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.benefits') }}</a>
-                <a href="#leadership" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.leadership') }}</a>
-                <a href="#testimonials" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.testimonials') }}</a>
-                <a href="#contact" class="block px-4 py-4 nav-link-readable text-base rounded-lg hover:bg-gray-50 transition-colors">{{ __('marketing.nav.contact') }}</a>
+                <a href="#announcements" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.announcements') }}</a>
+                <a href="#about" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.about') }}</a>
+                <a href="#services" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.services') }}</a>
+                <a href="#benefits" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.benefits') }}</a>
+                <a href="#leadership" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.leadership') }}</a>
+                <a href="#testimonials" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.testimonials') }}</a>
+                <a href="#contact" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.contact') }}</a>
+                @if($activeCampaigns->count() > 0)
+                <a href="#donate" class="block px-4 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-heart mr-2"></i>{{ __('marketing.nav.donate') }}
+                </a>
+                @endif
                 <a href="{{ route('login') }}"
                     class="block px-6 py-4 btn-member-login rounded-lg text-center mt-6 whitespace-nowrap">{{ __('marketing.nav.member_login') }}</a>
             </div>
@@ -771,7 +772,7 @@
                             </div>
 
                             <div class="absolute bottom-4 left-4 right-4">
-                                <h3 class="text-white font-semibold text-lg">United We Stand Strong</h3>
+                                <h3 class="text-white font-semibold text-lg">Together We Can Together We Succeed</h3>
                                 <p class="text-gray-200 text-sm mt-1">Supporting each other through life's challenges
                                 </p>
                             </div>
