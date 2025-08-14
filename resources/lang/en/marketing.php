@@ -32,7 +32,7 @@ return [
     'about' => [
         'title' => 'About Tabata Welfare Association',
         'subtitle' => 'Empowering communities through collective support and shared prosperity',
-        'description' => 'Founded with the vision of creating a strong safety net for our community, Tabata Welfare Association has been serving families across Tanzania for over 8 years. We believe in the power of collective support and mutual aid.',
+        'description' => 'Founded in 2018 with the vision of creating a strong safety net for our community, Tabata Welfare Association has been serving families across Tanzania. We believe in the power of collective support and mutual aid.',
         'mission_title' => 'Our Mission',
         'mission_text' => 'To provide comprehensive welfare support, financial security, and community solidarity for all our members and their families.',
         'vision_title' => 'Our Vision',

@@ -891,7 +891,7 @@
                 </div>
                 <div class="text-center bg-orange-50 rounded-2xl p-8 card-readable" data-aos="fade-up"
                     data-aos-delay="400">
-                    <div class="stats-counter text-orange-600 mb-4" data-target="8">0</div>
+                    <div class="stats-counter text-orange-600 mb-4" data-target="{{ $stats['years_of_service'] ?? 6 }}">0</div>
                     <p class="text-readable font-semibold text-lg">{{ __('marketing.stats.years_service') }}</p>
                     <p class="text-readable-light text-sm mt-2">{{ __('marketing.stats.years_service_desc') }}</p>
                 </div>

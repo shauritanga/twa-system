@@ -32,7 +32,7 @@ return [
     'about' => [
         'title' => 'Kuhusu Chama cha Ustawi cha Tabata',
         'subtitle' => 'Kuimarisha jamii kupitia msaada wa pamoja na mafanikio ya ushirikiano',
-        'description' => 'Kilianzishwa kwa maono ya kuunda mtandao mkuu wa usalama kwa jamii yetu, Chama cha Ustawi cha Tabata kimekuwa kikitumikia familia kote Tanzania kwa zaidi ya miaka 8. Tunaamini nguvu za msaada wa pamoja na msaidano.',
+        'description' => 'Kilianzishwa mwaka 2018 kwa maono ya kuunda mtandao mkuu wa usalama kwa jamii yetu, Chama cha Ustawi cha Tabata kimekuwa kikitumikia familia kote Tanzania. Tunaamini nguvu za msaada wa pamoja na msaidano.',
         'mission_title' => 'Dhamira Yetu',
         'mission_text' => 'Kutoa msaada kamili wa ustawi, usalama wa kifedha, na umoja wa kijamii kwa wanachama wetu wote na familia zao.',
         'vision_title' => 'Maono Yetu',
@@ -49,7 +49,7 @@ return [
     // Stats Section
     'stats' => [
         'title' => 'Athari Yetu kwa Nambari',
-        'subtitle' => 'Ona mabadiliko halisi tuliyoyafanya katika jamii yetu kwa miaka',
+        'subtitle' => 'Ona mabadiliko halisi tuliyoyafanya katika jamii yetu tangu 2018',
         'active_members' => 'Wanachama Hai',
         'active_members_desc' => 'Jamii inayokua ya familia',
         'amount_distributed' => 'TZS Zilizogawanywa',

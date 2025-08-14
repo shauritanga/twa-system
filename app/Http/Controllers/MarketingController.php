@@ -51,6 +51,9 @@ class MarketingController extends Controller
             // Total families helped (distinct members who received disaster payments)
             'helped_families' => DisasterPayment::distinct('member_id')->count('member_id'),
 
+            // Years of service (dynamic calculation from founding year 2018)
+            'years_of_service' => now()->year - 2018,
+
             // Website visits
             'website_visits' => WebsiteVisit::getTotalVisits(),
 
