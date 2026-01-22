@@ -1,6 +1,6 @@
 import React from 'react';
 import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
-import { usePage } from '@inertiajs/react';
+import { usePage, Head } from '@inertiajs/react';
 import {
     Card,
     Row,
@@ -237,7 +237,9 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Dashboard - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             {/* Accounting Health Alert */}
             {netIncome < 0 && (
                 <Alert
@@ -456,5 +458,6 @@ export default function AdminDashboard() {
                 </Col>
             </Row>
         </AdminSidebarLayout>
+        </>
     );
 }

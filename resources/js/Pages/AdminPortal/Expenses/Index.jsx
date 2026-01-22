@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -50,15 +50,19 @@ const EXPENSE_CATEGORIES = [
     'Other',
 ];
 
-export default function ExpensesIndex({ expenses, filters }) {
+function ExpensesIndex({ expenses, filters }) {
+    // Ant Design hooks
     const { token } = theme.useToken();
     const [messageApi, contextHolder] = message.useMessage();
+    
+    // Component state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [expenseToDelete, setExpenseToDelete] = useState(null);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
+    // Filter state
     const [searchText, setSearchText] = useState(filters.search || '');
     const [selectedCategory, setSelectedCategory] = useState(filters.category || null);
     const [selectedStatus, setSelectedStatus] = useState(filters.status || null);
@@ -321,7 +325,9 @@ export default function ExpensesIndex({ expenses, filters }) {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Expenses Management - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             {contextHolder}
             <Card>
                 <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -463,5 +469,8 @@ export default function ExpensesIndex({ expenses, filters }) {
                 />
             </Modal>
         </AdminSidebarLayout>
+        </>
     );
 }
+
+export default ExpensesIndex;

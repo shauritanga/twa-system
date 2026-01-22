@@ -22,7 +22,15 @@ export default function AdminHeader({ sidebarOpen, setSidebarOpen, isMobile = fa
 
     const handleLogout = (e) => {
         e.preventDefault();
-        window.location.href = route('logout.alt');
+        router.post(route('logout'), {}, {
+            onSuccess: () => {
+                window.location.href = route('marketing.index');
+            },
+            onError: () => {
+                // Fallback to alternative logout route
+                window.location.href = route('logout.alt');
+            }
+        });
     };
 
     const userMenuItems = [

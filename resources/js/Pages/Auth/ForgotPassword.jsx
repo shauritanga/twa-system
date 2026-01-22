@@ -17,7 +17,7 @@ export default function ForgotPassword({ status }) {
 
     return (
         <GuestLayout title="Reset Password" subtitle="We'll send you a reset link">
-            <Head title="Forgot Password" />
+            <Head title="Forgot Password - Tabata Welfare Association" />
 
             <div className="mb-4 text-sm text-gray-600">
                 Forgot your password? No problem. Just let us know your email

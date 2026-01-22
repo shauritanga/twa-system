@@ -23,7 +23,7 @@ export default function Register() {
 
     return (
         <GuestLayout title="Create Account" subtitle="Join our community today">
-            <Head title="Register" />
+            <Head title="Register - Tabata Welfare Association" />
 
             <form onSubmit={submit}>
                 <div>
