@@ -26,11 +26,11 @@ class AdminUserSeeder extends Seeder
         $adminUser = User::firstOrCreate(
             ['email' => 'shauritangaathanas@gmail.com'],
             [
-                'name' => 'Shauri Tanga Athanas',
+                'name' => 'Athanas Shauritanga',
                 'password' => Hash::make('password'),
                 'role_id' => $adminRole->id,
                 'email_verified_at' => now(),
-                'phone' => '+255123456789',
+                'phone' => '+255748571660',
                 'bio' => 'System Administrator with full access to all features',
             ]
         );
@@ -45,9 +45,9 @@ class AdminUserSeeder extends Seeder
         $additionalAdmins = [
             [
                 'name' => 'Super Admin',
-                'email' => 'superadmin@tabatawelfare.org',
-                'password' => Hash::make('Super@123456'),
-                'phone' => '+255987654321',
+                'email' => 'admin@twa.or.tz',
+                'password' => Hash::make('password'),
+                'phone' => '+255629593331',
                 'bio' => 'Super Administrator account',
             ],
         ];
@@ -75,8 +75,8 @@ class AdminUserSeeder extends Seeder
         $this->command->info('🔑 Password: password');
         $this->command->info('');
         $this->command->info('Additional Admin:');
-        $this->command->info('📧 Email: superadmin@tabatawelfare.org');
-        $this->command->info('🔑 Password: Super@123456');
+        $this->command->info('📧 Email: admin@twa.or.tz');
+        $this->command->info('🔑 Password: password');
         $this->command->info('');
         $this->command->info('✅ Admin user ready for login!');
     }
