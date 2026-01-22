@@ -4,6 +4,37 @@
 
 Since the PHP 8.1 compatibility attempt failed due to Laravel version conflicts, the best approach is to upgrade your server to PHP 8.2 or higher.
 
+## 🚨 Common Issue: CLI vs Web PHP Version Mismatch
+
+**Problem**: You selected PHP 8.3 in cPanel but `php -v` still shows PHP 8.1.33.
+
+**Cause**: Web PHP and CLI (command line) PHP versions are separate on shared hosting.
+
+**Solution**: Use the PHP 8.3 binary directly.
+
+### Quick Fix:
+```bash
+# 1. Find PHP 8.3 binary
+chmod +x fix-cli-php.sh
+./fix-cli-php.sh
+
+# 2. Deploy with PHP 8.3 binary
+chmod +x deploy-with-php83.sh
+./deploy-with-php83.sh
+```
+
+### Manual Method:
+```bash
+# Common PHP 8.3 locations:
+/usr/local/bin/php83 -v
+/opt/cpanel/ea-php83/root/usr/bin/php -v
+/usr/bin/php83 -v
+
+# Once you find it, use full path:
+/usr/local/bin/php83 /usr/local/bin/composer install --no-dev
+/usr/local/bin/php83 artisan migrate --force
+```
+
 ## 🔧 Method 1: cPanel PHP Selector
 
 ### Step 1: Login to cPanel
