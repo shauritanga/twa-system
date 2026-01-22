@@ -7,6 +7,7 @@ use App\Imports\ContributionsImport;
 use App\Models\Contribution;
 use App\Models\Member;
 use App\Models\Penalty;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -15,6 +16,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ContributionController extends Controller
 {
+    protected PaymentService $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -76,6 +83,12 @@ class ContributionController extends Controller
     {
         // Check if user is admin
         if (!auth()->user() || auth()->user()->role->name !== 'admin') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only administrators can add contributions.'
+                ], 403);
+            }
             abort(403, 'Only administrators can add contributions.');
         }
 
@@ -88,185 +101,43 @@ class ContributionController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $monthlyContributionSetting = \App\Models\Setting::where('key', 'monthly_contribution_amount')->first();
-        $monthlyAmount = $monthlyContributionSetting ? (float)$monthlyContributionSetting->value : 50000;
-
-        $amount = (float)$request->amount;
-        $type = $request->type;
-        $contributionMonth = date('Y-m', strtotime($request->date));
-
-        if ($type === 'monthly') {
-            // Handle monthly contributions
-            $this->handleMonthlyContribution($request, $amount, $monthlyAmount, $contributionMonth);
-        } else {
-            // Handle other contributions
-            $this->handleOtherContribution($request, $amount);
-        }
-
-        return redirect()->route('admin.financials.index')->with('success', 'Contribution recorded successfully.');
-    }
-
-    private function handleMonthlyContribution($request, $amount, $monthlyAmount, $contributionMonth)
-    {
-        $memberId = $request->member_id;
-
-        // Check existing contributions for this member in this month
-        $existingContributions = Contribution::where('member_id', $memberId)
-            ->where('type', 'monthly')
-            ->where('contribution_month', $contributionMonth)
-            ->sum('amount');
-
-        $totalAmount = $existingContributions + $amount;
-
-        if ($totalAmount <= $monthlyAmount) {
-            // Normal monthly contribution or partial payment
-            \Log::info("Normal monthly contribution", [
-                'member_id' => $memberId,
-                'amount' => $amount,
-                'existing' => $existingContributions,
-                'total' => $totalAmount,
-                'monthly_amount' => $monthlyAmount,
-                'month' => $contributionMonth
-            ]);
-
-            Contribution::create([
-                'member_id' => $memberId,
-                'amount' => $amount,
-                'date' => $request->date,
+        try {
+            // Use the new payment service
+            $payment = $this->paymentService->processPayment([
+                'member_id' => $request->member_id,
+                'amount' => (float)$request->amount,
+                'payment_date' => $request->date,
+                'payment_type' => $request->type,
                 'purpose' => $request->purpose,
-                'type' => 'monthly',
-                'months_covered' => 1,
-                'contribution_month' => $contributionMonth,
                 'notes' => $request->notes,
-            ]);
-        } else {
-            // Amount exceeds monthly requirement - distribute across months
-            \Log::info("Excess contribution - triggering redistribution", [
-                'member_id' => $memberId,
-                'amount' => $amount,
-                'existing' => $existingContributions,
-                'total' => $totalAmount,
-                'monthly_amount' => $monthlyAmount,
-                'month' => $contributionMonth
+                'contribution_month' => date('Y-m', strtotime($request->date)),
             ]);
 
-            $this->distributeExcessContribution($request, $amount, $monthlyAmount, $contributionMonth);
-        }
-    }
-
-    private function distributeExcessContribution($request, $amount, $monthlyAmount, $startMonth)
-    {
-        $memberId = $request->member_id;
-        $remainingAmount = $amount;
-        $currentMonth = $startMonth;
-
-        // First, complete the current month if there are existing partial payments
-        $existingForCurrentMonth = Contribution::where('member_id', $memberId)
-            ->where('type', 'monthly')
-            ->where('contribution_month', $currentMonth)
-            ->sum('amount');
-
-        if ($existingForCurrentMonth > 0 && $existingForCurrentMonth < $monthlyAmount) {
-            // There are partial payments, complete the current month first
-            $neededForCurrentMonth = $monthlyAmount - $existingForCurrentMonth;
-            $amountForCurrentMonth = min($remainingAmount, $neededForCurrentMonth);
-
-            Contribution::create([
-                'member_id' => $memberId,
-                'amount' => $amountForCurrentMonth,
-                'date' => $request->date,
-                'purpose' => $request->purpose . ' (Completing ' . date('F Y', strtotime($currentMonth)) . ')',
-                'type' => 'monthly',
-                'months_covered' => 1,
-                'contribution_month' => $currentMonth,
-                'notes' => $request->notes . ' - Completing partial payment for ' . date('F Y', strtotime($currentMonth)),
-            ]);
-
-            $remainingAmount -= $amountForCurrentMonth;
-            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
-        } elseif ($existingForCurrentMonth == 0) {
-            // No existing contributions for current month, fill it first
-            $amountForCurrentMonth = min($remainingAmount, $monthlyAmount);
-
-            Contribution::create([
-                'member_id' => $memberId,
-                'amount' => $amountForCurrentMonth,
-                'date' => $request->date,
-                'purpose' => $request->purpose . ' (' . date('F Y', strtotime($currentMonth)) . ')',
-                'type' => 'monthly',
-                'months_covered' => 1,
-                'contribution_month' => $currentMonth,
-                'notes' => $request->notes,
-            ]);
-
-            $remainingAmount -= $amountForCurrentMonth;
-            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
-        } else {
-            // Current month is already complete, move to next month
-            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
-        }
-
-        // Distribute remaining amount across future months
-        while ($remainingAmount >= $monthlyAmount) {
-            // Check if this month already has contributions
-            $existingForMonth = Contribution::where('member_id', $memberId)
-                ->where('type', 'monthly')
-                ->where('contribution_month', $currentMonth)
-                ->sum('amount');
-
-            if ($existingForMonth == 0) {
-                Contribution::create([
-                    'member_id' => $memberId,
-                    'amount' => $monthlyAmount,
-                    'date' => $request->date,
-                    'purpose' => $request->purpose . ' (Advance for ' . date('F Y', strtotime($currentMonth)) . ')',
-                    'type' => 'monthly',
-                    'months_covered' => 1,
-                    'contribution_month' => $currentMonth,
-                    'notes' => $request->notes . ' - Advance payment for ' . date('F Y', strtotime($currentMonth)),
-                ]);
-
-                $remainingAmount -= $monthlyAmount;
-            }
-
-            $currentMonth = date('Y-m', strtotime($currentMonth . ' +1 month'));
-        }
-
-        // Handle any remaining partial amount
-        if ($remainingAmount > 0) {
-            // Check if the next month already has partial contributions
-            $existingForNextMonth = Contribution::where('member_id', $memberId)
-                ->where('type', 'monthly')
-                ->where('contribution_month', $currentMonth)
-                ->sum('amount');
-
-            if ($existingForNextMonth == 0) {
-                Contribution::create([
-                    'member_id' => $memberId,
-                    'amount' => $remainingAmount,
-                    'date' => $request->date,
-                    'purpose' => $request->purpose . ' (Partial for ' . date('F Y', strtotime($currentMonth)) . ')',
-                    'type' => 'monthly',
-                    'months_covered' => 1,
-                    'contribution_month' => $currentMonth,
-                    'notes' => $request->notes . ' - Partial advance payment for ' . date('F Y', strtotime($currentMonth)),
+            // Support both JSON and redirect responses
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment recorded successfully.',
+                    'payment' => $payment,
                 ]);
             }
-        }
-    }
 
-    private function handleOtherContribution($request, $amount)
-    {
-        Contribution::create([
-            'member_id' => $request->member_id,
-            'amount' => $amount,
-            'date' => $request->date,
-            'purpose' => $request->purpose,
-            'type' => 'other',
-            'months_covered' => 0, // Not applicable for other contributions
-            'contribution_month' => null, // Not applicable for other contributions
-            'notes' => $request->notes,
-        ]);
+            return redirect()->route('admin.financials.index')->with('success', 'Payment recorded successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Payment processing error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to process payment: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to process payment: ' . $e->getMessage());
+        }
     }
 
     public function export(Request $request)

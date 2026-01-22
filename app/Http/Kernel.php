@@ -25,6 +25,7 @@ class Kernel extends HttpKernel
         'web' => [
             // ...existing code...
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\ShareOrganizationData::class,
         ],
 
         'api' => [

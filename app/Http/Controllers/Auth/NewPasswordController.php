@@ -13,9 +13,16 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\PasswordConfigService;
 
 class NewPasswordController extends Controller
 {
+    protected $passwordService;
+
+    public function __construct(PasswordConfigService $passwordService)
+    {
+        $this->passwordService = $passwordService;
+    }
     /**
      * Display the password reset view.
      */
@@ -37,7 +44,7 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', $this->passwordService->getValidationRules()],
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we

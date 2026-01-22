@@ -23,5 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Vite::prefetch(concurrency: 3);
+        
+        // Register model observers for automatic accounting entries
+        \App\Models\Contribution::observe(\App\Observers\ContributionObserver::class);
+        \App\Models\DisasterPayment::observe(\App\Observers\DisasterPaymentObserver::class);
+        \App\Models\Expense::observe(\App\Observers\ExpenseObserver::class);
     }
 }

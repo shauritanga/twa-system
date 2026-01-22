@@ -15,6 +15,7 @@ class Contribution extends Model
         'months_covered',
         'contribution_month',
         'notes',
+        'journal_entry_id',
     ];
 
     protected $casts = [
@@ -26,6 +27,11 @@ class Contribution extends Model
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function journalEntry()
+    {
+        return $this->belongsTo(JournalEntry::class);
     }
 
     // Scopes

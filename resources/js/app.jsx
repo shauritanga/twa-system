@@ -8,6 +8,7 @@ import { createRoot } from 'react-dom/client';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 import ThemeProvider from './Providers/ThemeProvider';
+import AntThemeProvider from './Providers/AntThemeProvider';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -21,7 +22,9 @@ createInertiaApp({
 
         root.render(
             <ThemeProvider>
-                <App {...props} />
+                <AntThemeProvider>
+                    <App {...props} />
+                </AntThemeProvider>
             </ThemeProvider>
         );
     },

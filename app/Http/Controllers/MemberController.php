@@ -12,9 +12,16 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Services\AuditService;
+use App\Services\MemberConfigService;
 
 class MemberController extends Controller
 {
+    protected $memberService;
+
+    public function __construct(MemberConfigService $memberService)
+    {
+        $this->memberService = $memberService;
+    }
     public function index()
     {
         // Only calculate statistics needed for archive link
@@ -22,7 +29,7 @@ class MemberController extends Controller
             'deleted_members' => Member::onlyTrashed()->count(),
         ];
 
-        return Inertia::render('Members/Index', [
+        return Inertia::render('AdminPortal/Members/Index', [
             'members' => Member::all(),
             'statistics' => $statistics,
         ]);
@@ -82,6 +89,9 @@ class MemberController extends Controller
         $memberData = $request->all();
         $memberData['user_id'] = $user->id;
         $memberData['name'] = $fullName; // Set the constructed full name
+        
+        // Set verification status based on auto-approve setting
+        $memberData['is_verified'] = $this->memberService->isAutoApproveEnabled();
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -200,7 +210,7 @@ class MemberController extends Controller
 
     public function show(Member $member)
     {
-        return Inertia::render('Members/Show', [
+        return Inertia::render('AdminPortal/Members/Show', [
             'member' => $member->load('dependents'),
         ]);
     }
@@ -243,14 +253,14 @@ class MemberController extends Controller
             // Soft delete the member record (the model's booted method will handle user soft deletion automatically)
             $member->delete();
 
-            // Use Inertia redirect back with success message
-            return redirect()->back()->with('success', 'Member has been moved to archive. You can restore them later if needed.');
+            // Redirect to members index with success message
+            return redirect()->route('admin-portal.members.index')->with('success', 'Member has been moved to archive. You can restore them later if needed.');
 
         } catch (\Exception $e) {
             \Log::error('Error archiving member: ' . $e->getMessage());
 
-            // Use Inertia redirect back with error message
-            return redirect()->back()->with('error', 'An error occurred while archiving the member. Please try again.');
+            // Redirect to members index with error message
+            return redirect()->route('admin-portal.members.index')->with('error', 'An error occurred while archiving the member. Please try again.');
         }
     }
 
@@ -259,7 +269,7 @@ class MemberController extends Controller
      */
     public function archived()
     {
-        return Inertia::render('Members/Archived', [
+        return Inertia::render('AdminPortal/Members/Archived', [
             'archivedMembers' => Member::onlyTrashed()->with('user')->get(),
         ]);
     }
@@ -318,8 +328,19 @@ class MemberController extends Controller
             return $pdf->download('members.pdf');
         }
 
+        if ($format === 'excel' || $format === 'xlsx') {
+            return Excel::download(new MembersExport, 'members.xlsx');
+        }
+
         if ($format === 'csv') {
             return Excel::download(new MembersExport, 'members.csv', \Maatwebsite\Excel\Excel::CSV);
+        }
+
+        if ($format === 'json') {
+            $json = json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            return response($json, 200)
+                ->header('Content-Type', 'application/json')
+                ->header('Content-Disposition', 'attachment; filename="members.json"');
         }
 
         return Excel::download(new MembersExport, 'members.xlsx');
@@ -550,7 +571,7 @@ class MemberController extends Controller
                         'declaration_name' => $rowData['declaration_name'] ?? '',
                         'witness_name' => $rowData['witness_name'] ?? '',
                         'witness_date' => $parseDate($rowData['witness_date'] ?? ''),
-                        'is_verified' => false,
+                        'is_verified' => $this->memberService->isAutoApproveEnabled(),
                     ];
 
                     Log::info("Creating member", [
@@ -706,8 +727,9 @@ class MemberController extends Controller
             fputcsv($file, ['# 2. Email must be unique']);
             fputcsv($file, ['# 3. Date format: YYYY-MM-DD (e.g., 1990-01-15)']);
             fputcsv($file, ['# 4. Sex: Male or Female']);
-            fputcsv($file, ['# 5. Delete these instruction rows before importing']);
-            fputcsv($file, ['# 6. Keep the header row (first_name, middle_name, etc.)']);
+            fputcsv($file, ['# 5. Phone numbers: Format as text (prefix with apostrophe in Excel: \'+255123456789)']);
+            fputcsv($file, ['# 6. Delete these instruction rows before importing']);
+            fputcsv($file, ['# 7. Keep the header row (first_name, middle_name, etc.)']);
             fputcsv($file, ['']);
 
             // Add column headers

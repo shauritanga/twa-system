@@ -108,6 +108,115 @@ Route::resource('certificates', CertificateController::class); // Commented out 
 
 Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // AdminPortal Dashboard
+    Route::get('/admin-portal/dashboard', [\App\Http\Controllers\AdminPortal\DashboardController::class, 'index'])->name('admin-portal.dashboard');
+    
+    // New AdminPortal Routes
+    Route::get('/admin-portal/members', [MemberController::class, 'index'])->name('admin-portal.members.index');
+    Route::get('/admin-portal/members/{member}', [MemberController::class, 'show'])->name('admin-portal.members.show');
+    Route::post('/admin-portal/members', [MemberController::class, 'store'])->name('admin-portal.members.store');
+    Route::match(['PUT', 'POST'], '/admin-portal/members/{member}', [MemberController::class, 'update'])->name('admin-portal.members.update');
+    Route::delete('/admin-portal/members/{member}', [MemberController::class, 'destroy'])->name('admin-portal.members.destroy');
+    Route::get('/admin-portal/members-archived', [MemberController::class, 'archived'])->name('admin-portal.members.archived');
+    Route::get('/admin-portal/financials', [FinancialsController::class, 'index'])->name('admin-portal.financials');
+    Route::get('/admin-portal/member-contributions/{member}', [FinancialsController::class, 'memberContributions'])->name('admin-portal.member-contributions');
+    
+    // Documents routes
+    Route::get('/admin-portal/documents', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'index'])->name('admin-portal.documents.index');
+    Route::post('/admin-portal/documents', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'store'])->name('admin-portal.documents.store')->middleware('handle.large.uploads');
+    Route::get('/admin-portal/documents/{document}', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'show'])->name('admin-portal.documents.show');
+    Route::match(['PUT', 'POST'], '/admin-portal/documents/{document}', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'update'])->name('admin-portal.documents.update')->middleware('handle.large.uploads');
+    Route::delete('/admin-portal/documents/{document}', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'destroy'])->name('admin-portal.documents.destroy');
+    Route::post('/admin-portal/documents/{document}/publish', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'publish'])->name('admin-portal.documents.publish');
+    Route::post('/admin-portal/documents/{document}/unpublish', [\App\Http\Controllers\AdminPortal\DocumentController::class, 'unpublish'])->name('admin-portal.documents.unpublish');
+    
+    // Announcements routes
+    Route::get('/admin-portal/announcements', [\App\Http\Controllers\AdminPortal\AnnouncementController::class, 'index'])->name('admin-portal.announcements.index');
+    Route::post('/admin-portal/announcements', [\App\Http\Controllers\AdminPortal\AnnouncementController::class, 'store'])->name('admin-portal.announcements.store');
+    Route::get('/admin-portal/announcements/{announcement}', [\App\Http\Controllers\AdminPortal\AnnouncementController::class, 'show'])->name('admin-portal.announcements.show');
+    Route::match(['PUT', 'POST'], '/admin-portal/announcements/{announcement}', [\App\Http\Controllers\AdminPortal\AnnouncementController::class, 'update'])->name('admin-portal.announcements.update');
+    Route::delete('/admin-portal/announcements/{announcement}', [\App\Http\Controllers\AdminPortal\AnnouncementController::class, 'destroy'])->name('admin-portal.announcements.destroy');
+    
+    // Fundraising routes
+    Route::get('/admin-portal/fundraising', [\App\Http\Controllers\AdminPortal\FundraisingController::class, 'index'])->name('admin-portal.fundraising.index');
+    Route::post('/admin-portal/fundraising', [\App\Http\Controllers\AdminPortal\FundraisingController::class, 'store'])->name('admin-portal.fundraising.store');
+    Route::get('/admin-portal/fundraising/{fundraising}', [\App\Http\Controllers\AdminPortal\FundraisingController::class, 'show'])->name('admin-portal.fundraising.show');
+    Route::match(['PUT', 'POST'], '/admin-portal/fundraising/{fundraising}', [\App\Http\Controllers\AdminPortal\FundraisingController::class, 'update'])->name('admin-portal.fundraising.update');
+    Route::delete('/admin-portal/fundraising/{fundraising}', [\App\Http\Controllers\AdminPortal\FundraisingController::class, 'destroy'])->name('admin-portal.fundraising.destroy');
+    
+    // Finance routes - Expenses
+    Route::get('/admin-portal/expenses', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'index'])->name('admin-portal.expenses.index');
+    Route::post('/admin-portal/expenses', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'store'])->name('admin-portal.expenses.store');
+    Route::match(['PUT', 'POST'], '/admin-portal/expenses/{expense}', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'update'])->name('admin-portal.expenses.update');
+    Route::delete('/admin-portal/expenses/{expense}', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'destroy'])->name('admin-portal.expenses.destroy');
+    Route::post('/admin-portal/expenses/{expense}/approve', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'approve'])->name('admin-portal.expenses.approve');
+    Route::post('/admin-portal/expenses/{expense}/reject', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'reject'])->name('admin-portal.expenses.reject');
+    Route::post('/admin-portal/expenses/{expense}/mark-as-paid', [\App\Http\Controllers\AdminPortal\ExpenseController::class, 'markAsPaid'])->name('admin-portal.expenses.mark-as-paid');
+    
+    // Finance routes - Assets
+    Route::get('/admin-portal/assets', [\App\Http\Controllers\AdminPortal\AssetController::class, 'index'])->name('admin-portal.assets.index');
+    Route::post('/admin-portal/assets', [\App\Http\Controllers\AdminPortal\AssetController::class, 'store'])->name('admin-portal.assets.store');
+    Route::match(['PUT', 'POST'], '/admin-portal/assets/{asset}', [\App\Http\Controllers\AdminPortal\AssetController::class, 'update'])->name('admin-portal.assets.update');
+    Route::delete('/admin-portal/assets/{asset}', [\App\Http\Controllers\AdminPortal\AssetController::class, 'destroy'])->name('admin-portal.assets.destroy');
+    Route::post('/admin-portal/assets/{asset}/update-status', [\App\Http\Controllers\AdminPortal\AssetController::class, 'updateStatus'])->name('admin-portal.assets.update-status');
+    
+    // Accounting routes - Chart of Accounts
+    Route::get('/admin-portal/chart-of-accounts', [\App\Http\Controllers\AdminPortal\AccountController::class, 'index'])->name('admin-portal.chart-of-accounts');
+    Route::post('/admin-portal/chart-of-accounts', [\App\Http\Controllers\AdminPortal\AccountController::class, 'store'])->name('admin-portal.chart-of-accounts.store');
+    Route::put('/admin-portal/chart-of-accounts/{account}', [\App\Http\Controllers\AdminPortal\AccountController::class, 'update'])->name('admin-portal.chart-of-accounts.update');
+    Route::delete('/admin-portal/chart-of-accounts/{account}', [\App\Http\Controllers\AdminPortal\AccountController::class, 'destroy'])->name('admin-portal.chart-of-accounts.destroy');
+    Route::post('/admin-portal/chart-of-accounts/{account}/toggle-status', [\App\Http\Controllers\AdminPortal\AccountController::class, 'toggleStatus'])->name('admin-portal.chart-of-accounts.toggle-status');
+    
+    // Accounting routes - Journal Entries
+    Route::get('/admin-portal/journal-entries', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'index'])->name('admin-portal.journal-entries');
+    Route::post('/admin-portal/journal-entries', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'store'])->name('admin-portal.journal-entries.store');
+    Route::put('/admin-portal/journal-entries/{journalEntry}', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'update'])->name('admin-portal.journal-entries.update');
+    Route::delete('/admin-portal/journal-entries/{journalEntry}', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'destroy'])->name('admin-portal.journal-entries.destroy');
+    Route::post('/admin-portal/journal-entries/{journalEntry}/post', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'post'])->name('admin-portal.journal-entries.post');
+    Route::post('/admin-portal/journal-entries/{journalEntry}/reverse', [\App\Http\Controllers\AdminPortal\JournalEntryController::class, 'reverse'])->name('admin-portal.journal-entries.reverse');
+    
+    // Other Accounting routes
+    Route::get('/admin-portal/general-ledger', [\App\Http\Controllers\AdminPortal\GeneralLedgerController::class, 'index'])->name('admin-portal.general-ledger');
+    Route::get('/admin-portal/trial-balance', [\App\Http\Controllers\AdminPortal\TrialBalanceController::class, 'index'])->name('admin-portal.trial-balance');
+    Route::get('/admin-portal/balance-sheet', [\App\Http\Controllers\AdminPortal\BalanceSheetController::class, 'index'])->name('admin-portal.balance-sheet');
+    Route::get('/admin-portal/income-statement', [\App\Http\Controllers\AdminPortal\IncomeStatementController::class, 'index'])->name('admin-portal.income-statement');
+    Route::get('/admin-portal/cash-flow', [\App\Http\Controllers\AdminPortal\CashFlowController::class, 'index'])->name('admin-portal.cash-flow');
+    
+    // Administration routes - Audit Logs
+    Route::get('/admin-portal/audit-logs', [\App\Http\Controllers\AdminPortal\AuditLogController::class, 'index'])->name('admin-portal.audit-logs');
+    Route::get('/admin-portal/audit-logs/{auditLog}', [\App\Http\Controllers\AdminPortal\AuditLogController::class, 'show'])->name('admin-portal.audit-logs.show');
+    
+    // Administration routes - Roles & Permissions
+    Route::get('/admin-portal/roles', [\App\Http\Controllers\AdminPortal\RoleController::class, 'index'])->name('admin-portal.roles');
+    Route::post('/admin-portal/roles', [\App\Http\Controllers\AdminPortal\RoleController::class, 'store'])->name('admin-portal.roles.store');
+    Route::get('/admin-portal/roles/{role}/permissions', [\App\Http\Controllers\AdminPortal\RoleController::class, 'getPermissions'])->name('admin-portal.roles.permissions');
+    Route::post('/admin-portal/roles/{role}/sync-permissions', [\App\Http\Controllers\AdminPortal\RoleController::class, 'syncPermissions'])->name('admin-portal.roles.sync-permissions');
+    Route::get('/admin-portal/roles/{role}', [\App\Http\Controllers\AdminPortal\RoleController::class, 'show'])->name('admin-portal.roles.show');
+    Route::put('/admin-portal/roles/{role}', [\App\Http\Controllers\AdminPortal\RoleController::class, 'update'])->name('admin-portal.roles.update');
+    Route::delete('/admin-portal/roles/{role}', [\App\Http\Controllers\AdminPortal\RoleController::class, 'destroy'])->name('admin-portal.roles.destroy');
+    
+    Route::get('/admin-portal/permissions', [\App\Http\Controllers\AdminPortal\PermissionController::class, 'index'])->name('admin-portal.permissions');
+    Route::post('/admin-portal/permissions', [\App\Http\Controllers\AdminPortal\PermissionController::class, 'store'])->name('admin-portal.permissions.store');
+    Route::put('/admin-portal/permissions/{permission}', [\App\Http\Controllers\AdminPortal\PermissionController::class, 'update'])->name('admin-portal.permissions.update');
+    Route::delete('/admin-portal/permissions/{permission}', [\App\Http\Controllers\AdminPortal\PermissionController::class, 'destroy'])->name('admin-portal.permissions.destroy');
+    
+    // Administration routes - Settings
+    Route::get('/admin-portal/settings', [\App\Http\Controllers\AdminPortal\SettingsController::class, 'index'])->name('admin-portal.settings');
+    Route::post('/admin-portal/settings', [\App\Http\Controllers\AdminPortal\SettingsController::class, 'update'])->name('admin-portal.settings.update');
+    Route::post('/admin-portal/settings/single', [\App\Http\Controllers\AdminPortal\SettingsController::class, 'updateSingle'])->name('admin-portal.settings.update-single');
+    
+    Route::get('/admin-portal/reports', function() { return Inertia::render('AdminPortal/Reports'); })->name('admin-portal.reports');
+    
+    // Backup Management Routes
+    Route::get('/admin-portal/backups', [\App\Http\Controllers\AdminPortal\BackupController::class, 'index'])->name('admin-portal.backups');
+    Route::post('/admin-portal/backups/create', [\App\Http\Controllers\AdminPortal\BackupController::class, 'create'])->name('admin-portal.backups.create');
+    Route::post('/admin-portal/backups/create-database', [\App\Http\Controllers\AdminPortal\BackupController::class, 'createDatabase'])->name('admin-portal.backups.create-database');
+    Route::get('/admin-portal/backups/download/{filename}', [\App\Http\Controllers\AdminPortal\BackupController::class, 'download'])->name('admin-portal.backups.download');
+    Route::delete('/admin-portal/backups/{filename}', [\App\Http\Controllers\AdminPortal\BackupController::class, 'delete'])->name('admin-portal.backups.delete');
+    Route::post('/admin-portal/backups/clean', [\App\Http\Controllers\AdminPortal\BackupController::class, 'clean'])->name('admin-portal.backups.clean');
+    
+    // Old routes (kept for backward compatibility)
     // Route::post('certificates/{certificate}/approve', [CertificateController::class, 'approve'])->name('certificates.approve'); // Commented out due to dropped table
     // Route::post('certificates/{certificate}/reject', [CertificateController::class, 'reject'])->name('certificates.reject'); // Commented out due to dropped table
     Route::post('dependents/{dependent}/approve', [DependentController::class, 'approve'])->name('dependents.approve');

@@ -72,6 +72,17 @@ class Member extends Model
     {
         return $this->hasMany(Contribution::class);
     }
+    
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+    
+    public function contributionAllocations()
+    {
+        return $this->hasMany(ContributionAllocation::class);
+    }
+    
     public function debts()
     {
         return $this->hasMany(Debt::class);

@@ -40,13 +40,22 @@ class DebtController extends Controller
             'due_date' => 'required|date|after_or_equal:today',
         ]);
 
-        Debt::create([
+        $debt = Debt::create([
             'member_id' => $request->member_id,
             'amount' => $request->amount,
             'reason' => $request->reason,
             'due_date' => $request->due_date,
             'status' => 'unpaid',
         ]);
+
+        // Support both JSON and redirect responses
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Debt added successfully.',
+                'debt' => $debt->load('member')
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Debt added successfully.');
     }

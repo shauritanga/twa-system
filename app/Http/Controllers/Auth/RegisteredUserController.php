@@ -13,9 +13,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\PasswordConfigService;
+use App\Services\MemberConfigService;
 
 class RegisteredUserController extends Controller
 {
+    protected $passwordService;
+    protected $memberService;
+
+    public function __construct(PasswordConfigService $passwordService, MemberConfigService $memberService)
+    {
+        $this->passwordService = $passwordService;
+        $this->memberService = $memberService;
+    }
     /**
      * Display the registration view.
      */
@@ -34,7 +44,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', $this->passwordService->getValidationRules()],
         ]);
 
         $user = User::create([

@@ -9,9 +9,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\PasswordConfigService;
 
 class ProfileController extends Controller
 {
+    protected $passwordService;
+
+    public function __construct(PasswordConfigService $passwordService)
+    {
+        $this->passwordService = $passwordService;
+    }
     /**
      * Get role-aware redirect URL
      */
@@ -98,7 +105,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => ['required', $this->passwordService->getValidationRules(), 'confirmed'],
         ]);
 
         $user = auth()->user();

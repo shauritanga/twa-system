@@ -38,7 +38,15 @@ class WebsiteVisit extends Model
                 return false; // Already recorded recently
             }
 
-            // Check database for existing visit (with optimized query)
+            // Option 1: Count every page view (uncomment to enable)
+            // $existingVisit = false;
+
+            // Option 2: Count unique sessions per hour (more frequent counting)
+            // $existingVisit = self::where('session_id', $sessionId)
+            //     ->where('visited_at', '>=', now()->subHours(1))
+            //     ->exists();
+
+            // Option 3: Count unique sessions per day (current - recommended)
             $existingVisit = self::where('session_id', $sessionId)
                 ->where('visited_at', '>=', now()->subHours(24))
                 ->exists();
