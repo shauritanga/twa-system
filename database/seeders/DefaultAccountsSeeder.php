@@ -242,7 +242,10 @@ class DefaultAccountsSeeder extends Seeder
         ];
 
         foreach ($accounts as $account) {
-            Account::create($account);
+            Account::updateOrCreate(
+                ['account_code' => $account['account_code']], // Find by account_code
+                $account // Update or create with these values
+            );
         }
     }
 }
