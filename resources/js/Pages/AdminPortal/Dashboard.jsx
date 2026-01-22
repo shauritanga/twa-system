@@ -21,8 +21,8 @@ import {
     ExclamationCircleOutlined,
     CheckCircleOutlined,
     BankOutlined,
-    TrendingUpOutlined,
-    TrendingDownOutlined,
+    RiseOutlined,
+    FallOutlined,
     BookOutlined,
 } from '@ant-design/icons';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
                         <Statistic
                             title="Total Revenue"
                             value={totalRevenue}
-                            prefix={<TrendingUpOutlined />}
+                            prefix={<RiseOutlined />}
                             formatter={(value) => formatCurrency(value)}
                             valueStyle={{ color: token.colorSuccess }}
                         />
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                         <Statistic
                             title="Net Income"
                             value={netIncome}
-                            prefix={netIncome >= 0 ? <TrendingUpOutlined /> : <TrendingDownOutlined />}
+                            prefix={netIncome >= 0 ? <RiseOutlined /> : <FallOutlined />}
                             formatter={(value) => formatCurrency(value)}
                             valueStyle={{ color: netIncome >= 0 ? token.colorSuccess : token.colorError }}
                         />
@@ -314,7 +314,7 @@ export default function AdminDashboard() {
                         <Statistic
                             title="Total Expenses"
                             value={totalExpenses}
-                            prefix={<TrendingDownOutlined />}
+                            prefix={<FallOutlined />}
                             formatter={(value) => formatCurrency(value)}
                             valueStyle={{ color: token.colorError }}
                         />
