@@ -1,4 +1,8 @@
-# Simple cPanel Deployment Guide - No Build Required!
+# Simple cPanel Deployment Guide - PHP 8.2+ Required
+
+## ⚠️ IMPORTANT: PHP 8.2+ Required
+
+**Your server MUST have PHP 8.2 or higher.** If you have PHP 8.1, please upgrade first using the **UPGRADE_PHP_GUIDE.md**.
 
 ## 🚀 Super Simple Deployment (Build Assets Included in Git)
 
