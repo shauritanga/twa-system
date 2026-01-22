@@ -153,7 +153,11 @@ rm -rf twa-temp
 
 ### Step 4: Install Dependencies
 
-#### Option A: Using SSH (Recommended)
+#### ⚠️ IMPORTANT: Memory Issue on Shared Hosting
+
+**If `npm run build` gets "Killed" on your server, this is due to insufficient memory. Use Option C instead.**
+
+#### Option A: Using SSH (Recommended if you have sufficient memory)
 ```bash
 # Install Composer dependencies
 composer install --optimize-autoloader --no-dev
@@ -165,19 +169,35 @@ npm install
 npm run build
 ```
 
-#### Option B: Using cPanel Terminal (if available)
+#### Option B: Using cPanel Terminal (if available and sufficient memory)
 1. Open **Terminal** in cPanel
 2. Navigate to your project directory
 3. Run the same commands as above
 
-#### Option C: Manual Upload (if no SSH/Terminal)
-1. Run these commands locally:
+#### Option C: Upload Pre-built Assets (Recommended for cPanel/Shared Hosting)
+**This is the best solution for most cPanel environments:**
+
+1. **Assets are already built locally** (we did this earlier)
+2. **Upload the build folder via cPanel File Manager:**
+   - Navigate to your `public` folder
+   - Upload the entire `public/build` folder from your local machine
+   - Make sure the folder structure is: `public/build/manifest.json` and `public/build/assets/`
+
+3. **Install only PHP dependencies:**
    ```bash
    composer install --optimize-autoloader --no-dev
-   npm install
-   npm run build
    ```
-2. Upload the `vendor` folder and `public/build` folder via File Manager
+
+4. **Use the no-build deployment script:**
+   ```bash
+   chmod +x deploy-without-build.sh
+   ./deploy-without-build.sh
+   ```
+
+#### Why npm run build fails on shared hosting:
+- **Memory limit**: Shared hosting typically has 512MB-1GB RAM
+- **Build requirements**: Vite + React + Ant Design needs 1-2GB RAM
+- **Solution**: Build locally, upload assets
 
 ### Step 5: Set Permissions
 
@@ -397,6 +417,11 @@ chown -R username:username storage bootstrap/cache
 - Check SMTP credentials
 - Verify firewall allows SMTP ports
 - Test with different email provider
+
+#### 7. Build process memory issues
+- Use pre-built assets (upload public/build folder)
+- Increase server memory limits if possible
+- Build locally and deploy assets only
 
 ## 📊 Performance Optimization
 
