@@ -38,6 +38,8 @@ class Document extends Model
     protected $appends = [
         'category_display',
         'visibility_display',
+        'public_download_url',
+        'public_preview_url',
     ];
 
     /**
@@ -141,6 +143,22 @@ class Document extends Model
     public function getDownloadUrlAttribute(): string
     {
         return route('documents.download', $this->id);
+    }
+
+    /**
+     * Get public download URL
+     */
+    public function getPublicDownloadUrlAttribute(): string
+    {
+        return route('documents.public.download', $this->id);
+    }
+
+    /**
+     * Get public preview URL
+     */
+    public function getPublicPreviewUrlAttribute(): string
+    {
+        return route('documents.public.preview', $this->id);
     }
 
     /**

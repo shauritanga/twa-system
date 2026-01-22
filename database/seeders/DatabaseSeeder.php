@@ -24,5 +24,9 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionSeeder::class);
         $this->call(AdditionalPermissionsSeeder::class);
         $this->call(AdminUserSeeder::class);
+        $this->call(DefaultSettingsSeeder::class);
+        $this->call(DefaultAccountsSeeder::class);
+        $this->call(AccountingIntegrationSeeder::class);
+        $this->call(SampleDocumentsSeeder::class);
     }
 }

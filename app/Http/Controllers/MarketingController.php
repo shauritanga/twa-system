@@ -10,6 +10,7 @@ use App\Models\DisasterPayment;
 use App\Models\Dependent;
 use App\Models\FundraisingCampaign;
 use App\Models\WebsiteVisit;
+use App\Models\Document;
 use Illuminate\Support\Facades\DB;
 
 class MarketingController extends Controller
@@ -23,6 +24,15 @@ class MarketingController extends Controller
         $announcements = Announcement::active()
             ->ordered()
             ->limit(3)
+            ->get();
+
+        // Get public documents for the homepage (limit to 6 most recent)
+        $publicDocuments = Document::where('visibility', 'public')
+            ->where('status', 'active')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderBy('published_at', 'desc')
+            ->limit(6)
             ->get();
 
         // Get active fundraising campaigns
@@ -67,7 +77,7 @@ class MarketingController extends Controller
                                            ->count(),
         ];
 
-        return view('marketing.index', compact('announcements', 'stats', 'activeCampaigns', 'completedCampaigns'));
+        return view('marketing.index', compact('announcements', 'publicDocuments', 'stats', 'activeCampaigns', 'completedCampaigns'));
     }
 
     /**
@@ -93,5 +103,64 @@ class MarketingController extends Controller
         }
 
         return view('marketing.announcement', compact('announcement'));
+    }
+
+    /**
+     * Display public documents
+     */
+    public function documents(Request $request)
+    {
+        $query = Document::where('visibility', 'public')
+            ->where('status', 'active')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderBy('published_at', 'desc');
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $documents = $query->paginate(12);
+
+        // Get available categories for filtering
+        $categories = Document::where('visibility', 'public')
+            ->where('status', 'active')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->distinct()
+            ->pluck('category')
+            ->mapWithKeys(function ($category) {
+                return [$category => $this->getCategoryDisplayName($category)];
+            });
+
+        return view('marketing.documents', compact('documents', 'categories'));
+    }
+
+    /**
+     * Get category display name
+     */
+    private function getCategoryDisplayName(string $category): string
+    {
+        return match($category) {
+            'meeting_minutes' => 'Meeting Minutes',
+            'policies' => 'Policies',
+            'procedures' => 'Procedures',
+            'financial_reports' => 'Financial Reports',
+            'legal_documents' => 'Legal Documents',
+            'forms' => 'Forms',
+            'announcements' => 'Announcements',
+            'other' => 'Other',
+            default => ucfirst($category),
+        };
     }
 }

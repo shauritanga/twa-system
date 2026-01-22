@@ -621,6 +621,21 @@
             outline-offset: 2px;
         }
 
+        /* Document section styles */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
 
 
         /* High contrast mode support */
@@ -748,6 +763,8 @@
                     <div class="flex items-center space-x-3 lg:space-x-4">
                         <a href="#announcements"
                             class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.announcements') }}</a>
+                        <a href="#documents"
+                            class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">Documents</a>
                         <a href="#about"
                             class="nav-link-readable px-2 lg:px-3 py-3 text-sm font-medium transition-colors focus-visible whitespace-nowrap">{{ __('marketing.nav.about') }}</a>
                         <a href="#services"
@@ -790,6 +807,7 @@
         <div class="mobile-menu hidden md:hidden bg-blue-600 border-t border-blue-500">
             <div class="px-6 py-6 space-y-3">
                 <a href="#announcements" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.announcements') }}</a>
+                <a href="#documents" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">Documents</a>
                 <a href="#about" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.about') }}</a>
                 <a href="#services" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.services') }}</a>
                 <a href="#benefits" class="block px-4 py-4 text-blue-100 text-base rounded-lg hover:bg-blue-500 hover:text-white transition-colors">{{ __('marketing.nav.benefits') }}</a>
@@ -1077,6 +1095,130 @@
             </div>
         </div>
     </section>
+
+    <!-- Documents Section -->
+    <section id="documents" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Public Documents
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Access important documents, forms, policies, and reports from our organization.
+                </p>
+            </div>
+
+            @if($publicDocuments->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" data-aos="fade-up" data-aos-delay="200">
+                    @foreach($publicDocuments as $document)
+                        <div class="bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 hover:transform hover:-translate-y-1">
+                            <!-- Document Icon and Type -->
+                            <div class="flex items-center mb-4">
+                                <div class="text-3xl mr-3">
+                                    @switch(strtolower($document->file_type))
+                                        @case('pdf')
+                                            📄
+                                            @break
+                                        @case('doc')
+                                        @case('docx')
+                                            📝
+                                            @break
+                                        @case('xls')
+                                        @case('xlsx')
+                                            📊
+                                            @break
+                                        @case('ppt')
+                                        @case('pptx')
+                                            📋
+                                            @break
+                                        @case('jpg')
+                                        @case('jpeg')
+                                        @case('png')
+                                        @case('gif')
+                                            🖼️
+                                            @break
+                                        @default
+                                            📁
+                                    @endswitch
+                                </div>
+                                <div>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full">
+                                        {{ strtoupper($document->file_type) }}
+                                    </span>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded-full ml-1">
+                                        {{ $document->category_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Document Title -->
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                                {{ $document->title }}
+                            </h3>
+
+                            <!-- Document Description -->
+                            @if($document->description)
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                    {{ $document->description }}
+                                </p>
+                            @endif
+
+                            <!-- Document Meta -->
+                            <div class="text-xs text-gray-500 mb-4 space-y-1">
+                                @if($document->document_date)
+                                    <div>📅 {{ $document->document_date->format('M d, Y') }}</div>
+                                @endif
+                                <div>📥 {{ $document->download_count }} downloads</div>
+                                <div>📦 {{ $document->formatted_file_size }}</div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2">
+                                <!-- Download Button -->
+                                <a 
+                                    href="{{ route('documents.public.download', $document) }}" 
+                                    class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-2 px-4 rounded-lg transition-all duration-300 text-sm font-medium transform hover:-translate-y-1 hover:shadow-lg"
+                                    target="_blank"
+                                >
+                                    <i class="fas fa-download mr-1"></i>
+                                    Download
+                                </a>
+
+                                <!-- Preview Button (for supported file types) -->
+                                @if(in_array(strtolower($document->file_type), ['pdf', 'jpg', 'jpeg', 'png', 'gif']))
+                                    <a 
+                                        href="{{ route('documents.public.preview', $document) }}" 
+                                        class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-all duration-300 text-sm font-medium transform hover:-translate-y-1 hover:shadow-lg"
+                                        target="_blank"
+                                    >
+                                        <i class="fas fa-eye mr-1"></i>
+                                        Preview
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- View All Documents Button -->
+                <div class="text-center" data-aos="fade-up" data-aos-delay="400">
+                    <a href="{{ route('marketing.documents') }}" 
+                       class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                        <i class="fas fa-folder-open mr-2"></i>
+                        View All Documents
+                    </a>
+                </div>
+            @else
+                <!-- No Documents Available -->
+                <div class="text-center py-12" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-6xl mb-4">📄</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Public Documents Available</h3>
+                    <p class="text-gray-600">
+                        Public documents will be displayed here when they become available.
+                    </p>
+                </div>
+            @endif
+        </div>
 
     <!-- About Section -->
     <section id="about" class="section-padding bg-gray-50">

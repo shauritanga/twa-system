@@ -358,6 +358,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/session/heartbeat', [\App\Http\Controllers\SessionController::class, 'heartbeat'])->name('session.heartbeat');
 });
 
+// Public document download routes (no authentication required for public documents)
+Route::get('/public/documents/{document}/download', [\App\Http\Controllers\DocumentDownloadController::class, 'publicDownload'])->name('documents.public.download');
+Route::get('/public/documents/{document}/preview', [\App\Http\Controllers\DocumentDownloadController::class, 'publicPreview'])->name('documents.public.preview');
+
+// Keep the full documents page as well for those who want to browse all documents
+Route::get('/public/documents', [\App\Http\Controllers\MarketingController::class, 'documents'])->name('marketing.documents');
+
 // Document download routes (accessible to authenticated users)
 Route::middleware('auth')->group(function () {
     Route::get('/documents/{document}/download', [\App\Http\Controllers\DocumentDownloadController::class, 'download'])->name('documents.download');

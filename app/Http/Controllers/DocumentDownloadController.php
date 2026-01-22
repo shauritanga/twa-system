@@ -81,4 +81,62 @@ class DocumentDownloadController extends Controller
             'Content-Disposition' => 'inline; filename="' . $document->file_name . '"',
         ]);
     }
+
+    /**
+     * Download a public document (no authentication required)
+     */
+    public function publicDownload(Document $document): BinaryFileResponse|Response
+    {
+        // Check if document is public and published
+        if ($document->visibility !== 'public' || !$document->isPublished()) {
+            abort(404, 'Document not found or not publicly available.');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Document file not found.');
+        }
+
+        // Increment download count
+        $document->incrementDownloadCount();
+
+        // Get file path
+        $filePath = Storage::disk('public')->path($document->file_path);
+
+        // Return file download response
+        return response()->download($filePath, $document->file_name, [
+            'Content-Type' => Storage::disk('public')->mimeType($document->file_path),
+        ]);
+    }
+
+    /**
+     * Preview a public document (no authentication required)
+     */
+    public function publicPreview(Document $document): Response|BinaryFileResponse
+    {
+        // Check if document is public and published
+        if ($document->visibility !== 'public' || !$document->isPublished()) {
+            abort(404, 'Document not found or not publicly available.');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Document file not found.');
+        }
+
+        // Only allow preview for certain file types
+        $previewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array(strtolower($document->file_type), $previewableTypes)) {
+            return $this->publicDownload($document);
+        }
+
+        // Get file path
+        $filePath = Storage::disk('public')->path($document->file_path);
+
+        // Return file for preview
+        return response()->file($filePath, [
+            'Content-Type' => Storage::disk('public')->mimeType($document->file_path),
+            'Content-Disposition' => 'inline; filename="' . $document->file_name . '"',
+        ]);
+    }
 }
