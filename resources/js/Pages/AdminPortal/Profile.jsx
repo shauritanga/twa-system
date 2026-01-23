@@ -80,11 +80,6 @@ import {
     LogoutOutlined,
 } from '@ant-design/icons';
 import { ComputerDesktopIcon } from '@heroicons/react/24/outline';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-// Extend dayjs with relativeTime plugin
-dayjs.extend(relativeTime);
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -265,7 +260,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
         },
         {
             title: 'Last Login',
-            value: user.last_login ? dayjs(user.last_login).fromNow() : 'Never',
+            value: user.last_login ? window.dayjs(user.last_login).fromNow() : 'Never',
             prefix: <ClockCircleOutlined />,
         },
         {
@@ -365,7 +360,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
             children: user.date_of_birth ? (
                 <Space>
                     <CalendarOutlined style={{ color: token.colorPrimary }} />
-                    <Text>{dayjs(user.date_of_birth).format('MMMM D, YYYY')}</Text>
+                    <Text>{window.dayjs(user.date_of_birth).format('MMMM D, YYYY')}</Text>
                 </Space>
             ) : (
                 <Text type="secondary">Not provided</Text>
@@ -377,7 +372,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
             children: (
                 <Space>
                     <StarOutlined style={{ color: token.colorPrimary }} />
-                    <Text>{dayjs(user.created_at).format('MMMM D, YYYY')}</Text>
+                    <Text>{window.dayjs(user.created_at).format('MMMM D, YYYY')}</Text>
                 </Space>
             ),
         },
@@ -626,7 +621,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
                                         </Space>
                                     </Title>
                                     <Paragraph type="secondary">
-                                        Last changed: {user.password_changed_at ? dayjs(user.password_changed_at).format('MMMM D, YYYY') : 'Never'}
+                                        Last changed: {user.password_changed_at ? window.dayjs(user.password_changed_at).format('MMMM D, YYYY') : 'Never'}
                                     </Paragraph>
                                     <Button 
                                         type="primary" 
@@ -694,7 +689,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
                                                         <Text strong>Successful login</Text>
                                                         <br />
                                                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                            {dayjs(activity.created_at).format('MMM D, YYYY h:mm A')}
+                                                            {window.dayjs(activity.created_at).format('MMM D, YYYY h:mm A')}
                                                         </Text>
                                                     </div>
                                                 ),
@@ -797,7 +792,7 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
                                                 <Text strong>{activity.description}</Text>
                                                 <br />
                                                 <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                    {dayjs(activity.created_at).format('MMM D, YYYY h:mm A')}
+                                                    {window.dayjs(activity.created_at).format('MMM D, YYYY h:mm A')}
                                                 </Text>
                                             </Col>
                                             <Col>
@@ -973,12 +968,12 @@ export default function Profile({ user, recentActivities, profileCompletion, isP
                                     {
                                         key: '1',
                                         label: 'Account Created',
-                                        children: dayjs(user.created_at).format('MMMM D, YYYY'),
+                                        children: window.dayjs(user.created_at).format('MMMM D, YYYY'),
                                     },
                                     {
                                         key: '2',
                                         label: 'Last Updated',
-                                        children: user.last_profile_update ? dayjs(user.last_profile_update).format('MMMM D, YYYY') : 'Never',
+                                        children: user.last_profile_update ? window.dayjs(user.last_profile_update).format('MMMM D, YYYY') : 'Never',
                                     },
                                     {
                                         key: '3',
