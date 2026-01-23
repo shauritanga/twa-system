@@ -26,7 +26,7 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
-            return route('admin.dashboard');
+            return route('admin-portal.dashboard');
         }
         return route('member.dashboard');
     }
@@ -51,6 +51,17 @@ class ProfileController extends Controller
         $user = auth()->user();
         $recentActivities = ActivityLog::getRecentActivities($user, 10);
 
+        // Check if user is admin/secretary and render appropriate profile page
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return Inertia::render('AdminPortal/Profile', [
+                'user' => $user->load('role'),
+                'recentActivities' => $recentActivities,
+                'profileCompletion' => $user->profile_completion,
+                'isProfileComplete' => $user->is_profile_complete,
+            ]);
+        }
+
+        // For regular members, use the old profile page
         return Inertia::render('Profile/Show', [
             'user' => $user->load('role'),
             'recentActivities' => $recentActivities,

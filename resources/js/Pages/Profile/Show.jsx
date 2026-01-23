@@ -1,6 +1,6 @@
 import React from 'react';
-import SidebarLayout from '../../Layouts/SidebarLayout';
-import { Link } from '@inertiajs/react';
+import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
+import { Link, Head } from '@inertiajs/react';
 import { 
     UserCircleIcon, 
     PencilIcon, 
@@ -16,23 +16,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function ProfileShow({ user, recentActivities, profileCompletion, isProfileComplete }) {
-    // Role-specific navigation - no more role detection needed!
-    const getDashboardUrl = () => {
-        // Determine from current URL path
-        if (window.location.pathname.startsWith('/admin/')) {
-            return '/admin-portal/dashboard';
-        }
-        return '/member/dashboard';
-    };
-
-    const getDashboardLabel = () => {
-        // Determine from current URL path
-        if (window.location.pathname.startsWith('/admin/')) {
-            return 'Admin Dashboard';
-        }
-        return 'Member Dashboard';
-    };
-
     const getActivityIcon = (action) => {
         switch (action) {
             case 'profile_updated':
@@ -64,16 +47,17 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
     };
 
     return (
-        <SidebarLayout>
+        <AdminSidebarLayout>
+            <Head title="Profile - Tabata Welfare Association" />
             <div className="p-6 w-full">
                 {/* Breadcrumb Navigation */}
                 <div className="mb-6">
                     <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                         <Link
-                            href={getDashboardUrl()}
+                            href={route('admin-portal.dashboard')}
                             className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
                         >
-                            {getDashboardLabel()}
+                            Admin Dashboard
                         </Link>
                         <span>›</span>
                         <span className="text-gray-900 dark:text-white font-medium">Profile</span>
@@ -92,7 +76,7 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                                         className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
                                     />
                                     <Link
-                                        href="/profile/edit"
+                                        href={route('admin.profile.edit')}
                                         className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
                                     >
                                         <PencilIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -106,7 +90,7 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                             </div>
                             <div className="mt-4 md:mt-0">
                                 <Link
-                                    href="/profile/edit"
+                                    href={route('admin.profile.edit')}
                                     className="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
                                 >
                                     <PencilIcon className="w-5 h-5 mr-2" />
@@ -124,7 +108,7 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                                 <div className="flex-1">
                                     <p className="text-sm text-yellow-700 dark:text-yellow-300">
                                         Your profile is {profileCompletion}% complete. 
-                                        <Link href="/profile/edit" className="font-medium underline ml-1">
+                                        <Link href={route('admin.profile.edit')} className="font-medium underline ml-1">
                                             Complete your profile
                                         </Link>
                                     </p>
@@ -149,7 +133,7 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Personal Information</h2>
                                 <Link
-                                    href="/profile/edit"
+                                    href={route('admin.profile.edit')}
                                     className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
                                 >
                                     Edit
@@ -228,21 +212,21 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
                             <div className="space-y-3">
                                 <Link
-                                    href="/profile/edit"
+                                    href={route('admin.profile.edit')}
                                     className="flex items-center w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
                                 >
                                     <PencilIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" />
                                     <span className="text-gray-900 dark:text-white">Edit Profile</span>
                                 </Link>
                                 <Link
-                                    href="/profile/security"
+                                    href={route('admin.profile.security')}
                                     className="flex items-center w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
                                 >
                                     <ShieldCheckIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" />
                                     <span className="text-gray-900 dark:text-white">Security Settings</span>
                                 </Link>
                                 <Link
-                                    href="/profile/settings"
+                                    href={route('admin.profile.settings')}
                                     className="flex items-center w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
                                 >
                                     <CogIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" />
@@ -256,7 +240,7 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                                 <Link
-                                    href="/profile/activities"
+                                    href={route('admin.profile.activities')}
                                     className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
                                 >
                                     View All
@@ -285,6 +269,6 @@ export default function ProfileShow({ user, recentActivities, profileCompletion,
                     </div>
                 </div>
             </div>
-        </SidebarLayout>
+        </AdminSidebarLayout>
     );
 }

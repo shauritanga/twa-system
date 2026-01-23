@@ -20,25 +20,42 @@ export default function AdminHeader({ sidebarOpen, setSidebarOpen, isMobile = fa
         return name.substring(0, 2);
     };
 
-    const handleLogout = (e) => {
-        e.preventDefault();
-        router.post(route('logout'), {}, {
-            onSuccess: () => {
-                window.location.href = route('marketing.index');
-            },
-            onError: () => {
-                // Fallback to alternative logout route
-                window.location.href = route('logout.alt');
-            }
-        });
+    const handleLogout = () => {
+        console.log('Logout function called');
+        console.log('Route logout.alt:', route('logout.alt'));
+        
+        // Use the GET logout route which should work reliably
+        window.location.href = route('logout.alt');
     };
 
     const userMenuItems = [
         {
+            key: 'user-info',
+            label: (
+                <div style={{ padding: '8px 0', borderBottom: `1px solid ${token.colorBorder}`, marginBottom: '8px' }}>
+                    <div style={{ 
+                        fontSize: '14px', 
+                        fontWeight: '500', 
+                        color: token.colorText,
+                        marginBottom: '4px'
+                    }}>
+                        {auth?.user?.name || 'User'}
+                    </div>
+                    <div style={{ 
+                        fontSize: '12px', 
+                        color: token.colorTextSecondary
+                    }}>
+                        {auth?.user?.email || 'user@example.com'}
+                    </div>
+                </div>
+            ),
+            disabled: true,
+        },
+        {
             key: 'profile',
             icon: <UserOutlined />,
             label: (
-                <Link href={auth?.user?.role?.name === 'admin' || auth?.user?.role?.name === 'secretary' ? '/admin/profile' : '/member/profile'}>
+                <Link href={route('admin.profile.show')}>
                     My Profile
                 </Link>
             ),
@@ -49,8 +66,21 @@ export default function AdminHeader({ sidebarOpen, setSidebarOpen, isMobile = fa
         {
             key: 'logout',
             icon: <LogoutOutlined />,
-            label: 'Logout',
-            onClick: handleLogout,
+            label: (
+                <button 
+                    onClick={handleLogout}
+                    style={{ 
+                        border: 'none', 
+                        background: 'none', 
+                        padding: 0, 
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'left'
+                    }}
+                >
+                    Logout
+                </button>
+            ),
         },
     ];
 
@@ -106,15 +136,16 @@ export default function AdminHeader({ sidebarOpen, setSidebarOpen, isMobile = fa
                 />
 
                 <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                    <Avatar
-                        style={{
-                            backgroundColor: token.colorPrimary,
-                            cursor: 'pointer',
-                        }}
-                        size="large"
-                    >
-                        {getInitials(auth?.user?.name)}
-                    </Avatar>
+                    <Space style={{ cursor: 'pointer', padding: '8px', borderRadius: '6px' }}>
+                        <Avatar
+                            style={{
+                                backgroundColor: token.colorPrimary,
+                            }}
+                            size="default"
+                        >
+                            {getInitials(auth?.user?.name)}
+                        </Avatar>
+                    </Space>
                 </Dropdown>
             </Space>
         </Header>

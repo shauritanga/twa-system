@@ -100,7 +100,7 @@ class AuthenticatedSessionController extends Controller
     private function redirectBasedOnRole(\App\Models\User $user): RedirectResponse
     {
         if ($user->role && $user->role->name === 'admin') {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+            return redirect()->intended(route('admin-portal.dashboard', absolute: false));
         }
 
         return redirect()->intended(route('member.dashboard', absolute: false));
@@ -122,8 +122,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        // Redirect to main website homepage with success message
-        // Use the named route to ensure proper redirect
-        return redirect()->route('marketing.index')->with('status', 'You have been successfully logged out.');
+        // Redirect to login page with success message instead of marketing page
+        // This ensures we stay within the Inertia.js SPA context
+        return redirect()->route('login')->with('status', 'You have been successfully logged out.');
     }
 }

@@ -79,6 +79,6 @@ Route::middleware('auth')->group(function () {
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('marketing.index')->with('status', 'You have been successfully logged out.');
+        return redirect()->route('login')->with('status', 'You have been successfully logged out.');
     })->name('logout.alt');
 });
