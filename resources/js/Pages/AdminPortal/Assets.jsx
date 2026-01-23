@@ -1,5 +1,6 @@
 import React from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
+import { Head } from '@inertiajs/react';
 import { Card, Typography, Empty } from 'antd';
 import { DollarOutlined } from '@ant-design/icons';
 
@@ -7,7 +8,9 @@ const { Title, Text } = Typography;
 
 export default function Assets() {
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Assets Management - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <Card>
                 <Empty
                     image={<DollarOutlined style={{ fontSize: 64, color: '#1890ff' }} />}
@@ -22,5 +25,6 @@ export default function Assets() {
                 />
             </Card>
         </AdminSidebarLayout>
+        </>
     );
 }

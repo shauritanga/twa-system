@@ -16,7 +16,7 @@ export default function Welcome({ auth }) {
                         <div>
                             {auth.user ? (
                                 <Link
-                                    href={auth.user.role === 'admin' ? route('admin.dashboard') : route('member.dashboard')}
+                                    href={auth.user.role === 'admin' ? route('admin-portal.dashboard') : route('member.dashboard')}
                                     className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition duration-300 text-sm sm:text-base"
                                 >
                                     Dashboard

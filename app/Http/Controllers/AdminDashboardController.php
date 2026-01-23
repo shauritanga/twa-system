@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\GenericExport;
 use App\Models\Contribution;
 use App\Models\Payment;
-use App\Models\Debt;
+use App\Models\Loan;
 use App\Models\DisasterPayment;
 use App\Models\Member;
 use App\Models\Penalty;
@@ -22,18 +22,18 @@ class AdminDashboardController extends Controller
         // Basic statistics using new payment system
         $memberCount = Member::count();
         $contributionSum = Payment::sum('amount'); // Use payments table
-        $debtSum = Debt::sum('amount');
+        $loanSum = Loan::where('status', 'disbursed')->sum('amount'); // Outstanding loans
         $penaltySum = Penalty::sum('amount');
         $disasterPaymentSum = DisasterPayment::sum('amount');
         $beneficiaryCount = DisasterPayment::distinct('member_id')->count('member_id');
         $dependentCount = Dependent::count();
         $paidPenalties = Penalty::where('status', 'paid')->sum('amount');
-        $availableAmount = $contributionSum + $paidPenalties - $debtSum - $disasterPaymentSum;
+        $availableAmount = $contributionSum + $paidPenalties - $loanSum - $disasterPaymentSum;
 
         // Additional statistics for enhanced dashboard
         $activeMembers = Member::where('is_verified', true)->count();
         $pendingMembers = Member::where('is_verified', false)->count();
-        $unpaidDebts = Debt::where('status', 'unpaid')->sum('amount');
+        $unpaidLoans = Loan::where('status', 'disbursed')->sum('amount'); // Outstanding loans
         $unpaidPenalties = Penalty::where('status', 'unpaid')->sum('amount');
         $thisMonthContributions = Payment::whereMonth('payment_date', now()->month)
             ->whereYear('payment_date', now()->year)
@@ -53,7 +53,7 @@ class AdminDashboardController extends Controller
             ->orderBy('month')
             ->get();
 
-        $monthlyDebts = Debt::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
+        $monthlyLoans = Loan::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -66,7 +66,7 @@ class AdminDashboardController extends Controller
         // Recent activities
         $recentDisasterPayments = DisasterPayment::with('member')->latest()->take(5)->get();
         $recentContributions = Payment::with('member')->latest('payment_date')->take(5)->get();
-        $recentDebts = Debt::with('member')->latest()->take(5)->get();
+        $recentLoans = Loan::with('member')->latest()->take(5)->get();
 
         // Top performers and defaulters
         $topContributors = Member::withSum('contributions', 'amount')
@@ -74,9 +74,9 @@ class AdminDashboardController extends Controller
             ->take(5)
             ->get();
 
-        $defaulters = Member::whereHas('debts', function($query) {
+        $defaulters = Member::whereHas('loans', function($query) {
             $query->where('status', 'unpaid');
-        })->withSum(['debts' => function($query) {
+        })->withSum(['loans' => function($query) {
             $query->where('status', 'unpaid');
         }], 'amount')->take(5)->get();
 
@@ -111,7 +111,7 @@ class AdminDashboardController extends Controller
         return Inertia::render('AdminPortal/Dashboard', [
             'memberCount' => $memberCount,
             'contributionSum' => $contributionSum,
-            'debtSum' => $debtSum,
+            'loanSum' => $loanSum,
             'penaltySum' => $penaltySum,
             'disasterPaymentSum' => $disasterPaymentSum,
             'beneficiaryCount' => $beneficiaryCount,
@@ -119,7 +119,7 @@ class AdminDashboardController extends Controller
             'availableAmount' => $availableAmount,
             'activeMembers' => $activeMembers,
             'pendingMembers' => $pendingMembers,
-            'unpaidDebts' => $unpaidDebts,
+            'unpaidLoans' => $unpaidLoans,
             'unpaidPenalties' => $unpaidPenalties,
             'thisMonthContributions' => $thisMonthContributions,
             'thisMonthDisasterPayments' => $thisMonthDisasterPayments,
@@ -127,11 +127,11 @@ class AdminDashboardController extends Controller
             'memberGrowth' => round($memberGrowth, 1),
             'monthlyContributions' => $monthlyContributions,
             'monthlyDisasterPayments' => $monthlyDisasterPayments,
-            'monthlyDebts' => $monthlyDebts,
+            'monthlyLoans' => $monthlyLoans,
             'monthlyPenalties' => $monthlyPenalties,
             'recentDisasterPayments' => $recentDisasterPayments,
             'recentContributions' => $recentContributions,
-            'recentDebts' => $recentDebts,
+            'recentLoans' => $recentLoans,
             'topContributors' => $topContributors,
             'defaulters' => $defaulters,
             'genderDistribution' => $genderDistribution,
@@ -147,7 +147,7 @@ class AdminDashboardController extends Controller
 
         $query = match ($type) {
             'contributions' => Payment::query(),
-            'debts' => Debt::query(),
+            'loans' => Loan::query(),
             'penalties' => Penalty::query(),
             'disaster_payments' => DisasterPayment::query(),
             default => Payment::query(),
@@ -162,7 +162,7 @@ class AdminDashboardController extends Controller
 
         $headings = match ($type) {
             'contributions' => ['ID', 'Member', 'Amount', 'Date', 'Purpose', 'Status'],
-            'debts' => ['ID', 'Member', 'Amount', 'Reason', 'Due Date', 'Status'],
+            'loans' => ['ID', 'Member', 'Amount', 'Reason', 'Due Date', 'Status'],
             'penalties' => ['ID', 'Member', 'Amount', 'Reason', 'Due Date', 'Status'],
             'disaster_payments' => ['ID', 'Member', 'Amount', 'Date', 'Purpose'],
             default => [],
@@ -186,13 +186,13 @@ class AdminDashboardController extends Controller
     {
         $memberCount = Member::count();
         $contributionSum = Payment::sum('amount');
-        $debtSum = Debt::sum('amount');
+        $loanSum = Loan::sum('amount');
         $penaltySum = Penalty::sum('amount');
         $disasterPaymentSum = DisasterPayment::sum('amount');
         $beneficiaryCount = DisasterPayment::distinct('member_id')->count('member_id');
         $dependentCount = Dependent::count();
         $paidPenalties = Penalty::where('status', 'paid')->sum('amount');
-        $availableAmount = $contributionSum + $paidPenalties - $debtSum - $disasterPaymentSum;
+        $availableAmount = $contributionSum + $paidPenalties - $loanSum - $disasterPaymentSum;
 
         $monthlyContributions = Payment::selectRaw('DATE_FORMAT(payment_date, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
@@ -204,7 +204,7 @@ class AdminDashboardController extends Controller
             ->orderBy('month')
             ->get();
 
-        $monthlyDebts = Debt::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
+        $monthlyLoans = Loan::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -216,7 +216,7 @@ class AdminDashboardController extends Controller
 
         // Recent data for detailed views
         $recentContributions = Payment::with('member')->latest('payment_date')->take(10)->get();
-        $recentDebts = Debt::with('member')->latest()->take(10)->get();
+        $recentLoans = Loan::with('member')->latest()->take(10)->get();
         $recentPenalties = Penalty::with('member')->latest()->take(10)->get();
         $recentDisasterPayments = DisasterPayment::with('member')->latest()->take(10)->get();
 
@@ -227,9 +227,9 @@ class AdminDashboardController extends Controller
             ->get();
 
         // Members with outstanding debts (defaulters)
-        $defaulters = Member::whereHas('debts', function($query) {
+        $defaulters = Member::whereHas('loans', function($query) {
             $query->where('status', 'unpaid');
-        })->withSum(['debts' => function($query) {
+        })->withSum(['loans' => function($query) {
             $query->where('status', 'unpaid');
         }], 'amount')->take(10)->get();
 
@@ -238,7 +238,7 @@ class AdminDashboardController extends Controller
         return inertia('Admin/Reports', [
             'memberCount' => $memberCount,
             'contributionSum' => $contributionSum,
-            'debtSum' => $debtSum,
+            'loanSum' => $loanSum,
             'penaltySum' => $penaltySum,
             'disasterPaymentSum' => $disasterPaymentSum,
             'beneficiaryCount' => $beneficiaryCount,
@@ -246,10 +246,10 @@ class AdminDashboardController extends Controller
             'availableAmount' => $availableAmount,
             'monthlyContributions' => $monthlyContributions,
             'monthlyDisasterPayments' => $monthlyDisasterPayments,
-            'monthlyDebts' => $monthlyDebts,
+            'monthlyLoans' => $monthlyLoans,
             'monthlyPenalties' => $monthlyPenalties,
             'recentContributions' => $recentContributions,
-            'recentDebts' => $recentDebts,
+            'recentLoans' => $recentLoans,
             'recentPenalties' => $recentPenalties,
             'recentDisasterPayments' => $recentDisasterPayments,
             'topContributors' => $topContributors,
@@ -264,7 +264,7 @@ class AdminDashboardController extends Controller
 
         $query = match ($type) {
             'contributions' => Payment::query(),
-            'debts' => Debt::query(),
+            'loans' => Loan::query(),
             'penalties' => Penalty::query(),
             'disaster_payments' => DisasterPayment::query(),
             default => Payment::query(),
@@ -272,7 +272,7 @@ class AdminDashboardController extends Controller
 
         $dateColumn = match ($type) {
             'contributions' => 'payment_date',
-            'debts', 'penalties' => 'created_at',
+            'loans', 'penalties' => 'created_at',
             default => 'date',
         };
 

@@ -138,10 +138,24 @@ class ExpenseController extends Controller
 
     public function markAsPaid(Expense $expense)
     {
-        $expense->update([
-            'status' => 'paid',
-        ]);
+        try {
+            // Check if expense is approved
+            if ($expense->status !== 'approved') {
+                return redirect()->back()->with('error', 'Only approved expenses can be marked as paid.');
+            }
 
-        return redirect()->back()->with('success', 'Expense marked as paid successfully.');
+            // The observer will handle cash validation and journal entry creation
+            $expense->update(['status' => 'paid']);
+
+            return redirect()->back()->with('success', 'Expense marked as paid successfully.');
+        } catch (\Exception $e) {
+            // Handle cash validation errors
+            if (str_contains($e->getMessage(), 'Insufficient cash balance')) {
+                return redirect()->back()->with('error', $e->getMessage());
+            }
+            
+            // Handle other errors
+            return redirect()->back()->with('error', 'Failed to mark expense as paid: ' . $e->getMessage());
+        }
     }
 }

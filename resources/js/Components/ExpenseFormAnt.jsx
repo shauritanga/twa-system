@@ -7,18 +7,16 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const EXPENSE_CATEGORIES = [
-    'Utilities',
-    'Maintenance',
-    'Events',
-    'Salaries',
-    'Office Supplies',
-    'Transportation',
-    'Communication',
-    'Insurance',
-    'Legal & Professional',
-    'Marketing',
-    'Training',
-    'Other',
+    { value: 'office_supplies', label: 'Office Supplies' },
+    { value: 'utilities', label: 'Utilities' },
+    { value: 'rent', label: 'Rent' },
+    { value: 'travel', label: 'Travel' },
+    { value: 'meals', label: 'Meals' },
+    { value: 'equipment', label: 'Equipment' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'professional_services', label: 'Professional Services' },
+    { value: 'insurance', label: 'Insurance' },
+    { value: 'other', label: 'Other' },
 ];
 
 const PAYMENT_METHODS = [
@@ -73,7 +71,7 @@ export default function ExpenseFormAnt({ expense, onSubmit, onCancel }) {
             onFinish={handleSubmit}
             initialValues={{
                 expense_date: dayjs(),
-                category: 'Other',
+                category: 'other',
             }}
         >
             <Form.Item
@@ -151,7 +149,7 @@ export default function ExpenseFormAnt({ expense, onSubmit, onCancel }) {
                         }}
                     >
                         {EXPENSE_CATEGORIES.map(cat => (
-                            <Option key={cat} value={cat}>{cat}</Option>
+                            <Option key={cat.value} value={cat.value}>{cat.label}</Option>
                         ))}
                     </Select>
                 </Form.Item>

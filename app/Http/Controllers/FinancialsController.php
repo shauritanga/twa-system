@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contribution;
 use App\Models\Payment;
 use App\Models\ContributionAllocation;
-use App\Models\Debt;
+use App\Models\Loan;
 use App\Models\DisasterPayment;
 use App\Models\Member;
 use App\Models\Penalty;
@@ -153,7 +153,7 @@ class FinancialsController extends Controller
             ->get();
 
         // Get financial data
-        $debts = Debt::with('member')->paginate(10);
+        $loans = Loan::with('member')->paginate(10);
         $penalties = Penalty::with('member')->paginate(10);
         $disasterPayments = DisasterPayment::with('member')->paginate(10);
 
@@ -178,7 +178,7 @@ class FinancialsController extends Controller
             'other_contributions' => Payment::where('payment_type', 'other')->sum('amount'),
             'monthly_compliance' => $this->calculateMonthlyCompliance(),
             'total_disaster_payments' => DisasterPayment::sum('amount'),
-            'total_debts' => Debt::sum('amount'),
+            'total_loans' => Loan::where('status', 'disbursed')->sum('amount'), // Outstanding loans
         ];
 
         return Inertia::render('AdminPortal/Financials', [
@@ -190,7 +190,7 @@ class FinancialsController extends Controller
             'otherContributions' => $otherContributions,
             'otherContributionsSummary' => $otherContributionsSummary,
             'filters' => $request->only(['search', 'year', 'month', 'tab']),
-            'debts' => $debts,
+            'loans' => $loans,
             'penalties' => $penalties,
             'disasterPayments' => $disasterPayments,
             'settings' => $settings,

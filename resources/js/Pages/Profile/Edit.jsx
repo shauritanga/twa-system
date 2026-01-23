@@ -18,7 +18,7 @@ export default function ProfileEdit({ user }) {
     const getDashboardUrl = () => {
         // Determine from current URL path
         if (window.location.pathname.startsWith('/admin/')) {
-            return '/admin/dashboard';
+            return '/admin-portal/dashboard';
         }
         return '/member/dashboard';
     };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -125,7 +125,9 @@ export default function IncomeStatement({
     const isProfitable = totals.net_income >= 0;
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Income Statement - Tabata Welfare Association" />
+            <AdminSidebarLayout>
                 {/* Controls */}
                 <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                     <Space>
@@ -352,5 +354,6 @@ export default function IncomeStatement({
                     </div>
                 )}
         </AdminSidebarLayout>
+        </>
     );
 }

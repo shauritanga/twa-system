@@ -4,9 +4,9 @@ namespace App\Http\Controllers\AdminPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Member;
-use App\Models\Contribution;
+use App\Models\Payment;
 use App\Models\DisasterPayment;
-use App\Models\Debt;
+use App\Models\Loan;
 use App\Models\JournalEntry;
 use App\Models\Account;
 use App\Services\AccountingService;
@@ -29,28 +29,32 @@ class DashboardController extends Controller
         $memberCount = Member::count();
         $activeMembers = Member::where('is_verified', true)->count();
 
-        // Financial statistics
-        $contributionSum = Contribution::where('status', 'approved')->sum('amount');
+        // Financial statistics - Using Payment model instead of Contribution
+        $contributionSum = Payment::sum('amount');
         $disasterPaymentSum = DisasterPayment::sum('amount');
-        $debtSum = Debt::where('status', 'active')->sum('amount');
+        $loanSum = Loan::where('status', 'disbursed')->sum('amount'); // Outstanding loans
 
-        // Monthly contributions for chart
-        $monthlyContributions = Contribution::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
-            ->where('status', 'approved')
-            ->whereYear('date', Carbon::now()->year)
+        // Monthly contributions for chart - Using Payment model
+        $monthlyContributions = Payment::selectRaw('DATE_FORMAT(payment_date, "%Y-%m") as month, SUM(amount) as total')
+            ->whereYear('payment_date', Carbon::now()->year)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
-        // Recent contributions
-        $recentContributions = Contribution::with('member')
-            ->where('status', 'approved')
+        // Recent contributions - Using Payment model
+        $recentContributions = Payment::with('member')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
         // Recent disaster payments
         $recentDisasterPayments = DisasterPayment::with('member')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Recent loans
+        $recentLoans = Loan::with('member')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
@@ -79,13 +83,14 @@ class DashboardController extends Controller
             'memberCount' => $memberCount,
             'activeMembers' => $activeMembers,
             
-            // Financial data
+            // Financial data - Updated to use Payment model
             'contributionSum' => $contributionSum,
             'disasterPaymentSum' => $disasterPaymentSum,
-            'debtSum' => $debtSum,
+            'loanSum' => $loanSum,
             'monthlyContributions' => $monthlyContributions,
             'recentContributions' => $recentContributions,
             'recentDisasterPayments' => $recentDisasterPayments,
+            'recentLoans' => $recentLoans,
             
             // Accounting data
             'accountingSummary' => $accountingSummary,

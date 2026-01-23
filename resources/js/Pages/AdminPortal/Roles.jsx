@@ -1,5 +1,6 @@
 import React from 'react';
 import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
+import { Head } from '@inertiajs/react';
 import { Card, Table, Button, Modal, Form, Input, Space, theme } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -37,7 +38,9 @@ export default function Roles() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Roles & Permissions - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 <Card style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -78,5 +81,6 @@ export default function Roles() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

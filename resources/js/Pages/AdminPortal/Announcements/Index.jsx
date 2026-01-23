@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../Layouts/AdminSidebarLayout';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 import {
     Card,
     Row,
@@ -230,7 +230,9 @@ export default function AnnouncementsIndex() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Announcements - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 {/* Header with Create Button - only show if there are announcements */}
                 {announcements.data && announcements.data.length > 0 && (
@@ -384,5 +386,6 @@ export default function AnnouncementsIndex() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

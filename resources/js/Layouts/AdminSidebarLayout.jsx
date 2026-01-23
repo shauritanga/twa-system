@@ -24,10 +24,9 @@ const { Sider, Content } = Layout;
 
 // Map URLs to page titles
 const PAGE_TITLES = {
-    '/admin/dashboard': 'Dashboard',
+    '/admin-portal/dashboard': 'Dashboard',
     '/admin-portal/members': 'Members',
     '/admin-portal/members-archived': 'Archived Members',
-    '/admin/members-archived': 'Archived Members',
     '/admin-portal/financials': 'Contributions',
     '/admin-portal/expenses': 'Expenses Management',
     '/admin-portal/assets': 'Assets Management',
@@ -88,7 +87,7 @@ export default function AdminSidebarLayout({ children }) {
     const getNavItems = () => {
         if (user?.role?.name === 'admin') {
             return [
-                { key: '/admin/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+                { key: '/admin-portal/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
                 { key: '/admin-portal/members', icon: <UserOutlined />, label: 'Members' },
                 { 
                     key: 'finance', 
@@ -132,7 +131,7 @@ export default function AdminSidebarLayout({ children }) {
             ];
         } else if (user?.role?.name === 'secretary') {
             return [
-                { key: '/admin/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+                { key: '/admin-portal/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
                 { key: '/admin-portal/members', icon: <UserOutlined />, label: 'Members' },
                 { 
                     key: 'finance', 

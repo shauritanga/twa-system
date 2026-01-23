@@ -25,8 +25,10 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         
         // Register model observers for automatic accounting entries
-        \App\Models\Contribution::observe(\App\Observers\ContributionObserver::class);
+        \App\Models\Payment::observe(\App\Observers\PaymentObserver::class);
         \App\Models\DisasterPayment::observe(\App\Observers\DisasterPaymentObserver::class);
         \App\Models\Expense::observe(\App\Observers\ExpenseObserver::class);
+        \App\Models\Loan::observe(\App\Observers\LoanObserver::class);
+        \App\Models\Penalty::observe(\App\Observers\PenaltyObserver::class);
     }
 }

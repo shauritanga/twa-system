@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -830,7 +830,9 @@ export default function SettingsIndex({ settings, timezones, currencies, dateFor
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Settings - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             {contextHolder}
             <Card>
                 <div style={{ marginBottom: 24 }}>
@@ -874,5 +876,6 @@ export default function SettingsIndex({ settings, timezones, currencies, dateFor
                 </Form>
             </Card>
         </AdminSidebarLayout>
+        </>
     );
 }

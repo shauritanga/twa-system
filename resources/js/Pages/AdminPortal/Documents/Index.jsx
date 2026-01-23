@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../Layouts/AdminSidebarLayout';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 import {
     Card,
     Row,
@@ -282,7 +282,9 @@ export default function DocumentsIndex() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Documents - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 {/* Header with Upload Button - only show if there are documents */}
                 {documents.data && documents.data.length > 0 && (
@@ -469,5 +471,6 @@ export default function DocumentsIndex() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -322,7 +322,9 @@ export default function AssetsIndex({ assets, filters }) {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Assets Management - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             {contextHolder}
             <Card>
                 <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -470,5 +472,6 @@ export default function AssetsIndex({ assets, filters }) {
                 />
             </Modal>
         </AdminSidebarLayout>
+        </>
     );
 }

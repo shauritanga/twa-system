@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -111,7 +111,9 @@ export default function BalanceSheet({
     };
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Balance Sheet - Tabata Welfare Association" />
+            <AdminSidebarLayout>
                 {/* Balance Status Alert */}
                 {totals && (
                     <Alert
@@ -319,5 +321,6 @@ export default function BalanceSheet({
                     </Card>
                 </div>
         </AdminSidebarLayout>
+        </>
     );
 }

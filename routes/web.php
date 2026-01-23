@@ -38,6 +38,15 @@ Route::get('/welcome', function () {
 
 // Legacy profile routes - redirect to role-specific routes
 Route::middleware('auth')->group(function () {
+    // Main dashboard redirect - sends users to appropriate dashboard based on role
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
+            return redirect()->route('admin-portal.dashboard');
+        }
+        return redirect()->route('member.dashboard');
+    })->name('dashboard');
+
     Route::get('/profile', function () {
         $user = auth()->user();
         if ($user->role && in_array($user->role->name, ['admin', 'secretary'])) {
@@ -103,11 +112,15 @@ Route::post('penalties/mark-multiple-as-paid', [PenaltyController::class, 'markM
 Route::post('penalties/recalculate-member', [PenaltyController::class, 'recalculateForMember'])->name('penalties.recalculateForMember');
 Route::resource('debts', DebtController::class)->only(['store']);
 Route::patch('debts/{debt}/mark-as-paid', [DebtController::class, 'markAsPaid'])->name('debts.markAsPaid');
+Route::resource('loans', \App\Http\Controllers\LoanController::class)->only(['store', 'index', 'show', 'update', 'destroy']);
+Route::patch('loans/{loan}/mark-as-repaid', [\App\Http\Controllers\LoanController::class, 'markAsRepaid'])->name('loans.markAsRepaid');
+Route::patch('loans/{loan}/disburse', [\App\Http\Controllers\LoanController::class, 'disburse'])->name('loans.disburse');
 Route::resource('dependents', DependentController::class);
 Route::resource('certificates', CertificateController::class); // Commented out due to dropped table
 
 Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    // OLD ADMIN ROUTES - COMMENTED OUT (Replaced by AdminPortal)
+    // Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
     // AdminPortal Dashboard
     Route::get('/admin-portal/dashboard', [\App\Http\Controllers\AdminPortal\DashboardController::class, 'index'])->name('admin-portal.dashboard');
@@ -216,38 +229,41 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::delete('/admin-portal/backups/{filename}', [\App\Http\Controllers\AdminPortal\BackupController::class, 'delete'])->name('admin-portal.backups.delete');
     Route::post('/admin-portal/backups/clean', [\App\Http\Controllers\AdminPortal\BackupController::class, 'clean'])->name('admin-portal.backups.clean');
     
-    // Old routes (kept for backward compatibility)
+    // Old routes (kept for backward compatibility) - COMMENTED OUT
     // Route::post('certificates/{certificate}/approve', [CertificateController::class, 'approve'])->name('certificates.approve'); // Commented out due to dropped table
     // Route::post('certificates/{certificate}/reject', [CertificateController::class, 'reject'])->name('certificates.reject'); // Commented out due to dropped table
     Route::post('dependents/{dependent}/approve', [DependentController::class, 'approve'])->name('dependents.approve');
     Route::post('dependents/{dependent}/reject', [DependentController::class, 'reject'])->name('dependents.reject');
-    Route::get('/admin/report', [AdminDashboardController::class, 'report'])->name('admin.report');
-    Route::get('/admin/reports', [AdminDashboardController::class, 'reportsPage'])->name('admin.reports');
-    Route::get('/admin/charts', [AdminDashboardController::class, 'chartsPage'])->name('admin.charts');
-    Route::get('/admin/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
-    Route::post('/admin/settings', [AdminDashboardController::class, 'updateSettings'])->name('admin.settings.update');
-    Route::post('/admin/settings/backup', [AdminDashboardController::class, 'backup'])->name('admin.settings.backup');
+    
+    // OLD ADMIN ROUTES - COMMENTED OUT (Replaced by AdminPortal equivalents)
+    // Route::get('/admin/report', [AdminDashboardController::class, 'report'])->name('admin.report');
+    // Route::get('/admin/reports', [AdminDashboardController::class, 'reportsPage'])->name('admin.reports');
+    // Route::get('/admin/charts', [AdminDashboardController::class, 'chartsPage'])->name('admin.charts');
+    // Route::get('/admin/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
+    // Route::post('/admin/settings', [AdminDashboardController::class, 'updateSettings'])->name('admin.settings.update');
+    // Route::post('/admin/settings/backup', [AdminDashboardController::class, 'backup'])->name('admin.settings.backup');
 
-    // Backup Management Routes
-    Route::get('/admin/backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('admin.backups.index');
-    Route::post('/admin/backups/create', [\App\Http\Controllers\BackupController::class, 'create'])->name('admin.backups.create');
-    Route::post('/admin/backups/create-database', [\App\Http\Controllers\BackupController::class, 'createDatabase'])->name('admin.backups.create-database');
-    Route::get('/admin/backups/download/{filename}', [\App\Http\Controllers\BackupController::class, 'download'])->name('admin.backups.download');
-    Route::delete('/admin/backups/{filename}', [\App\Http\Controllers\BackupController::class, 'delete'])->name('admin.backups.delete');
-    Route::post('/admin/backups/clean', [\App\Http\Controllers\BackupController::class, 'clean'])->name('admin.backups.clean');
-    Route::get('/admin/backups/list', [\App\Http\Controllers\BackupController::class, 'list'])->name('admin.backups.list');
+    // OLD Backup Management Routes - COMMENTED OUT (Replaced by AdminPortal)
+    // Route::get('/admin/backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('admin.backups.index');
+    // Route::post('/admin/backups/create', [\App\Http\Controllers\BackupController::class, 'create'])->name('admin.backups.create');
+    // Route::post('/admin/backups/create-database', [\App\Http\Controllers\BackupController::class, 'createDatabase'])->name('admin.backups.create-database');
+    // Route::get('/admin/backups/download/{filename}', [\App\Http\Controllers\BackupController::class, 'download'])->name('admin.backups.download');
+    // Route::delete('/admin/backups/{filename}', [\App\Http\Controllers\BackupController::class, 'delete'])->name('admin.backups.delete');
+    // Route::post('/admin/backups/clean', [\App\Http\Controllers\BackupController::class, 'clean'])->name('admin.backups.clean');
+    // Route::get('/admin/backups/list', [\App\Http\Controllers\BackupController::class, 'list'])->name('admin.backups.list');
 
-    Route::post('/admin/users/{user}/update-role', [AdminDashboardController::class, 'updateUserRole'])->name('admin.users.updateRole');
-    Route::get('/admin/roles', [AdminDashboardController::class, 'roles'])->name('admin.roles');
-    Route::post('/admin/roles', [AdminDashboardController::class, 'createRole'])->name('admin.roles.create');
-    Route::put('/admin/roles/{role}', [AdminDashboardController::class, 'updateRole'])->name('admin.roles.update');
-    Route::delete('/admin/roles/{role}', [AdminDashboardController::class, 'deleteRole'])->name('admin.roles.delete');
-    Route::post('/admin/roles/{role}/permissions', [AdminDashboardController::class, 'assignPermissionsToRole'])->name('admin.roles.permissions.assign');
-    Route::post('/admin/permissions', [AdminDashboardController::class, 'createPermission'])->name('admin.permissions.create');
-    Route::put('/admin/permissions/{permission}', [AdminDashboardController::class, 'updatePermission'])->name('admin.permissions.update');
-    Route::delete('/admin/permissions/{permission}', [AdminDashboardController::class, 'deletePermission'])->name('admin.permissions.delete');
-    Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
-    Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
+    // OLD Role/Permission Routes - COMMENTED OUT (Replaced by AdminPortal)
+    // Route::post('/admin/users/{user}/update-role', [AdminDashboardController::class, 'updateUserRole'])->name('admin.users.updateRole');
+    // Route::get('/admin/roles', [AdminDashboardController::class, 'roles'])->name('admin.roles');
+    // Route::post('/admin/roles', [AdminDashboardController::class, 'createRole'])->name('admin.roles.create');
+    // Route::put('/admin/roles/{role}', [AdminDashboardController::class, 'updateRole'])->name('admin.roles.update');
+    // Route::delete('/admin/roles/{role}', [AdminDashboardController::class, 'deleteRole'])->name('admin.roles.delete');
+    // Route::post('/admin/roles/{role}/permissions', [AdminDashboardController::class, 'assignPermissionsToRole'])->name('admin.roles.permissions.assign');
+    // Route::post('/admin/permissions', [AdminDashboardController::class, 'createPermission'])->name('admin.permissions.create');
+    // Route::put('/admin/permissions/{permission}', [AdminDashboardController::class, 'updatePermission'])->name('admin.permissions.update');
+    // Route::delete('/admin/permissions/{permission}', [AdminDashboardController::class, 'deletePermission'])->name('admin.permissions.delete');
+    // Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
+    // Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
     Route::get('/admin/members/{member}/application-form', [MemberController::class, 'downloadApplicationForm'])->name('admin.members.application-form');
     Route::post('/admin/members', [MemberController::class, 'store'])->name('members.store');
     Route::match(['PUT', 'POST'], '/admin/members/{member}', [MemberController::class, 'update'])->name('members.update');
@@ -284,41 +300,41 @@ Route::middleware(['auth', 'verified', 'is_admin'])->group(function () {
     Route::get('/admin/penalties', [PenaltyController::class, 'index'])->name('admin.penalties.index');
     Route::delete('/admin/penalties/{penalty}', [PenaltyController::class, 'destroy'])->name('admin.penalties.destroy');
 
-    // Admin Document Management Routes
-    Route::resource('/admin/documents', \App\Http\Controllers\Admin\DocumentController::class)->names([
-        'index' => 'admin.documents.index',
-        'create' => 'admin.documents.create',
-        'store' => 'admin.documents.store',
-        'show' => 'admin.documents.show',
-        'edit' => 'admin.documents.edit',
-        'update' => 'admin.documents.update',
-        'destroy' => 'admin.documents.destroy',
-    ])->middleware('handle.large.uploads');
-    Route::post('/admin/documents/{document}/publish', [\App\Http\Controllers\Admin\DocumentController::class, 'publish'])->name('admin.documents.publish');
-    Route::post('/admin/documents/{document}/unpublish', [\App\Http\Controllers\Admin\DocumentController::class, 'unpublish'])->name('admin.documents.unpublish');
+    // OLD Admin Document Management Routes - COMMENTED OUT (Controllers don't exist, replaced by AdminPortal)
+    // Route::resource('/admin/documents', \App\Http\Controllers\Admin\DocumentController::class)->names([
+    //     'index' => 'admin.documents.index',
+    //     'create' => 'admin.documents.create',
+    //     'store' => 'admin.documents.store',
+    //     'show' => 'admin.documents.show',
+    //     'edit' => 'admin.documents.edit',
+    //     'update' => 'admin.documents.update',
+    //     'destroy' => 'admin.documents.destroy',
+    // ])->middleware('handle.large.uploads');
+    // Route::post('/admin/documents/{document}/publish', [\App\Http\Controllers\Admin\DocumentController::class, 'publish'])->name('admin.documents.publish');
+    // Route::post('/admin/documents/{document}/unpublish', [\App\Http\Controllers\Admin\DocumentController::class, 'unpublish'])->name('admin.documents.unpublish');
 
-    // Admin Announcement Management Routes
-    Route::resource('/admin/announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->names([
-        'index' => 'admin.announcements.index',
-        'create' => 'admin.announcements.create',
-        'store' => 'admin.announcements.store',
-        'show' => 'admin.announcements.show',
-        'edit' => 'admin.announcements.edit',
-        'update' => 'admin.announcements.update',
-        'destroy' => 'admin.announcements.destroy',
-    ])->middleware('handle.large.uploads');
+    // OLD Admin Announcement Management Routes - COMMENTED OUT (Controllers don't exist, replaced by AdminPortal)
+    // Route::resource('/admin/announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->names([
+    //     'index' => 'admin.announcements.index',
+    //     'create' => 'admin.announcements.create',
+    //     'store' => 'admin.announcements.store',
+    //     'show' => 'admin.announcements.show',
+    //     'edit' => 'admin.announcements.edit',
+    //     'update' => 'admin.announcements.update',
+    //     'destroy' => 'admin.announcements.destroy',
+    // ])->middleware('handle.large.uploads');
 
-    // Admin Fundraising Campaign Management Routes
-    Route::resource('/admin/fundraising-campaigns', \App\Http\Controllers\Admin\FundraisingCampaignController::class)->names([
-        'index' => 'admin.fundraising-campaigns.index',
-        'create' => 'admin.fundraising-campaigns.create',
-        'store' => 'admin.fundraising-campaigns.store',
-        'show' => 'admin.fundraising-campaigns.show',
-        'edit' => 'admin.fundraising-campaigns.edit',
-        'update' => 'admin.fundraising-campaigns.update',
-        'destroy' => 'admin.fundraising-campaigns.destroy',
-    ])->middleware('handle.large.uploads');
-    Route::patch('/admin/fundraising-campaigns/{fundraisingCampaign}/update-raised-amount', [\App\Http\Controllers\Admin\FundraisingCampaignController::class, 'updateRaisedAmount'])->name('admin.fundraising-campaigns.update-raised-amount');
+    // OLD Admin Fundraising Campaign Management Routes - COMMENTED OUT (Replaced by AdminPortal)
+    // Route::resource('/admin/fundraising-campaigns', \App\Http\Controllers\Admin\FundraisingCampaignController::class)->names([
+    //     'index' => 'admin.fundraising-campaigns.index',
+    //     'create' => 'admin.fundraising-campaigns.create',
+    //     'store' => 'admin.fundraising-campaigns.store',
+    //     'show' => 'admin.fundraising-campaigns.show',
+    //     'edit' => 'admin.fundraising-campaigns.edit',
+    //     'update' => 'admin.fundraising-campaigns.update',
+    //     'destroy' => 'admin.fundraising-campaigns.destroy',
+    // ])->middleware('handle.large.uploads');
+    // Route::patch('/admin/fundraising-campaigns/{fundraisingCampaign}/update-raised-amount', [\App\Http\Controllers\Admin\FundraisingCampaignController::class, 'updateRaisedAmount'])->name('admin.fundraising-campaigns.update-raised-amount');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

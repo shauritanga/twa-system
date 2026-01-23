@@ -58,16 +58,30 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
+const formatDate = (date) => {
+    if (!date) return 'No date';
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return 'Invalid date';
+    
+    // Format as "Jan 15, 2024" - clean and readable
+    return dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+};
+
 export default function AdminDashboard() {
     const { 
         memberCount = 0,
         contributionSum = 0,
         disasterPaymentSum = 0,
-        debtSum = 0,
+        loanSum = 0,
         activeMembers = 0,
         monthlyContributions = [],
         recentContributions = [],
         recentDisasterPayments = [],
+        recentLoans = [],
         accountingSummary = {},
         accountBalances = {},
         topAccounts = [],
@@ -154,15 +168,29 @@ export default function AdminDashboard() {
             id: `contribution-${c.id}`,
             description: `Contribution of ${formatCurrency(c.amount)} from ${c.member?.name || 'Unknown'}`,
             type: 'contribution',
-            created_at: c.date,
+            created_at: c.payment_date || c.created_at, // Use payment_date first, fallback to created_at
         })),
         ...recentDisasterPayments.map(d => ({
             id: `disaster-${d.id}`,
             description: `Disaster payment of ${formatCurrency(d.amount)} to ${d.member?.name || 'Unknown'}`,
             type: 'disaster',
-            created_at: d.date,
+            created_at: d.date || d.created_at, // Use date first, fallback to created_at
         })),
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+        ...recentLoans.map(loan => ({
+            id: `loan-${loan.id}`,
+            description: `Loan of ${formatCurrency(loan.amount)} disbursed to ${loan.member?.name || 'Unknown'} - ${loan.purpose}`,
+            type: 'loan',
+            created_at: loan.created_at,
+        })),
+    ].sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        // Handle invalid dates by putting them at the end
+        if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+        if (isNaN(dateA.getTime())) return 1;
+        if (isNaN(dateB.getTime())) return -1;
+        return dateB - dateA;
+    }).slice(0, 5);
 
     // Recent journal entries table columns
     const journalColumns = [
@@ -222,6 +250,7 @@ export default function AdminDashboard() {
                     contribution: 'green',
                     penalty: 'red',
                     disaster: 'orange',
+                    loan: 'purple',
                     system: 'default',
                 };
                 return <Tag color={colors[type] || 'default'}>{type}</Tag>;
@@ -232,7 +261,7 @@ export default function AdminDashboard() {
             dataIndex: 'created_at',
             key: 'created_at',
             width: '25%',
-            render: (date) => new Date(date).toLocaleDateString(),
+            render: (date) => formatDate(date),
         },
     ];
 
@@ -335,8 +364,8 @@ export default function AdminDashboard() {
                 <Col xs={24} sm={12} lg={6}>
                     <Card>
                         <Statistic
-                            title="Outstanding Debts"
-                            value={debtSum}
+                            title="Outstanding Loans"
+                            value={loanSum}
                             prefix={<ExclamationCircleOutlined />}
                             formatter={(value) => formatCurrency(value)}
                             valueStyle={{ color: token.colorWarning }}

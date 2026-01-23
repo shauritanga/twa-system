@@ -17,6 +17,7 @@ class Penalty extends Model
         'contribution_amount',
         'penalty_rate',
         'calculated_at',
+        'journal_entry_id',
     ];
 
     protected $casts = [
@@ -31,6 +32,11 @@ class Penalty extends Model
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function journalEntry()
+    {
+        return $this->belongsTo(JournalEntry::class);
     }
 
     // Scopes for better querying

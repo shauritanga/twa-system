@@ -18,6 +18,7 @@ class Payment extends Model
         'notes',
         'payment_method',
         'reference_number',
+        'journal_entry_id',
     ];
 
     protected $casts = [

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -119,7 +119,9 @@ export default function CashFlow({
     };
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Cash Flow Statement - Tabata Welfare Association" />
+            <AdminSidebarLayout>
                 {/* Controls */}
                 <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                     <Space>
@@ -366,5 +368,6 @@ export default function CashFlow({
                     </div>
                 </div>
         </AdminSidebarLayout>
+        </>
     );
 }

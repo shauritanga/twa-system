@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../Layouts/AdminSidebarLayout';
-import { useForm, usePage, router } from '@inertiajs/react';
+import { useForm, usePage, router, Head } from '@inertiajs/react';
 import {
     Card,
     Row,
@@ -308,7 +308,9 @@ export default function MembersIndex() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Members - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 {/* Stats Cards */}
                 <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
@@ -843,5 +845,6 @@ export default function MembersIndex() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

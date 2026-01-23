@@ -55,26 +55,26 @@ export default function SidebarLayout({ children }) {
         if (user && user.role && (user.role.name === 'admin' || user.role.name === 'secretary')) {
             if (user.role.name === 'admin') {
                 return [
-                    { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
-                    { href: '/admin/members', icon: UsersIcon, label: 'Members' },
-                    { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
-                    { href: '/admin/documents', icon: DocumentTextIcon, label: 'Documents' },
-                    { href: '/admin/announcements', icon: SpeakerWaveIcon, label: 'Announcements' },
-                    { href: '/admin/fundraising-campaigns', icon: HeartIcon, label: 'Fundraising' },
-                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
-                    { href: '/admin/roles', icon: ShieldCheckIcon, label: 'Roles' },
-                    { href: '/admin/backups', icon: CloudArrowUpIcon, label: 'Backups' },
-                    { href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, label: 'Audit Trail' },
-                    { href: '/admin/settings', icon: CogIcon, label: 'Settings' },
+                    { href: '/admin-portal/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
+                    { href: '/admin-portal/members', icon: UsersIcon, label: 'Members' },
+                    { href: '/admin-portal/financials', icon: LiaCoinsSolid, label: 'Financials' },
+                    { href: '/admin-portal/documents', icon: DocumentTextIcon, label: 'Documents' },
+                    { href: '/admin-portal/announcements', icon: SpeakerWaveIcon, label: 'Announcements' },
+                    { href: '/admin-portal/fundraising', icon: HeartIcon, label: 'Fundraising' },
+                    { href: '/admin-portal/reports', icon: ChartBarIcon, label: 'Reports' },
+                    { href: '/admin-portal/roles', icon: ShieldCheckIcon, label: 'Roles' },
+                    { href: '/admin-portal/backups', icon: CloudArrowUpIcon, label: 'Backups' },
+                    { href: '/admin-portal/audit-logs', icon: ClipboardDocumentListIcon, label: 'Audit Trail' },
+                    { href: '/admin-portal/settings', icon: CogIcon, label: 'Settings' },
                 ];
             } else if (user.role.name === 'secretary') {
                 return [
-                    { href: '/admin/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
-                    { href: '/admin/members', icon: UsersIcon, label: 'Members' },
-                    { href: '/admin/financials', icon: LiaCoinsSolid, label: 'Financials' },
-                    { href: '/admin/documents', icon: DocumentTextIcon, label: 'Documents' },
-                    { href: '/admin/announcements', icon: SpeakerWaveIcon, label: 'Announcements' },
-                    { href: '/admin/reports', icon: ChartBarIcon, label: 'Reports' },
+                    { href: '/admin-portal/dashboard', icon: HiOutlineSquares2X2, label: 'Dashboard' },
+                    { href: '/admin-portal/members', icon: UsersIcon, label: 'Members' },
+                    { href: '/admin-portal/financials', icon: LiaCoinsSolid, label: 'Financials' },
+                    { href: '/admin-portal/documents', icon: DocumentTextIcon, label: 'Documents' },
+                    { href: '/admin-portal/announcements', icon: SpeakerWaveIcon, label: 'Announcements' },
+                    { href: '/admin-portal/reports', icon: ChartBarIcon, label: 'Reports' },
                 ];
             }
         }

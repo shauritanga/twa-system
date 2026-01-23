@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -111,7 +111,9 @@ export default function TrialBalance({ trialBalanceData, groupedData, totals, fi
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Trial Balance - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <Card>
                 {/* Balance Status Alert */}
                 {totals && (
@@ -285,5 +287,6 @@ export default function TrialBalance({ trialBalanceData, groupedData, totals, fi
                 </div>
             </Card>
         </AdminSidebarLayout>
+        </>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../Layouts/AdminSidebarLayout';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 import {
     Card,
     Row,
@@ -230,7 +230,9 @@ export default function FundraisingIndex() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Fundraising Campaigns - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 {campaigns.data && campaigns.data.length > 0 && (
                     <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -366,5 +368,6 @@ export default function FundraisingIndex() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

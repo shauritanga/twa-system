@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Table, 
@@ -190,7 +190,9 @@ export default function Backups({ backups, settings }) {
     }, 0);
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Backup Management - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             {contextHolder}
             
             {/* Statistics Cards */}
@@ -321,5 +323,6 @@ export default function Backups({ backups, settings }) {
                 />
             </Modal>
         </AdminSidebarLayout>
+        </>
     );
 }

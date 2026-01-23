@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -125,7 +125,9 @@ export default function GeneralLedger({ accounts, ledgerData, filters }) {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="General Ledger - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <Card>
                 <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                     <Space wrap>
@@ -329,5 +331,6 @@ export default function GeneralLedger({ accounts, ledgerData, filters }) {
                 )}
             </Card>
         </AdminSidebarLayout>
+        </>
     );
 }

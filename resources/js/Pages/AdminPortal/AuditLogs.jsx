@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '@/Layouts/AdminSidebarLayout';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
 import { 
     Card, 
     Button, 
@@ -231,7 +231,9 @@ export default function AuditLogs({ logs, users, actions, categories, modelTypes
     };
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Audit Logs - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <Card>
                 <div style={{ marginBottom: 16 }}>
                     <Space wrap style={{ marginBottom: 12 }}>
@@ -366,5 +368,6 @@ export default function AuditLogs({ logs, users, actions, categories, modelTypes
                 />
             </Card>
         </AdminSidebarLayout>
+        </>
     );
 }

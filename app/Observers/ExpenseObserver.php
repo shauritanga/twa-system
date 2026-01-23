@@ -20,8 +20,8 @@ class ExpenseObserver
      */
     public function created(Expense $expense): void
     {
-        // Only create journal entry for approved expenses
-        if ($expense->status === 'approved') {
+        // Create journal entry for approved or paid expenses
+        if (in_array($expense->status, ['approved', 'paid'])) {
             $this->createJournalEntry($expense);
         }
     }
@@ -31,8 +31,13 @@ class ExpenseObserver
      */
     public function updated(Expense $expense): void
     {
-        // If expense was just approved, create journal entry
-        if ($expense->isDirty('status') && $expense->status === 'approved') {
+        // Skip if only journal_entry_id was updated (to prevent infinite loop)
+        if ($expense->isDirty('journal_entry_id') && count($expense->getDirty()) === 1) {
+            return;
+        }
+
+        // If expense was just approved or paid, create journal entry
+        if ($expense->isDirty('status') && in_array($expense->status, ['approved', 'paid']) && !$expense->journal_entry_id) {
             $this->createJournalEntry($expense);
         }
     }
@@ -42,18 +47,26 @@ class ExpenseObserver
      */
     private function createJournalEntry(Expense $expense): void
     {
+        // Skip if journal entry already exists
+        if ($expense->journal_entry_id) {
+            return;
+        }
+
         try {
             $journalEntry = $this->accountingService->recordExpense($expense);
             
             if ($journalEntry) {
-                // Store reference to journal entry
-                $expense->update(['journal_entry_id' => $journalEntry->id]);
+                // Store reference to journal entry without triggering observers
+                $expense->updateQuietly(['journal_entry_id' => $journalEntry->id]);
                 Log::info("Journal entry created for expense ID: {$expense->id}");
             } else {
                 Log::warning("Failed to create journal entry for expense ID: {$expense->id}");
+                throw new \Exception("Failed to create journal entry for expense");
             }
         } catch (\Exception $e) {
             Log::error("Error creating journal entry for expense: " . $e->getMessage());
+            // Re-throw the exception to prevent the expense status update
+            throw $e;
         }
     }
 }

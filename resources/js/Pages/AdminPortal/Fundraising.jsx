@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
+import { Head } from '@inertiajs/react';
 import { Card, Table, Button, Modal, Form, Input, InputNumber, Space, Tag, theme, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -63,7 +64,9 @@ export default function Fundraising() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Fundraising Campaigns - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 <Card style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -121,5 +124,6 @@ export default function Fundraising() {
                 </Modal>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

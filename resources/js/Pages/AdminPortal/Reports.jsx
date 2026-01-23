@@ -1,5 +1,6 @@
 import React from 'react';
 import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
+import { Head } from '@inertiajs/react';
 import { Card, Row, Col, Button, Select, DatePicker, Space, Table, theme } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -32,7 +33,9 @@ export default function Reports() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Reports - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 <Card style={{ marginBottom: '24px' }}>
                     <Row gutter={[16, 16]} align="middle">
@@ -72,5 +75,6 @@ export default function Reports() {
                 </Card>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }

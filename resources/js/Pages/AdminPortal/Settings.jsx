@@ -1,5 +1,6 @@
 import React from 'react';
 import AdminSidebarLayout from '../../Layouts/AdminSidebarLayout';
+import { Head } from '@inertiajs/react';
 import { Card, Form, Input, InputNumber, Switch, Button, Row, Col, Tabs, message, theme } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 
@@ -125,12 +126,15 @@ export default function Settings() {
     ];
 
     return (
-        <AdminSidebarLayout>
+        <>
+            <Head title="Settings - Tabata Welfare Association" />
+            <AdminSidebarLayout>
             <div style={{ padding: '24px 0' }}>
                 <Card>
                     <Tabs items={tabItems} />
                 </Card>
             </div>
         </AdminSidebarLayout>
+        </>
     );
 }
